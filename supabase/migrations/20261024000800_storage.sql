@@ -45,33 +45,9 @@ create policy catalog_assets_public_read
     bucket_id in ('product-images', 'cms-assets', 'site-assets')
   );
 
+-- Writes go through the Express API, which uses the service-role key and
+-- validates the file server-side. The service role bypasses RLS, while the
+-- bucket-level MIME and size limits still apply to every upload.
 drop policy if exists catalog_assets_admin_insert on storage.objects;
-create policy catalog_assets_admin_insert
-  on storage.objects for insert
-  to authenticated
-  with check (
-    bucket_id in ('product-images', 'cms-assets', 'site-assets')
-    and public.is_admin()
-  );
-
 drop policy if exists catalog_assets_admin_update on storage.objects;
-create policy catalog_assets_admin_update
-  on storage.objects for update
-  to authenticated
-  using (
-    bucket_id in ('product-images', 'cms-assets', 'site-assets')
-    and public.is_admin()
-  )
-  with check (
-    bucket_id in ('product-images', 'cms-assets', 'site-assets')
-    and public.is_admin()
-  );
-
 drop policy if exists catalog_assets_admin_delete on storage.objects;
-create policy catalog_assets_admin_delete
-  on storage.objects for delete
-  to authenticated
-  using (
-    bucket_id in ('product-images', 'cms-assets', 'site-assets')
-    and public.is_admin()
-  );

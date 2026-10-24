@@ -193,8 +193,13 @@ create index if not exists products_search_idx
   )
   where deleted_at is null;
 
+-- pg_trgm normally lives in the `extensions` schema on Supabase. Resolve the
+-- operator class through the search path so an existing installation in
+-- `public` also works.
+set search_path = public, extensions;
+
 create index if not exists products_title_trgm_idx
-  on public.products using gin (title extensions.gin_trgm_ops)
+  on public.products using gin (title gin_trgm_ops)
   where deleted_at is null;
 
 create table if not exists public.product_images (

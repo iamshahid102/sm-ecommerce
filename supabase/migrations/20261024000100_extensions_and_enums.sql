@@ -2,8 +2,17 @@
 -- Extensions, enums, and shared identifiers.
 -- Safe to re-run: every object is guarded.
 
-create extension if not exists pgcrypto with schema extensions;
-create extension if not exists pg_trgm with schema extensions;
+do $$
+begin
+  if not exists (select 1 from pg_extension where extname = 'pgcrypto') then
+    create extension pgcrypto with schema extensions;
+  end if;
+
+  if not exists (select 1 from pg_extension where extname = 'pg_trgm') then
+    create extension pg_trgm with schema extensions;
+  end if;
+end
+$$;
 
 do $$
 begin

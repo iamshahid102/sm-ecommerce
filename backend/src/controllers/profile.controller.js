@@ -18,9 +18,5 @@ export async function updatePassword(req, res) {
     newPassword: req.validated.body.new_password,
   });
 
-  return sendSuccess(
-    res,
-    { updated: true },
-    { message: "Password updated. Sign in again with your new password." },
-  );
+  return sendSuccess(res, { updated: true }, { message: "Password updated." });
 }

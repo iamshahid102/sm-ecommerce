@@ -99,6 +99,8 @@ grant select on public.stripe_events to authenticated;
 grant usage, select on sequence public.order_number_seq to service_role;
 
 -- Functions used by policies or explicitly by the API.
+grant usage on schema public to anon, authenticated, service_role;
+
 grant execute on function public.is_admin() to anon, authenticated, service_role;
 grant execute on function public.is_customer() to anon, authenticated, service_role;
 grant execute on function public.can_review(uuid, uuid) to authenticated, service_role;
@@ -115,8 +117,8 @@ drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own
   on public.profiles for update
   to authenticated
-  using (id = (select auth.uid()) and not public.is_admin())
-  with check (id = (select auth.uid()) and not public.is_admin());
+  using (id = (select auth.uid()) and public.is_customer())
+  with check (id = (select auth.uid()) and public.is_customer());
 
 -- Addresses ------------------------------------------------------------------
 drop policy if exists addresses_own on public.addresses;
