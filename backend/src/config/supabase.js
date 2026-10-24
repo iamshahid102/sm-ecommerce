@@ -1,9 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 
-import { env, isSupabaseConfigured, isTest } from "../config/env.js";
+import {
+  env,
+  isSupabaseAuthConfigured,
+  isSupabaseConfigured,
+  isTest,
+} from "../config/env.js";
 import { ApiError } from "../utils/api-error.js";
 
 let adminClient;
+let authClient;
 
 export function getSupabaseAdmin() {
   if (!isSupabaseConfigured) {
@@ -36,7 +42,34 @@ export function getSupabaseAdmin() {
   return adminClient;
 }
 
-export { isSupabaseConfigured };
+export function getSupabaseAuth() {
+  if (!isSupabaseAuthConfigured) {
+    throw new ApiError(
+      503,
+      "Authentication is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY.",
+      "AUTH_NOT_CONFIGURED",
+    );
+  }
+
+  if (!authClient) {
+    authClient = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+      global: {
+        headers: {
+          "x-application-name": "sm-store-api-auth",
+        },
+      },
+    });
+  }
+
+  return authClient;
+}
+
+export { isSupabaseAuthConfigured, isSupabaseConfigured };
 
 export async function pingDatabase() {
   if (!isSupabaseConfigured || isTest) {

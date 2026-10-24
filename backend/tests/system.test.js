@@ -59,6 +59,23 @@ describe("system endpoints", () => {
     });
   });
 
+  it("requires authentication for customer endpoints", async () => {
+    const response = await request(app).get("/api/v1/me").expect(401);
+
+    expect(response.body).toMatchObject({
+      success: false,
+      code: "UNAUTHORIZED",
+    });
+  });
+
+  it("requires authentication for admin endpoints", async () => {
+    const response = await request(app)
+      .get("/api/v1/admin/dashboard")
+      .expect(401);
+
+    expect(response.body.code).toBe("UNAUTHORIZED");
+  });
+
   it("rejects disallowed CORS origins", async () => {
     const response = await request(app)
       .get("/api/v1/health")

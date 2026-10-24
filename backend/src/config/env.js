@@ -51,13 +51,32 @@ export const isProduction = env.NODE_ENV === "production";
 export const isTest = env.NODE_ENV === "test";
 
 export const corsOrigins = Object.freeze(
-  [env.FRONTEND_URL, ...(env.FRONTEND_URLS?.split(",") ?? [])]
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  Array.from(
+    new Set(
+      [
+        env.FRONTEND_URL,
+        ...(env.FRONTEND_URLS?.split(",") ?? []),
+        ...(isProduction
+          ? []
+          : [
+              "http://localhost:3000",
+              "http://127.0.0.1:3000",
+              "http://localhost:3100",
+              "http://127.0.0.1:3100",
+            ]),
+      ]
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    ),
+  ),
 );
 
 export const isSupabaseConfigured = Boolean(
   env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY,
+);
+
+export const isSupabaseAuthConfigured = Boolean(
+  env.SUPABASE_URL && env.SUPABASE_ANON_KEY,
 );
 
 export function assertRequiredProductionConfig() {
@@ -69,6 +88,7 @@ export function assertRequiredProductionConfig() {
 
   if (!env.SUPABASE_URL) missing.push("SUPABASE_URL");
   if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
+  if (!env.SUPABASE_ANON_KEY) missing.push("SUPABASE_ANON_KEY");
 
   if (missing.length > 0) {
     throw new Error(
