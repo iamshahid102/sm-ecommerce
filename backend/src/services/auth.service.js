@@ -118,6 +118,14 @@ export async function changePassword({
   });
 
   if (verifyError) {
+    if (verifyError.status === 429) {
+      throw new ApiError(
+        429,
+        "Too many password attempts. Please wait a few minutes and try again.",
+        "RATE_LIMITED",
+      );
+    }
+
     throw new ApiError(
       401,
       "Your current password is incorrect.",
@@ -125,12 +133,17 @@ export async function changePassword({
     );
   }
 
-  const { error: updateError } =
-    await getSupabaseAdmin().auth.admin.updateUserById(userId, {
+  let updateError;
+
+  try {
+    const result = await getSupabaseAdmin().auth.admin.updateUserById(userId, {
       password: newPassword,
     });
-
-  await verifier.auth.signOut({ scope: "local" });
+    updateError = result.error;
+  } finally {
+    // Do not leave the short-lived password-verification session active.
+    await verifier.auth.signOut({ scope: "local" }).catch(() => undefined);
+  }
 
   if (updateError) {
     throw new ApiError(

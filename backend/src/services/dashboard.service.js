@@ -26,29 +26,8 @@ function assertResult(result, label) {
 export async function getDashboardSummary() {
   const admin = getSupabaseAdmin();
 
-  const [
-    customers,
-    products,
-    paidOrders,
-    lowStockProducts,
-    recentOrders,
-    ...statusResults
-  ] = await Promise.all([
-    admin
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "customer"),
-    admin
-      .from("products")
-      .select("id, stock, low_stock_threshold", { count: "exact" })
-      .is("deleted_at", null),
-    admin.from("orders").select("total").eq("payment_status", "paid"),
-    admin
-      .from("products")
-      .select("id, title, slug, stock, low_stock_threshold")
-      .is("deleted_at", null)
-      .order("stock", { ascending: true })
-      .limit(50),
+  const [metricsResult, recentOrders] = await Promise.all([
+    admin.rpc("admin_dashboard_metrics"),
     admin
       .from("orders")
       .select(
@@ -56,54 +35,35 @@ export async function getDashboardSummary() {
       )
       .order("created_at", { ascending: false })
       .limit(8),
-    ...ORDER_STATUSES.map((status) =>
-      admin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("status", status),
-    ),
   ]);
 
-  assertResult(customers, "the customer count");
-  assertResult(products, "the product count");
-  assertResult(paidOrders, "revenue");
-  assertResult(lowStockProducts, "low-stock products");
+  assertResult(metricsResult, "dashboard metrics");
   assertResult(recentOrders, "recent orders");
 
+  const metrics = metricsResult.data ?? {};
   const orderStatusCounts = {};
-  let totalOrders = 0;
 
-  ORDER_STATUSES.forEach((status, index) => {
-    const result = assertResult(statusResults[index], `${status} orders`);
-    const count = result.count ?? 0;
-    orderStatusCounts[status] = count;
-    totalOrders += count;
-  });
+  for (const status of ORDER_STATUSES) {
+    orderStatusCounts[status] = Number(
+      metrics.order_status_counts?.[status] ?? 0,
+    );
+  }
 
-  const revenue = (paidOrders.data ?? []).reduce(
-    (sum, order) => sum + Number(order.total ?? 0),
-    0,
-  );
-
-  const lowStock = (lowStockProducts.data ?? []).filter(
-    (product) => product.stock <= product.low_stock_threshold,
-  );
-
-  const lowStockCount = (products.data ?? []).filter(
-    (product) => product.stock <= product.low_stock_threshold,
-  ).length;
+  const lowStockProducts = Array.isArray(metrics.low_stock_products)
+    ? metrics.low_stock_products
+    : [];
 
   return {
     stats: {
-      totalRevenue: Number(revenue.toFixed(2)),
-      totalOrders,
-      totalCustomers: customers.count ?? 0,
-      totalProducts: products.count ?? 0,
-      lowStockCount,
+      totalRevenue: Number(Number(metrics.total_revenue ?? 0).toFixed(2)),
+      totalOrders: Number(metrics.total_orders ?? 0),
+      totalCustomers: Number(metrics.total_customers ?? 0),
+      totalProducts: Number(metrics.total_products ?? 0),
+      lowStockCount: Number(metrics.low_stock_count ?? 0),
       pendingOrders: orderStatusCounts.pending,
     },
     orderStatusCounts,
-    lowStockProducts: lowStock.slice(0, 5),
+    lowStockProducts,
     recentOrders: recentOrders.data ?? [],
     generatedAt: new Date().toISOString(),
   };

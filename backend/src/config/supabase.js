@@ -7,6 +7,7 @@ import {
   isTest,
 } from "../config/env.js";
 import { ApiError } from "../utils/api-error.js";
+import { classifyDatabaseProbe } from "../utils/database-readiness.js";
 
 let adminClient;
 let authClient;
@@ -76,10 +77,21 @@ export async function pingDatabase() {
     return "not_configured";
   }
 
-  const { error } = await getSupabaseAdmin()
-    .from("site_settings")
-    .select("id", { head: true, count: "exact" })
-    .limit(1);
+  try {
+    // Do not use a HEAD request here. PostgREST can answer HEAD requests with
+    // 204 before validating that the table exists, which made readiness report
+    // "reachable" on a project where the migrations had never been applied.
+    // Check one table from each core migration to catch partially applied sets.
+    const admin = getSupabaseAdmin();
+    const results = await Promise.all([
+      admin.from("profiles").select("id").limit(1),
+      admin.from("orders").select("id").limit(1),
+      admin.from("site_settings").select("id").limit(1),
+      admin.from("audit_logs").select("id").limit(1),
+    ]);
 
-  return error ? "unreachable" : "reachable";
+    return classifyDatabaseProbe(results);
+  } catch {
+    return "unreachable";
+  }
 }

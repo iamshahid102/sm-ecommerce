@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
@@ -68,9 +69,9 @@ export default async function AdminLoginPage({ searchParams }) {
 
         <p className="mt-5 text-center text-xs text-slate-400">
           Customer?{" "}
-          <a href="/login" className="text-sky-300 hover:underline">
+          <Link href="/login" className="text-sky-300 hover:underline">
             Use the customer sign-in
-          </a>
+          </Link>
           .
         </p>
       </div>

@@ -30,9 +30,9 @@ backend/             Express REST API (ESM)
   src/routes/        Versioned routes (/api/v1)
   src/controllers/   Request handlers
   src/services/      Business logic
-  scripts/           Idempotent admin seed
+  scripts/           Idempotent admin seed + schema/bucket check
   tests/             Jest + Supertest
-supabase/            Timestamped migrations and local CLI config
+supabase/            Timestamped migrations, local seed placeholder, CLI config
 docs/                API contract, decisions, deployment runbook, Phase 1
 ```
 
@@ -63,13 +63,21 @@ Set-Location backend
 npm.cmd run seed:admin
 Set-Location ..
 
-# 5. Run both apps
+# 5. Verify tables, buckets, settings, and the admin
+npm.cmd run db:check
+
+# 6. Run both apps
 npm.cmd run dev
 ```
 
 - Storefront: http://localhost:3000
 - API: http://localhost:4000/api/v1/health
 - Readiness: http://localhost:4000/api/v1/health/ready
+
+`/health/ready` validates real tables, not just network connectivity. Before the
+migrations are applied it returns `503` with `services.database:
+"schema_missing"`. After a successful `db push` it returns `200` and
+`"reachable"`.
 
 If port 3000 is already in use, run the frontend separately on 3100 and add
 `http://localhost:3100/auth/callback` to Supabase **Authentication → URL
@@ -88,16 +96,18 @@ If PowerShell blocks `npm` (execution policy), use `npm.cmd` for every command.
 
 ## Scripts
 
-| Command                              | Description                                      |
-| ------------------------------------ | ------------------------------------------------ |
-| `npm run setup`                      | Install root, frontend, and backend dependencies |
-| `npm run dev`                        | Run Next.js and Express together                 |
-| `npm run dev:frontend`               | Run Next.js only                                 |
-| `npm run dev:backend`                | Run Express with `--watch`                       |
-| `npm run build`                      | Production build of the frontend                 |
-| `npm run lint`                       | ESLint for frontend and backend                  |
-| `npm run test`                       | Jest + Supertest API tests                       |
-| `npm run format`                     | Prettier for JS, CSS, JSON, and Markdown         |
+| Command                               | Description                                      |
+| ------------------------------------- | ------------------------------------------------ |
+| `npm run setup`                       | Install root, frontend, and backend dependencies |
+| `npm run dev`                         | Run Next.js and Express together                 |
+| `npm run dev:frontend`                | Run Next.js only                                 |
+| `npm run dev:backend`                 | Run Express with `--watch`                       |
+| `npm run build`                       | Production build of the frontend                 |
+| `npm run lint`                        | ESLint for frontend and backend                  |
+| `npm run test`                        | Jest + Supertest API tests                       |
+| `npm run db:check`                    | Verify tables, buckets, defaults, and the admin  |
+| `npm run db:check:schema`             | Same check before the admin is seeded            |
+| `npm run format`                      | Prettier for JS, CSS, JSON, and Markdown         |
 | `npm --prefix backend run seed:admin` | Create or verify the single admin account        |
 
 Seeding is idempotent. Running it again does nothing when the configured admin
@@ -110,6 +120,11 @@ npm.cmd run seed:admin -- --update-password
 
 The seed never creates a second admin and never silently changes an existing
 admin's password.
+
+`npm run db:check` is a full readiness check: run it after the migrations and the
+admin seed. It fails loudly if any table, storage bucket, default settings row, or
+the single active admin is missing. To check the schema before seeding, run
+`npm run db:check:schema`.
 
 ## Environment variables
 
@@ -140,8 +155,9 @@ admin's password.
 | `STRIPE_WEBHOOK_SECRET`          | Phase 4+ | Webhook signature verification        |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed     | Used only by `seed:admin`             |
 
-Production startup validates that the Supabase URL, anon key, and service-role
-key are present. The frontend never imports the service-role key.
+Production startup validates that `FRONTEND_URL`, the Supabase URL, anon key,
+and service-role key are present. The frontend never imports the service-role
+key.
 
 ## Authentication and authorization
 
@@ -164,15 +180,17 @@ key are present. The frontend never imports the service-role key.
 
 - RLS is enabled on every public table, with explicit column/table grants for
   `anon`, `authenticated`, and the service role.
-- Policies scope customer rows to `auth.uid()` and use `is_customer()` so blocked
-  accounts lose access.
+- Policies scope customer-owned rows to `auth.uid()`. Shopping tables also
+  require `is_customer()`, so blocked accounts lose cart, wishlist, address, and
+  order access; the API rejects blocked sessions before any query. Own-profile
+  read stays available so the server guard can report `blocked`.
 - The single admin is enforced by a partial unique index. Role updates are
   service-role or database only; the profile trigger rejects customer changes to
   `role` and `is_blocked`.
 - Helmet, strict CORS, global rate limits, and sensitive-route rate limits.
 - Zod validation on API bodies; file buckets accept only JPEG/PNG/WebP up to
   5 MB and are written only through the API/service role.
-- Stripe webhook signature verification and audit logs are wired in their
+- Stripe webhook signature verification and audit-log writes arrive in their
   respective phases; the database tables and idempotency store exist now.
 - No secrets in the repository; `.env*` is ignored except for examples.
 

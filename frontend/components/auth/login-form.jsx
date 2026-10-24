@@ -115,6 +115,7 @@ export function LoginForm({
       .maybeSingle();
 
     if (profileError) {
+      await supabase.auth.signOut();
       setServerError(
         "Your profile could not be loaded. The database migrations may not be applied yet.",
       );

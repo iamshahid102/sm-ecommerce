@@ -6,15 +6,25 @@ The API is implemented with Express 5 and Supabase Postgres. The contract below
 is the source of truth for the frontend and tests. Fields may be added in a
 backward-compatible way; removing or renaming a field is a breaking change.
 
+The document describes the complete target contract. **Phase 1 implements the
+System routes, `/me`, and `/admin/dashboard`.** Catalog, cart, checkout, order,
+review, CMS, and payment routes are implemented in later phases; their contracts
+are listed here so the frontend and database can be built against a stable shape.
+
 ## Authentication
 
 - Signup, login, email verification, and password reset are handled by Supabase
   Auth in the Next.js app.
 - Every protected request sends `Authorization: Bearer <supabase-access-token>`.
-- Express verifies the JWT and loads the profile. Admin routes additionally
-  require `profiles.role = 'admin'` and `is_blocked = false`.
+- Express verifies the token with Supabase Auth using the anon key, then loads
+  the profile with the service-role client. Admin routes additionally require
+  `profiles.role = 'admin'` and `is_blocked = false`.
+- Blocked accounts receive `403 ACCOUNT_BLOCKED` on every authenticated route.
 - Public signup always creates `role = 'customer'`. There is no admin signup.
 - Admin users cannot use cart, checkout, wishlist, or review endpoints.
+- Browser protection is layered: `frontend/proxy.js` redirects on verified JWT
+  claims, then the server DAL re-checks the profile before rendering
+  `/account/*` or `/admin/*`. The API never trusts the frontend guard.
 
 ## Response envelope
 
@@ -66,9 +76,12 @@ returned in production.
 ### Common error codes
 
 `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `ADMIN_REQUIRED`,
-`ADMIN_CANNOT_SHOP`, `NOT_FOUND`, `CONFLICT`, `OUT_OF_STOCK`,
+`ADMIN_CANNOT_SHOP`, `ACCOUNT_BLOCKED`, `NOT_FOUND`, `CONFLICT`, `OUT_OF_STOCK`,
 `INVALID_COUPON`, `INVALID_STATUS_TRANSITION`, `REVIEW_NOT_ALLOWED`,
-`ALREADY_REVIEWED`, `RATE_LIMITED`, `PAYLOAD_TOO_LARGE`, `INTERNAL_ERROR`.
+`ALREADY_REVIEWED`, `RATE_LIMITED`, `PAYLOAD_TOO_LARGE`,
+`INVALID_CURRENT_PASSWORD`, `PASSWORD_NOT_AVAILABLE`, `PROFILE_UPDATE_FAILED`,
+`PASSWORD_UPDATE_FAILED`, `AUTH_SERVICE_UNAVAILABLE`,
+`DASHBOARD_UNAVAILABLE`, `INTERNAL_ERROR`.
 
 ## Pagination and filtering
 
@@ -86,7 +99,11 @@ Liveness. Always returns `200` when the process is running.
 
 ### `GET /health/ready`
 
-Readiness. Returns `200` only when the database is reachable, otherwise `503`.
+Readiness. Returns `200` only when the database is reachable **and** the Phase 1
+schema exists. `services.database` is `reachable`, `schema_missing`,
+`unreachable`, or `not_configured`. A missing schema (for example `PGRST205`)
+returns `503` with `code: "NOT_READY"` and
+`details.services.database: "schema_missing"`.
 
 ---
 
@@ -100,7 +117,7 @@ Query: `search`, `category` (slug), `brand` (slug), `minPrice`, `maxPrice`,
 
 Returns published, non-deleted products with primary image, category, brand,
 price, discount price, stock status, rating, and review count. Never returns
-`cost_price` or admin-only fields.
+admin-only fields.
 
 ### `GET /products/:slug`
 
@@ -149,18 +166,21 @@ already subscribed. Rate limited.
 
 ### `GET /me`
 
-Returns the profile: `id`, `full_name`, `phone`, `role`, `avatar_url`,
-`is_blocked`, `created_at`.
+Returns the profile: `id`, `email`, `full_name`, `phone`, `role`, `avatar_url`,
+`is_blocked`, `email_confirmed_at`, `created_at`, `updated_at`. The service-role
+profile lookup is always scoped to the verified token's user id.
 
 ### `PUT /me`
 
 Body: `full_name` (2-100), `phone` (optional, valid Pakistani format). Email is
-changed through Supabase Auth, not this endpoint.
+changed through Supabase Auth, not this endpoint. `role` and `is_blocked` are
+rejected by the request schema and protected by a database trigger.
 
 ### `POST /me/password`
 
 Body: `current_password`, `new_password` (min 8, mixed case + number). Verifies
-the current password before changing it.
+the current password with Supabase Auth before changing it. Returns `200` with
+`{ updated: true }`. Wrong current password: `401 INVALID_CURRENT_PASSWORD`. If\nSupabase rate-limits the verification attempt, the API returns\n`429 RATE_LIMITED`.
 
 ### Addresses
 
@@ -281,8 +301,44 @@ Caller's own review. Triggers aggregate recalculation.
 
 ### `GET /admin/dashboard`
 
-Returns: revenue (paid orders), order count by status, customer count, low-stock
-products, recent orders, and 30-day sales series. Supports `range=7d|30d|90d`.
+Phase 1 returns:
+
+```json
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "totalCustomers": 0,
+      "totalProducts": 0,
+      "lowStockCount": 0,
+      "pendingOrders": 0
+    },
+    "orderStatusCounts": {
+      "pending": 0,
+      "confirmed": 0,
+      "processing": 0,
+      "shipped": 0,
+      "delivered": 0,
+      "cancelled": 0,
+      "returned": 0
+    },
+    "lowStockProducts": [],
+    "recentOrders": [],
+    "generatedAt": "2026-10-24T10:00:00.000Z"
+  },
+  "message": "Dashboard loaded."
+}
+```
+
+`totalRevenue` is the sum of `orders.total` where `payment_status = 'paid'`.
+`recentOrders` returns the latest 8 orders; `lowStockProducts` returns up to 5
+products where stock is at or below `low_stock_threshold`. The totals and the
+low-stock list are computed by the `admin_dashboard_metrics()` database function,
+so PostgREST's 1000-row response cap cannot truncate lifetime revenue or counts.
+Date-range parameters and the sales chart series are added in the reports phase;
+no `range` query is accepted yet.
 
 ### Products
 

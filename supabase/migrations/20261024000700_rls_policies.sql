@@ -74,9 +74,13 @@ grant select on public.order_items to authenticated;
 grant select on public.order_status_history to authenticated;
 grant select on public.payments to authenticated;
 grant select on public.coupon_redemptions to authenticated;
-grant insert, update, delete on public.reviews to authenticated;
-grant insert on public.contact_messages to anon, authenticated;
-grant insert on public.newsletter_subscribers to anon, authenticated;
+grant insert (product_id, user_id, order_id, rating, title, comment)
+  on public.reviews to authenticated;
+grant update (rating, title, comment) on public.reviews to authenticated;
+grant delete on public.reviews to authenticated;
+
+-- Contact and newsletter writes go through rate-limited Express endpoints using
+-- the service role. Anonymous direct REST inserts would bypass those limits.
 
 -- Admin-managed data (writes are additionally restricted by is_admin()) ------
 grant insert, update, delete on public.categories to authenticated;
@@ -420,11 +424,9 @@ create policy menu_items_admin_all
   with check (public.is_admin());
 
 -- Contact and newsletter -----------------------------------------------------
+-- No public INSERT grant or policy: Express validates and rate-limits these
+-- submissions, then writes with the service role.
 drop policy if exists contact_messages_public_insert on public.contact_messages;
-create policy contact_messages_public_insert
-  on public.contact_messages for insert
-  to anon, authenticated
-  with check (true);
 
 drop policy if exists contact_messages_admin_all on public.contact_messages;
 create policy contact_messages_admin_all
@@ -435,10 +437,6 @@ create policy contact_messages_admin_all
 
 drop policy if exists newsletter_subscribers_public_insert
   on public.newsletter_subscribers;
-create policy newsletter_subscribers_public_insert
-  on public.newsletter_subscribers for insert
-  to anon, authenticated
-  with check (true);
 
 drop policy if exists newsletter_subscribers_admin_all
   on public.newsletter_subscribers;

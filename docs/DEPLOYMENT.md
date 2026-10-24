@@ -11,8 +11,9 @@ Target architecture from the project plan:
 | Payments                   | Stripe (cards) + COD                  |
 | Monitoring                 | Sentry, Vercel Analytics, UptimeRobot |
 
-Phase 0 deploys nothing automatically. This document is the runbook that will
-be exercised in Phase 9.
+Phase 1 provides the database, auth, storage, and admin foundation. This document
+is the runbook that will be exercised in Phase 9; it can already be used to
+provision a staging project after the Phase 1 migrations are applied.
 
 ## 1. Prerequisites
 
@@ -32,32 +33,57 @@ be exercised in Phase 9.
 3. In **Authentication → URL Configuration**, set:
    - Site URL: `https://your-domain.com`
    - Redirect URLs: `https://your-domain.com/auth/callback`,
-     `http://localhost:3000/auth/callback`
-4. In **Authentication → Providers → Email**, enable email confirmation for
-   production and configure a custom SMTP sender (Resend) so verification mail
-   is reliable.
+     `http://localhost:3000/auth/callback`,
+     `http://localhost:3100/auth/callback` (port 3100 is used when 3000 is
+     already occupied).
+4. In **Authentication → Providers → Email**, keep email confirmation enabled
+   and configure a custom SMTP sender (Resend) so verification mail is reliable.
+   In **Authentication → Settings**, set a minimum password length of 8 with
+   lowercase, uppercase, and digit requirements. These hosted-project settings
+   are not applied by `supabase/config.toml`.
 5. Apply migrations from the repository root:
 
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref <project-ref>
-   npx supabase db push
+   ```powershell
+   npx.cmd --yes supabase@latest login
+   npx.cmd --yes supabase@latest link --project-ref <project-ref>
+   npx.cmd --yes supabase@latest db push --dry-run
+   npx.cmd --yes supabase@latest db push
+   npx.cmd --yes supabase@latest migration list
    ```
+
+   The CLI is preferred. The SQL Editor alternative, with the exact file order
+   and re-run rules, is in `docs/PHASE-1.md`.
 
 6. Create the single admin (Phase 1):
 
-   ```bash
-   cd backend
-   npm run seed:admin
+   ```powershell
+   Set-Location backend
+   npm.cmd run seed:admin
    ```
 
    This reads `ADMIN_EMAIL` and `ADMIN_PASSWORD`, creates a confirmed Auth user,
-   and sets `profiles.role = 'admin'`. It refuses to create a second admin.
+   and sets `profiles.role = 'admin'`. It is idempotent and refuses to create a
+   second admin. To deliberately reset the existing admin password, run
+   `npm.cmd run seed:admin -- --update-password`.
 
-7. Create storage buckets with `npm run seed:storage` (Phase 2) or manually:
-   - `product-images` (public read)
-   - `cms-assets` (public read)
-   - `site-assets` (public read)
+7. Storage buckets are created by `20261024000800_storage.sql`:
+   - `product-images` (public read, 5 MB, JPEG/PNG/WebP)
+   - `cms-assets` (public read, 5 MB, JPEG/PNG/WebP)
+   - `site-assets` (public read, 5 MB, JPEG/PNG/WebP)
+
+   Writes are service-role only and will go through the Express upload API.
+   Do not create duplicate buckets manually.
+
+8. Verify the live schema before deploying:
+
+   ```powershell
+   Set-Location D:\Coding\sm-ecommerce
+   npm.cmd run db:check
+   ```
+
+   This checks all 25 tables, the three buckets, the default settings row, and
+   the single active admin. It never prints secrets or emails. The readiness
+   endpoint reports `schema_missing`/`503` until this passes.
 
 ## 3. Backend (Render/Railway)
 
@@ -154,9 +180,17 @@ belong there.
 ## 8. Post-deploy checklist
 
 - [ ] `GET https://api.your-domain.com/api/v1/health` returns `200`.
-- [ ] `GET /api/v1/health/ready` reports the database reachable.
+- [ ] `GET /api/v1/health/ready` returns `200` and
+      `services.database: "reachable"`. A `503` with `"schema_missing"` means the
+      migrations were applied to a different project or not applied at all.
+- [ ] `npm run db:check` passes after the admin seed.
 - [ ] CORS rejects an unknown origin and allows the production site.
 - [ ] Signup creates only `customer`; the second admin insert fails.
+- [ ] Email verification and password-recovery links return through
+      `/auth/callback` on the production origin.
+- [ ] Admin login works; a customer is rejected by `/admin` and by
+      `/api/v1/admin/dashboard`.
+- [ ] The complete Phase 1 manual checklist in `docs/PHASE-1.md` passes.
 - [ ] Customer cannot read another customer's order (IDOR test).
 - [ ] `npm run lint`, `npm test`, and `npm run build` pass in CI.
 - [ ] RLS is enabled on every public table.

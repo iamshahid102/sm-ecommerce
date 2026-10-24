@@ -181,6 +181,7 @@ async function main() {
       email: adminEmail,
       full_name: profile?.full_name || "Store Admin",
       role: "admin",
+      is_blocked: false,
     },
     { onConflict: "id" },
   );

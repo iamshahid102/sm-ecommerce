@@ -15,12 +15,24 @@ const optionalUrl = z
   .transform((value) => (value === "" ? undefined : value))
   .pipe(z.url().optional());
 
+const optionalOrigin = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => (value === "" ? undefined : value))
+  .pipe(
+    z
+      .url()
+      .transform((value) => value.replace(/\/+$/, ""))
+      .optional(),
+  );
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().positive().max(65535).default(4000),
-  FRONTEND_URL: z.url().default("http://localhost:3000"),
+  FRONTEND_URL: optionalOrigin,
   FRONTEND_URLS: optionalString,
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
@@ -65,7 +77,7 @@ export const corsOrigins = Object.freeze(
               "http://127.0.0.1:3100",
             ]),
       ]
-        .map((origin) => origin.trim())
+        .map((origin) => origin.trim().replace(/\/+$/, ""))
         .filter(Boolean),
     ),
   ),
@@ -89,6 +101,7 @@ export function assertRequiredProductionConfig() {
   if (!env.SUPABASE_URL) missing.push("SUPABASE_URL");
   if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
   if (!env.SUPABASE_ANON_KEY) missing.push("SUPABASE_ANON_KEY");
+  if (!env.FRONTEND_URL) missing.push("FRONTEND_URL");
 
   if (missing.length > 0) {
     throw new Error(

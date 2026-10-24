@@ -12,7 +12,7 @@ the admin dashboard to work.
 
 ## 1. Apply the migrations
 
-Run **one** method, not both. Both methods run the same nine files in order.
+Run **one** method, not both. Both methods run the same ten files in order.
 
 ### Option A — Supabase CLI (recommended, Windows PowerShell)
 
@@ -51,17 +51,18 @@ Use `npx.cmd`, not `npx`, when PowerShell blocks npm-generated shims.
    it. Wait for success before opening the next file.
 3. Run them in this exact order:
 
-   | Order | File                                                       |
-   | ----- | ---------------------------------------------------------- |
-   | 1     | `supabase/migrations/20261024000100_extensions_and_enums.sql` |
-   | 2     | `supabase/migrations/20261024000200_core_profiles_catalog.sql` |
-   | 3     | `supabase/migrations/20261024000300_commerce.sql`             |
-   | 4     | `supabase/migrations/20261024000400_cms_and_settings.sql`     |
-   | 5     | `supabase/migrations/20261024000500_audit_and_webhooks.sql`   |
+   | Order | File                                                            |
+   | ----- | --------------------------------------------------------------- |
+   | 1     | `supabase/migrations/20261024000100_extensions_and_enums.sql`   |
+   | 2     | `supabase/migrations/20261024000200_core_profiles_catalog.sql`  |
+   | 3     | `supabase/migrations/20261024000300_commerce.sql`               |
+   | 4     | `supabase/migrations/20261024000400_cms_and_settings.sql`       |
+   | 5     | `supabase/migrations/20261024000500_audit_and_webhooks.sql`     |
    | 6     | `supabase/migrations/20261024000600_functions_and_triggers.sql` |
-   | 7     | `supabase/migrations/20261024000700_rls_policies.sql`         |
-   | 8     | `supabase/migrations/20261024000800_storage.sql`              |
-   | 9     | `supabase/migrations/20261024000900_defaults.sql`             |
+   | 7     | `supabase/migrations/20261024000700_rls_policies.sql`           |
+   | 8     | `supabase/migrations/20261024000800_storage.sql`                |
+   | 9     | `supabase/migrations/20261024000900_defaults.sql`               |
+   | 10    | `supabase/migrations/20261024001000_dashboard_metrics.sql`      |
 
 4. If a file errors, **stop**. Do not continue to the next file. Fix the cause
    and re-run that file (the migrations are written to be safe to re-run).
@@ -71,6 +72,15 @@ Use `npx.cmd`, not `npx`, when PowerShell blocks npm-generated shims.
    ```sql
    notify pgrst, 'reload schema';
    ```
+
+> **Switching methods:** the SQL Editor does not write rows to
+> `supabase_migrations.schema_migrations`. If you use Option B now and later
+> switch to the CLI, do not run `db push` blindly against a history it cannot
+> see. Either keep using the SQL Editor, or after linking mark the applied
+> versions with
+> `npx.cmd --yes supabase@latest migration repair --status applied <version>`
+> for each file shown in the table above. Option A writes history automatically
+> and is the recommended path for later phases.
 
 The SQL Editor runs as the `postgres` role, which can create the trigger on
 `auth.users` and the storage object policy.
@@ -82,6 +92,21 @@ The migrations avoid destructive `drop table` statements. Re-running them:
 - drops and recreates triggers and named policies;
 - upserts the three storage buckets;
 - inserts default settings and home sections only when missing.
+
+Verify the schema before configuring auth. From the repository root:
+
+```powershell
+npm.cmd run db:check:schema
+```
+
+Expected: every table and bucket has a green check, and the default
+`site_settings` row is present. If the script fails with `PGRST205`, the SQL was
+not applied to the same project as `frontend/.env.local` and `backend/.env`.
+
+The backend readiness endpoint now verifies real tables. Before the migration it
+returns `503` with `services.database: "schema_missing"`; after a successful
+migration it returns `200` with `"reachable"`. This prevents a database
+connection from being mistaken for a working schema.
 
 ## 2. Configure Supabase Auth
 
@@ -117,6 +142,11 @@ Remote email confirmation means a new customer must open the verification email
 before signing in. The link returns through `/auth/callback`, which exchanges the
 PKCE code for an HttpOnly session. The admin seed creates its user pre-confirmed.
 
+The hosted project's default email sender is rate-limited. If repeated test
+signups stop receiving mail, either configure custom SMTP or confirm the test
+users manually under **Authentication → Users** in the dashboard. Do not disable
+email confirmation for production.
+
 ## 3. Seed the single admin
 
 The seed reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `backend/.env` and uses the
@@ -138,6 +168,16 @@ Behaviour:
   admin's password to `ADMIN_PASSWORD`. Use this only when intended.
 
 Sign in at `http://localhost:3100/admin/login` (or port 3000).
+
+Then run the full database check from the repository root:
+
+```powershell
+npm.cmd run db:check
+```
+
+Expected: all tables and buckets are present and exactly one active admin is
+reported. This command queries the same Supabase project as the app; it never
+prints emails, keys, or passwords.
 
 ## 4. Start the apps
 
@@ -257,9 +297,9 @@ where schemaname = 'public'
 order by tablename;
 ```
 
-**2. Policies exist.** This lists the table policies. Every table in the
-migration should have at least one policy except write-only/service-only tables
-whose only path is the service role.
+**2. Policies exist.** Every one of the 25 public tables must appear at least
+once. Write-only/service-only access still uses the service role, which bypasses
+RLS, but the table itself must still have RLS enabled.
 
 ```sql
 select tablename, policyname, roles, cmd
@@ -395,6 +435,24 @@ Invoke-RestMethod `
 Repeat with customer B's token. Each request must return only that customer's
 profile. If either returns both rows, stop and re-check the RLS migration.
 
+**10. A blocked customer loses customer access.** Replace the UUID with customer
+A's id. Run the update, then retry `/api/v1/me` with A's token: it must return
+`403 ACCOUNT_BLOCKED`, and `/account` must redirect to
+`/login?error=blocked`. Own-profile read remains available to the account guard;
+shopping tables require `is_customer()`. Restore the account at the end so the
+test does not leave a blocked customer behind.
+
+```sql
+update public.profiles
+set is_blocked = true
+where id = '<CUSTOMER_A_UUID>';
+
+-- After the API/UI checks, restore access.
+update public.profiles
+set is_blocked = false
+where id = '<CUSTOMER_A_UUID>';
+```
+
 ## 6. Build and test verification
 
 Run from the repository root:
@@ -405,9 +463,19 @@ npm.cmd run test
 npm.cmd run build
 ```
 
-Phase 1 result: backend lint clean, 22 Jest/Supertest tests passing, Next.js
-production build passing. The build does not require the database; the admin
-dashboard fetch is dynamic and only runs when the page is requested.
+Phase 1 static result: frontend and backend lint clean, 26 Jest/Supertest tests
+pass, Prettier check passes, and the Next.js production build succeeds. The
+build does not require the database; the admin dashboard fetch is dynamic and
+only runs when the page is requested. The ten migrations are ready to apply but
+have not been applied to the connected project yet.
+
+The connected project was checked during debugging: all 25 tables, all three
+storage buckets, the dashboard metrics function, and the admin profile were
+absent. The old readiness implementation used a PostgREST HEAD request, which
+returned `204` even for a missing table, so it falsely reported the schema as
+reachable. It now queries real tables and returns `schema_missing`/`503` until
+the migrations are applied. `npm run db:check` is available for the same
+diagnosis from the command line.
 
 ## 7. Known limits at the end of Phase 1
 

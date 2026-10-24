@@ -72,13 +72,25 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_full_name text;
+  v_phone text;
 begin
+  v_full_name := btrim(coalesce(new.raw_user_meta_data ->> 'full_name', ''));
+  v_phone := btrim(coalesce(new.raw_user_meta_data ->> 'phone', ''));
+
   insert into public.profiles (id, email, full_name, phone)
   values (
     new.id,
     coalesce(new.email, ''),
-    nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''),
-    nullif(trim(new.raw_user_meta_data ->> 'phone'), '')
+    case
+      when char_length(v_full_name) between 2 and 100 then v_full_name
+      else null
+    end,
+    case
+      when v_phone ~ '^\+?[0-9][0-9 ()-]{6,19}$' then v_phone
+      else null
+    end
   )
   on conflict (id) do nothing;
 
@@ -280,7 +292,8 @@ begin
   v_actor_role := coalesce(
     nullif(current_setting('app.actor_role', true), ''),
     case
-      when tg_op = 'INSERT' then 'customer'
+      when tg_op = 'INSERT' and new.user_id is not null then 'customer'
+      when tg_op = 'INSERT' then 'system'
       when (select auth.uid()) is null then 'system'
       when public.is_admin() then 'admin'
       else 'customer'

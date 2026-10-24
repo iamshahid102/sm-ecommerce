@@ -1,0 +1,13 @@
+-- Local-only seed placeholder.
+--
+-- The schema defaults (site settings and home sections) are created by the
+-- migrations, so a local `supabase db reset` needs no additional rows.
+--
+-- The single admin is deliberately not seeded here. It requires the Auth Admin
+-- API so Supabase hashes the password:
+--
+--   cd backend
+--   npm run seed:admin
+--
+-- Demo catalog/order rows will be added here in a later phase and must never be
+-- applied to production automatically.

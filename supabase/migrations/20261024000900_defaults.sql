@@ -62,3 +62,31 @@ values
     true
   )
 on conflict (section_key) do nothing;
+
+-- Backfill profiles for Auth users that existed before this migration set was
+-- applied. Fresh projects have no rows here. The same metadata sanitization as
+-- handle_new_user() is used so a legacy metadata value cannot fail the insert.
+insert into public.profiles (id, email, full_name, phone)
+select
+  u.id,
+  coalesce(u.email, ''),
+  case
+    when char_length(btrim(coalesce(u.raw_user_meta_data ->> 'full_name', '')))
+      between 2 and 100
+    then btrim(u.raw_user_meta_data ->> 'full_name')
+    else null
+  end,
+  case
+    when btrim(coalesce(u.raw_user_meta_data ->> 'phone', ''))
+      ~ '^\+?[0-9][0-9 ()-]{6,19}$'
+    then btrim(u.raw_user_meta_data ->> 'phone')
+    else null
+  end
+from auth.users u
+where u.email is not null
+  and not exists (
+    select 1
+    from public.profiles p
+    where p.id = u.id
+  )
+on conflict (id) do nothing;

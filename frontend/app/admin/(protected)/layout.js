@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { signOutAction } from "@/app/actions/auth";
+import { signOutAdminAction } from "@/app/actions/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ export default async function AdminLayout({ children }) {
                 {profile.email}
               </p>
             </div>
-            <form action={signOutAction}>
+            <form action={signOutAdminAction}>
               <Button
                 type="submit"
                 variant="ghost"
@@ -135,7 +135,7 @@ export default async function AdminLayout({ children }) {
               >
                 Storefront
               </Link>
-              <form action={signOutAction}>
+              <form action={signOutAdminAction}>
                 <Button type="submit" variant="outline" size="sm">
                   <LogOut className="size-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Sign out</span>
