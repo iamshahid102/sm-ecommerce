@@ -1,0 +1,25 @@
+{
+  "name": "sm-store",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SM Store - single-vendor e-commerce platform",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "setup": "npm install && npm --prefix frontend install && npm --prefix backend install",
+    "dev": "concurrently -n web,api -c blue,magenta \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
+    "test": "npm --prefix backend test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.8.1"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+frontend/.next
+frontend/out
+frontend/build
+backend/coverage
+package-lock.json
+frontend/package-lock.json
+backend/package-lock.json
+.env
+.env.*
+!.env.example
+E-Commerce Website - Complete Project Plan (Roman Urdu).md
+E-Commerce Website - Complete Project Plan (Roman Urdu).pdf
