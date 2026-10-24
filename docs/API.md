@@ -36,7 +36,9 @@ Error:
   "success": false,
   "error": "Validation failed.",
   "code": "VALIDATION_ERROR",
-  "details": [{ "field": "email", "message": "Invalid email", "code": "invalid_format" }]
+  "details": [
+    { "field": "email", "message": "Invalid email", "code": "invalid_format" }
+  ]
 }
 ```
 
@@ -46,20 +48,20 @@ returned in production.
 
 ### Common status codes
 
-| Status | Meaning |
-| --- | --- |
-| 200 | Success |
-| 201 | Created |
-| 204 | Deleted, no body |
-| 400 | Malformed request |
-| 401 | Missing/invalid token |
-| 403 | Authenticated but not allowed |
-| 404 | Not found (or not owned by the caller) |
-| 409 | Conflict (stock, duplicate, invalid transition) |
-| 422 | Zod validation failed |
-| 429 | Rate limited |
-| 500 | Unexpected server error |
-| 503 | Dependency not configured/ready |
+| Status | Meaning                                         |
+| ------ | ----------------------------------------------- |
+| 200    | Success                                         |
+| 201    | Created                                         |
+| 204    | Deleted, no body                                |
+| 400    | Malformed request                               |
+| 401    | Missing/invalid token                           |
+| 403    | Authenticated but not allowed                   |
+| 404    | Not found (or not owned by the caller)          |
+| 409    | Conflict (stock, duplicate, invalid transition) |
+| 422    | Zod validation failed                           |
+| 429    | Rate limited                                    |
+| 500    | Unexpected server error                         |
+| 503    | Dependency not configured/ready                 |
 
 ### Common error codes
 
@@ -193,7 +195,7 @@ Cart responses always use server prices. Client-supplied prices are ignored.
 
 ### Coupons
 
-### `POST /coupons/validate`
+#### `POST /coupons/validate`
 
 Body: `code`, plus current cart context (server reads the cart itself). Returns
 the coupon, discount amount, and final totals, or a typed error:
@@ -393,13 +395,13 @@ verification.
 
 ## Rate limits
 
-| Scope | Limit |
-| --- | --- |
-| Global per IP | 300 requests / 15 min |
-| Auth-sensitive actions | 15 / 15 min |
-| Contact form | 5 / hour |
-| Review creation | 10 / hour |
-| Order creation | 20 / hour |
+| Scope                  | Limit                 |
+| ---------------------- | --------------------- |
+| Global per IP          | 300 requests / 15 min |
+| Auth-sensitive actions | 15 / 15 min           |
+| Contact form           | 5 / hour              |
+| Review creation        | 10 / hour             |
+| Order creation         | 20 / hour             |
 
 Limits are per IP (trusted proxy aware) and are disabled in the test
 environment.

@@ -9,7 +9,7 @@ Built with **Next.js 16 (App Router, JavaScript)**, **Tailwind CSS v4**,
 > **Status: Phase 0 complete.** The frontend shell, API service, design tokens,
 > docs, linting, and tests are in place. Database, RLS, and authentication are
 > the next phase. The storefront in this phase is an intentional foundation page;
-> it is replaced by the real home page in Phase 4.
+> it is replaced by the real home page in Phase 3.
 
 ## Repository layout
 
@@ -62,45 +62,45 @@ If PowerShell blocks `npm` (execution policy), use `npm.cmd`.
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run setup` | Install root, frontend, and backend dependencies |
-| `npm run dev` | Run Next.js and Express together |
-| `npm run dev:frontend` | Run Next.js only |
-| `npm run dev:backend` | Run Express with `--watch` |
-| `npm run build` | Production build of the frontend |
-| `npm run lint` | ESLint for frontend and backend |
-| `npm run test` | Jest + Supertest API tests |
-| `npm run format` | Prettier for JS, CSS, JSON, and Markdown |
+| Command                | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `npm run setup`        | Install root, frontend, and backend dependencies |
+| `npm run dev`          | Run Next.js and Express together                 |
+| `npm run dev:frontend` | Run Next.js only                                 |
+| `npm run dev:backend`  | Run Express with `--watch`                       |
+| `npm run build`        | Production build of the frontend                 |
+| `npm run lint`         | ESLint for frontend and backend                  |
+| `npm run test`         | Jest + Supertest API tests                       |
+| `npm run format`       | Prettier for JS, CSS, JSON, and Markdown         |
 
 ## Environment variables
 
 ### `frontend/.env.local`
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Phase 1+ | Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 1+ | Public anon/publishable key |
-| `NEXT_PUBLIC_API_URL` | Yes | `http://localhost:4000/api/v1` locally |
-| `NEXT_PUBLIC_SITE_URL` | Yes | Used for metadata and canonical URLs |
-| `NEXT_PUBLIC_STORE_NAME` | No | Defaults to SM Store |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 5+ | Stripe `pk_...` |
+| Variable                             | Required | Notes                                  |
+| ------------------------------------ | -------- | -------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Phase 1+ | Project URL                            |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Phase 1+ | Public anon/publishable key            |
+| `NEXT_PUBLIC_API_URL`                | Yes      | `http://localhost:4000/api/v1` locally |
+| `NEXT_PUBLIC_SITE_URL`               | Yes      | Used for metadata and canonical URLs   |
+| `NEXT_PUBLIC_STORE_NAME`             | No       | Defaults to SM Store                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 4+ | Stripe `pk_...`                        |
 
 ### `backend/.env`
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `NODE_ENV` | Yes | `development` / `test` / `production` |
-| `PORT` | No | Defaults to 4000 |
-| `FRONTEND_URL` | Yes | Exact allowed CORS origin |
-| `SUPABASE_URL` | Phase 1+ | Server-side project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Phase 1+ | **Never** expose to the browser |
-| `SUPABASE_ANON_KEY` | Phase 1+ | Used to verify access tokens |
-| `RESEND_API_KEY` | Phase 6+ | Transactional email |
-| `EMAIL_FROM` | Phase 6+ | Verified sender |
-| `STRIPE_SECRET_KEY` | Phase 5+ | Card payments |
-| `STRIPE_WEBHOOK_SECRET` | Phase 5+ | Webhook signature verification |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Phase 1 | Seed script only |
+| Variable                         | Required | Notes                                 |
+| -------------------------------- | -------- | ------------------------------------- |
+| `NODE_ENV`                       | Yes      | `development` / `test` / `production` |
+| `PORT`                           | No       | Defaults to 4000                      |
+| `FRONTEND_URL`                   | Yes      | Exact allowed CORS origin             |
+| `SUPABASE_URL`                   | Phase 1+ | Server-side project URL               |
+| `SUPABASE_SERVICE_ROLE_KEY`      | Phase 1+ | **Never** expose to the browser       |
+| `SUPABASE_ANON_KEY`              | Phase 1+ | Used to verify access tokens          |
+| `RESEND_API_KEY`                 | Phase 5+ | Transactional email                   |
+| `EMAIL_FROM`                     | Phase 5+ | Verified sender                       |
+| `STRIPE_SECRET_KEY`              | Phase 4+ | Card payments                         |
+| `STRIPE_WEBHOOK_SECRET`          | Phase 4+ | Webhook signature verification        |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Phase 1  | Seed script only                      |
 
 Production startup validates that the Supabase URL and service-role key are
 present. The frontend never imports the service-role key.

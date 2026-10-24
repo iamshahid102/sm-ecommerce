@@ -1,10 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-import {
-  env,
-  isSupabaseConfigured,
-  isTest,
-} from "../config/env.js";
+import { env, isSupabaseConfigured, isTest } from "../config/env.js";
 import { ApiError } from "../utils/api-error.js";
 
 let adminClient;

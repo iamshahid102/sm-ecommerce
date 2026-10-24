@@ -2,17 +2,17 @@
 
 Target architecture from the project plan:
 
-| Part | Platform |
-| --- | --- |
-| Next.js storefront + admin | Vercel |
-| Express API | Render / Railway / VPS |
-| Database, Auth, Storage | Supabase Cloud |
-| Email | Resend |
-| Payments | Stripe (cards) + COD |
-| Monitoring | Sentry, Vercel Analytics, UptimeRobot |
+| Part                       | Platform                              |
+| -------------------------- | ------------------------------------- |
+| Next.js storefront + admin | Vercel                                |
+| Express API                | Render / Railway / VPS                |
+| Database, Auth, Storage    | Supabase Cloud                        |
+| Email                      | Resend                                |
+| Payments                   | Stripe (cards) + COD                  |
+| Monitoring                 | Sentry, Vercel Analytics, UptimeRobot |
 
 Phase 0 deploys nothing automatically. This document is the runbook that will
-be exercised in Phase 10.
+be exercised in Phase 9.
 
 ## 1. Prerequisites
 
@@ -54,7 +54,7 @@ be exercised in Phase 10.
    This reads `ADMIN_EMAIL` and `ADMIN_PASSWORD`, creates a confirmed Auth user,
    and sets `profiles.role = 'admin'`. It refuses to create a second admin.
 
-7. Create storage buckets with `npm run seed:storage` (Phase 3) or manually:
+7. Create storage buckets with `npm run seed:storage` (Phase 2) or manually:
    - `product-images` (public read)
    - `cms-assets` (public read)
    - `site-assets` (public read)
@@ -141,7 +141,7 @@ belong there.
 2. Set `RESEND_API_KEY` and `EMAIL_FROM`.
 3. Order and status emails are skipped (and logged) in development when the key
    is absent; production startup should fail fast if email is required. This is
-   finalized in Phase 6.
+   finalized in Phase 5.
 
 ## 7. Domain, TLS, and DNS
 
@@ -167,7 +167,7 @@ belong there.
 - [ ] UptimeRobot monitors both health endpoints.
 - [ ] Sentry receives a test error from each app.
 
-## 9. CI/CD (Phase 10)
+## 9. CI/CD (Phase 9)
 
 GitHub Actions will run, on every pull request:
 

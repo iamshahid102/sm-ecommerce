@@ -66,10 +66,10 @@ export default function FoundationPage() {
         Phase 0 · Foundation ready. Database and authentication are next.
       </div>
 
-      <header className="glass-dark sticky top-0 z-50 border-b border-white/10 text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 glass-dark text-white">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="bg-hero-gradient flex size-9 items-center justify-center rounded-xl text-sm font-bold shadow-lg shadow-primary/30">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-hero-gradient text-sm font-bold shadow-lg shadow-primary/30">
               SM
             </span>
             <span className="font-heading text-lg font-semibold tracking-tight">
@@ -77,8 +77,14 @@ export default function FoundationPage() {
             </span>
           </Link>
 
-          <nav aria-label="Foundation" className="hidden items-center gap-7 text-sm text-white/70 md:flex">
-            <a className="transition-colors hover:text-white" href="#foundation">
+          <nav
+            aria-label="Foundation"
+            className="hidden items-center gap-7 text-sm text-white/70 md:flex"
+          >
+            <a
+              className="transition-colors hover:text-white"
+              href="#foundation"
+            >
               Foundation
             </a>
             <a className="transition-colors hover:text-white" href="#design">
@@ -99,14 +105,14 @@ export default function FoundationPage() {
       </header>
 
       <main id="main-content" className="flex-1">
-        <section className="bg-dark-gradient relative isolate overflow-hidden text-white">
+        <section className="relative isolate overflow-hidden bg-dark-gradient text-white">
           <div
             aria-hidden="true"
             className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.22),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.35),transparent_40%)]"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+            className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] bg-[size:56px_56px]"
           />
 
           <div className="relative mx-auto grid w-full max-w-7xl gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-28">
@@ -116,7 +122,7 @@ export default function FoundationPage() {
                 Single-vendor commerce, built for Pakistan
               </Badge>
 
-              <h1 className="font-heading max-w-2xl text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-2xl font-heading text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl lg:text-6xl">
                 A commerce foundation that is{" "}
                 <span className="bg-gradient-to-r from-sky-300 via-blue-300 to-white bg-clip-text text-transparent">
                   secure by default.
@@ -133,7 +139,7 @@ export default function FoundationPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-hero-gradient h-11 rounded-xl px-6 text-white shadow-lg shadow-blue-500/25 hover:opacity-95"
+                  className="h-11 rounded-xl bg-hero-gradient px-6 text-white shadow-lg shadow-blue-500/25 hover:opacity-95"
                 >
                   <a href="#foundation">
                     Explore the foundation
@@ -155,13 +161,15 @@ export default function FoundationPage() {
                   <dt className="text-xs tracking-wide text-slate-400 uppercase">
                     Currency
                   </dt>
-                  <dd className="font-heading mt-1 text-lg font-semibold">PKR</dd>
+                  <dd className="mt-1 font-heading text-lg font-semibold">
+                    PKR
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs tracking-wide text-slate-400 uppercase">
                     Payments
                   </dt>
-                  <dd className="font-heading mt-1 text-lg font-semibold">
+                  <dd className="mt-1 font-heading text-lg font-semibold">
                     COD + Card
                   </dd>
                 </div>
@@ -169,7 +177,7 @@ export default function FoundationPage() {
                   <dt className="text-xs tracking-wide text-slate-400 uppercase">
                     Admin
                   </dt>
-                  <dd className="font-heading mt-1 text-lg font-semibold">
+                  <dd className="mt-1 font-heading text-lg font-semibold">
                     Exactly one
                   </dd>
                 </div>
@@ -244,7 +252,7 @@ export default function FoundationPage() {
             <p className="text-sm font-semibold tracking-widest text-primary uppercase">
               What is in place
             </p>
-            <h2 className="font-heading mt-3 text-3xl font-semibold sm:text-4xl">
+            <h2 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">
               A clean base for every phase ahead
             </h2>
             <p className="mt-4 text-muted-foreground">
@@ -254,7 +262,7 @@ export default function FoundationPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {foundation.map((item) => (
               <Card
                 key={item.title}
@@ -315,14 +323,14 @@ export default function FoundationPage() {
           </div>
         </section>
 
-        <section id="design" className="bg-soft-gradient scroll-mt-20 border-y">
+        <section id="design" className="scroll-mt-20 border-y bg-soft-gradient">
           <div className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div>
                 <p className="text-sm font-semibold tracking-widest text-primary uppercase">
                   Design system
                 </p>
-                <h2 className="font-heading mt-3 text-3xl font-semibold sm:text-4xl">
+                <h2 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">
                   Blue, white, and ink — with intent
                 </h2>
                 <p className="mt-4 max-w-lg text-muted-foreground">
@@ -331,7 +339,7 @@ export default function FoundationPage() {
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button className="bg-hero-gradient rounded-xl text-white">
+                  <Button className="rounded-xl bg-hero-gradient text-white">
                     Primary action
                   </Button>
                   <Button variant="secondary" className="rounded-xl">
@@ -343,7 +351,9 @@ export default function FoundationPage() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-2">
-                  <Badge className="bg-success/10 text-success">Delivered</Badge>
+                  <Badge className="bg-success/10 text-success">
+                    Delivered
+                  </Badge>
                   <Badge className="bg-warning/10 text-warning">Pending</Badge>
                   <Badge className="bg-destructive/10 text-destructive">
                     Cancelled
@@ -391,7 +401,7 @@ export default function FoundationPage() {
               <p className="text-sm font-semibold tracking-widest text-primary uppercase">
                 Next up
               </p>
-              <h2 className="font-heading mt-3 text-3xl font-semibold sm:text-4xl">
+              <h2 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">
                 Phase 1: data and identity
               </h2>
               <p className="mt-4 max-w-lg text-muted-foreground">
@@ -424,10 +434,10 @@ export default function FoundationPage() {
         </section>
       </main>
 
-      <footer className="bg-dark-gradient mt-auto text-slate-300">
+      <footer className="mt-auto bg-dark-gradient text-slate-300">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <span className="bg-hero-gradient flex size-8 items-center justify-center rounded-lg text-xs font-bold text-white">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-hero-gradient text-xs font-bold text-white">
               SM
             </span>
             <span className="font-heading text-sm font-semibold text-white">

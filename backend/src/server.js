@@ -1,8 +1,5 @@
 import { createApp } from "./app.js";
-import {
-  assertRequiredProductionConfig,
-  env,
-} from "./config/env.js";
+import { assertRequiredProductionConfig, env } from "./config/env.js";
 import { logger } from "./utils/logger.js";
 
 assertRequiredProductionConfig();

@@ -31,9 +31,7 @@ describe("system endpoints", () => {
   });
 
   it("reports not ready when the database is not configured", async () => {
-    const response = await request(app)
-      .get("/api/v1/health/ready")
-      .expect(503);
+    const response = await request(app).get("/api/v1/health/ready").expect(503);
 
     expect(response.body).toMatchObject({
       success: false,
@@ -51,7 +49,9 @@ describe("system endpoints", () => {
   });
 
   it("returns a structured 404 for unknown routes", async () => {
-    const response = await request(app).get("/api/v1/does-not-exist").expect(404);
+    const response = await request(app)
+      .get("/api/v1/does-not-exist")
+      .expect(404);
 
     expect(response.body).toMatchObject({
       success: false,

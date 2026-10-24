@@ -116,15 +116,15 @@ the safer/current option is used.
 - **Status:** Accepted
 - **Decision:**
 
-  | From | Allowed to |
-  | --- | --- |
-  | pending | confirmed, cancelled |
-  | confirmed | processing, cancelled |
-  | processing | shipped, cancelled |
-  | shipped | delivered, returned |
-  | delivered | returned |
-  | cancelled | — (terminal) |
-  | returned | — (terminal) |
+  | From       | Allowed to            |
+  | ---------- | --------------------- |
+  | pending    | confirmed, cancelled  |
+  | confirmed  | processing, cancelled |
+  | processing | shipped, cancelled    |
+  | shipped    | delivered, returned   |
+  | delivered  | returned              |
+  | cancelled  | — (terminal)          |
+  | returned   | — (terminal)          |
 
   Customers may only cancel `pending` orders. Admins may cancel before
   `shipped`. `returned` is admin-only. Every change is written to
