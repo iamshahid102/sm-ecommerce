@@ -49,21 +49,21 @@ const foundation = [
     title: "Security baseline",
     description:
       "Helmet, strict CORS, rate limiting, server-side Supabase clients, and no service-role key in the browser bundle.",
-    meta: "Phase 0",
+    meta: "Secure",
   },
 ];
 
 const nextPhases = [
-  "Database schema, RLS policies, triggers, and admin seed",
-  "Authentication and protected customer/admin routes",
-  "Admin catalog, storefront, cart, checkout, and orders",
+  "Admin catalog, product images, variants, and categories",
+  "Storefront browsing, search, filters, and product pages",
+  "Cart, checkout, coupons, orders, and payments",
 ];
 
 export default function FoundationPage() {
   return (
     <div className="flex min-h-svh flex-col">
       <div className="bg-dark-gradient px-4 py-2 text-center text-xs font-medium tracking-wide text-white/80">
-        Phase 0 · Foundation ready. Database and authentication are next.
+        Phase 1 · Database, Row Level Security, and secure accounts are ready.
       </div>
 
       <header className="sticky top-0 z-50 border-b border-white/10 glass-dark text-white">
@@ -95,12 +95,21 @@ export default function FoundationPage() {
             </a>
           </nav>
 
-          <Badge
-            variant="outline"
-            className="border-white/20 bg-white/5 text-white"
-          >
-            v0.1.0
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className="hidden border-white/20 bg-white/5 text-white sm:inline-flex"
+            >
+              v0.2.0
+            </Badge>
+            <Button
+              asChild
+              size="sm"
+              className="rounded-xl bg-hero-gradient text-white shadow-lg shadow-primary/20 hover:opacity-95"
+            >
+              <Link href="/login">Sign in</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -197,11 +206,11 @@ export default function FoundationPage() {
                     </CardTitle>
                     <span className="flex items-center gap-1.5 text-xs text-emerald-300">
                       <span className="size-1.5 rounded-full bg-emerald-400" />
-                      Phase 0
+                      Phase 1
                     </span>
                   </div>
                   <CardDescription className="text-slate-400">
-                    Scaffolded, linted, and built locally.
+                    Schema, policies, and auth guards are wired.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="divide-y divide-white/10 p-0">
@@ -209,8 +218,8 @@ export default function FoundationPage() {
                     ["Next.js 16 App Router", "Configured"],
                     ["Tailwind v4 design tokens", "Ready"],
                     ["Express 5 API + health route", "Ready"],
-                    ["Supabase schema + RLS", "Phase 1"],
-                    ["Admin seed + auth guards", "Phase 1"],
+                    ["Supabase schema + RLS", "Ready"],
+                    ["Admin seed + auth guards", "Ready"],
                   ].map(([label, value]) => (
                     <div
                       key={label}
@@ -402,16 +411,15 @@ export default function FoundationPage() {
                 Next up
               </p>
               <h2 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">
-                Phase 1: data and identity
+                Phase 2: catalog management
               </h2>
               <p className="mt-4 max-w-lg text-muted-foreground">
-                The next phase creates the complete schema, row-level security,
-                rating triggers, the one-admin constraint, admin seed script,
-                and end-to-end authentication.
+                Product, category, brand, variant, and image management comes
+                next. The public storefront and checkout follow after that.
               </p>
               <Button asChild className="mt-7 rounded-xl">
-                <Link href="/">
-                  Review the plan before continuing
+                <Link href="/login">
+                  Sign in to your account
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </Button>

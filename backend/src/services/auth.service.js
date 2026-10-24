@@ -22,9 +22,8 @@ function unavailable(message) {
 
 export async function resolveCurrentUser(accessToken) {
   const auth = getSupabaseAuth();
-  const { data: authData, error: authError } = await auth.auth.getUser(
-    accessToken,
-  );
+  const { data: authData, error: authError } =
+    await auth.auth.getUser(accessToken);
 
   if (authError || !authData?.user) {
     throw new ApiError(

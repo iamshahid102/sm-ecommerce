@@ -4,10 +4,7 @@ import "dotenv/config";
 
 import { createClient } from "@supabase/supabase-js";
 
-import {
-  env,
-  isSupabaseConfigured,
-} from "../src/config/env.js";
+import { env, isSupabaseConfigured } from "../src/config/env.js";
 
 const UPDATE_PASSWORD_FLAG = "--update-password";
 
@@ -141,7 +138,9 @@ async function main() {
     });
 
     if (error || !data?.user) {
-      fail(`Could not create the admin auth user: ${error?.message ?? "unknown error"}`);
+      fail(
+        `Could not create the admin auth user: ${error?.message ?? "unknown error"}`,
+      );
       return;
     }
 

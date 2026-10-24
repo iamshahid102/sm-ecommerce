@@ -13,7 +13,10 @@ export class ServerApiError extends Error {
   }
 }
 
-export async function apiFetchServer(path, { token, method = "GET", body } = {}) {
+export async function apiFetchServer(
+  path,
+  { token, method = "GET", body } = {},
+) {
   if (!token) {
     throw new ServerApiError(
       "Your session has expired. Please sign in again.",

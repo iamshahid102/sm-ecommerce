@@ -78,10 +78,7 @@ export const changePasswordSchema = z
     new_password: password,
     confirm_password: z.string().min(1, "Confirm your new password."),
   })
-  .refine(
-    (values) => values.new_password === values.confirm_password,
-    {
-      message: "Passwords do not match.",
-      path: ["confirm_password"],
-    },
-  );
+  .refine((values) => values.new_password === values.confirm_password, {
+    message: "Passwords do not match.",
+    path: ["confirm_password"],
+  });

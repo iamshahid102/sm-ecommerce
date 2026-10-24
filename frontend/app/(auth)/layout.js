@@ -94,7 +94,10 @@ export default function AuthLayout({ children }) {
         </div>
 
         <div className="relative flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-slate-400">
-          <CheckCircle2 className="size-4 text-emerald-400" aria-hidden="true" />
+          <CheckCircle2
+            className="size-4 text-emerald-400"
+            aria-hidden="true"
+          />
           Row Level Security is enabled on every table.
         </div>
       </aside>
@@ -105,7 +108,9 @@ export default function AuthLayout({ children }) {
             <span className="flex size-8 items-center justify-center rounded-lg bg-hero-gradient text-xs font-bold text-white">
               SM
             </span>
-            <span className="font-heading text-base font-semibold">SM Store</span>
+            <span className="font-heading text-base font-semibold">
+              SM Store
+            </span>
           </Link>
           <Link
             href="/"

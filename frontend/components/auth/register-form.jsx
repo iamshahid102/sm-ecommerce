@@ -136,14 +136,16 @@ export function RegisterForm({ nextPath = "/account" }) {
             autoComplete="name"
             placeholder="Ayesha Khan"
             aria-invalid={errors.full_name ? true : undefined}
-            aria-describedby={
-              errors.full_name ? "full_name-error" : undefined
-            }
+            aria-describedby={errors.full_name ? "full_name-error" : undefined}
             {...register("full_name")}
           />
         </FormField>
 
-        <FormField id="email" label="Email address" error={errors.email?.message}>
+        <FormField
+          id="email"
+          label="Email address"
+          error={errors.email?.message}
+        >
           <Input
             id="email"
             type="email"
@@ -168,11 +170,7 @@ export function RegisterForm({ nextPath = "/account" }) {
             autoComplete="tel"
             placeholder="03001234567"
             aria-invalid={errors.phone ? true : undefined}
-            aria-describedby={
-              errors.phone
-                ? "phone-error"
-                : "phone-hint"
-            }
+            aria-describedby={errors.phone ? "phone-error" : "phone-hint"}
             {...register("phone")}
           />
         </FormField>
@@ -233,7 +231,10 @@ export function RegisterForm({ nextPath = "/account" }) {
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-primary hover:underline">
+        <Link
+          href="/login"
+          className="font-medium text-primary hover:underline"
+        >
           Sign in
         </Link>
       </p>

@@ -58,11 +58,7 @@ export function requireAdmin(req, res, next) {
 
   if (req.user.role !== "admin") {
     return next(
-      new ApiError(
-        403,
-        "Administrator access is required.",
-        "ADMIN_REQUIRED",
-      ),
+      new ApiError(403, "Administrator access is required.", "ADMIN_REQUIRED"),
     );
   }
 

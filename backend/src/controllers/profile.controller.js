@@ -1,7 +1,4 @@
-import {
-  changePassword,
-  updateProfile,
-} from "../services/auth.service.js";
+import { changePassword, updateProfile } from "../services/auth.service.js";
 import { sendSuccess } from "../utils/http.js";
 
 export async function getMe(req, res) {

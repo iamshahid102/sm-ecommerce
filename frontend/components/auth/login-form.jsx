@@ -36,6 +36,11 @@ const queryErrors = {
     description:
       "Your sign-in worked, but your profile is missing. Contact the store for help.",
   },
+  forbidden: {
+    title: "Administrator access required",
+    description:
+      "This account is a customer account. Use the customer sign-in, or ask the store owner for admin access.",
+  },
 };
 
 function signInErrorMessage(error) {
@@ -169,12 +174,12 @@ export function LoginForm({
         <AuthAlert title="Sign-in failed">{serverError}</AuthAlert>
       ) : null}
 
-      <form
-        noValidate
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-5"
-      >
-        <FormField id="email" label="Email address" error={errors.email?.message}>
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          id="email"
+          label="Email address"
+          error={errors.email?.message}
+        >
           <Input
             id="email"
             type="email"
@@ -228,7 +233,10 @@ export function LoginForm({
         {adminOnly ? (
           <>
             Customer account?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline">
+            <Link
+              href="/login"
+              className="font-medium text-primary hover:underline"
+            >
               Customer sign in
             </Link>
           </>
@@ -252,7 +260,10 @@ export function LoginForm({
       {!adminOnly ? (
         <p className="text-center text-xs text-muted-foreground">
           Store staff?{" "}
-          <Link href="/admin/login" className="hover:text-foreground hover:underline">
+          <Link
+            href="/admin/login"
+            className="hover:text-foreground hover:underline"
+          >
             Admin sign in
           </Link>
         </p>
