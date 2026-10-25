@@ -260,3 +260,79 @@ export const reportQuerySchema = z
     to: z.string().date().optional().catch(undefined),
   })
   .strip();
+
+export const reviewListQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(50).default(10).catch(10),
+  })
+  .strip();
+
+export const adminCustomerQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    role: z.enum(["all", "customer", "admin"]).default("all").catch("all"),
+    blocked: z.enum(["all", "true", "false"]).default("all").catch("all"),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminReviewQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    visible: z.enum(["all", "true", "false"]).default("all").catch("all"),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminMessageQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminSubscriberQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    activeOnly: z.enum(["true", "false"]).default("false").catch("false"),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminAuditQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    entityType: z.string().trim().max(80).optional().catch(undefined),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminCouponQuerySchema = z
+  .object({
+    q: z.string().trim().max(120).optional().catch(undefined),
+    activeOnly: z.enum(["true", "false"]).default("false").catch("false"),
+    page: z.coerce.number().int().min(1).default(1).catch(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  })
+  .strip();
+
+export const adminNoteSchema = z
+  .object({
+    admin_note: z.preprocess(
+      (value) =>
+        typeof value === "string" && value.trim() === "" ? null : value,
+      z.string().trim().max(2000).nullable(),
+    ),
+  })
+  .strict();
+
+export const readMessageSchema = z
+  .object({ is_read: z.coerce.boolean() })
+  .strict();
+

@@ -31,11 +31,12 @@ export const getSessionProfile = cache(async () => {
   };
 });
 
-export async function requireCustomer() {
+export async function requireCustomer(nextPath = "/account") {
   const session = await getSessionProfile();
+  const loginUrl = `/login?next=${encodeURIComponent(nextPath)}`;
 
   if (!session.claims) {
-    redirect("/login?next=/account");
+    redirect(loginUrl);
   }
 
   if (session.profileError) {

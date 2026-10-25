@@ -6,13 +6,14 @@ PKR pricing, Cash on Delivery and Stripe card payments.
 Built with **Next.js 16 (App Router, JavaScript)**, **Tailwind CSS v4**,
 **shadcn/ui**, **Express 5**, and **Supabase** (Postgres, Auth, Storage).
 
-> **Status: Phase 1 implementation complete.** The database schema, RLS
-> policies, storage rules, triggers, single-admin seed, customer auth, account
-> area, and admin guard are implemented. The migrations are ready to apply to
-> the connected Supabase project; see
-> [`docs/PHASE-1.md`](docs/PHASE-1.md). Live auth/RLS verification is pending
-> that step. The home page is still an intentional foundation page and is
-> replaced by the real storefront in Phase 3.
+> **Status: local implementation complete, live infrastructure pending.**
+> The storefront, customer account area, admin portal, Express API, database
+> migrations, RLS policies, storage rules, and local tests are implemented.
+> Checkout is Cash on Delivery only; Stripe/card payments are intentionally
+> deferred. Migrations have **not** been applied to the connected Supabase
+> project yet, so live auth/RLS/storage verification and the single admin seed
+> remain pending. See [`docs/PHASE-1.md`](docs/PHASE-1.md) for the apply/verify
+> checklist.
 
 ## Repository layout
 
@@ -104,7 +105,7 @@ If PowerShell blocks `npm` (execution policy), use `npm.cmd` for every command.
 | `npm run dev:backend`                 | Run Express with `--watch`                       |
 | `npm run build`                       | Production build of the frontend                 |
 | `npm run lint`                        | ESLint for frontend and backend                  |
-| `npm run test`                        | Jest + Supertest API tests                       |
+| `npm run test`                        | Frontend Node tests + backend Jest/Supertest   |
 | `npm run db:check`                    | Verify tables, buckets, defaults, and the admin  |
 | `npm run db:check:schema`             | Same check before the admin is seeded            |
 | `npm run format`                      | Prettier for JS, CSS, JSON, and Markdown         |

@@ -160,6 +160,21 @@ export async function listPages({ publishedOnly = true } = {}) {
   return data ?? [];
 }
 
+export async function getPageById(id) {
+  const { data, error } = await getSupabaseAdmin()
+    .from("cms_pages")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  throwSupabaseError(error, "Page not found.", "PAGE_NOT_FOUND");
+
+  if (!data) {
+    throw new ApiError(404, "Page not found.", "PAGE_NOT_FOUND");
+  }
+
+  return data;
+}
+
 export async function createPage(input) {
   const payload = {
     ...input,
@@ -295,7 +310,9 @@ export async function listSubscribers({ page = 1, limit = 20, q, activeOnly = fa
   if (q) {
     query = query.ilike("email", `%${q.replace(/[%,()]/g, " ").trim()}%`);
   }
-  if (activeOnly) query = query.eq("is_active", true);
+  if (activeOnly === true || activeOnly === "true") {
+    query = query.eq("is_active", true);
+  }
 
   const { data, error, count } = await query.range(from, to);
   throwSupabaseError(error, "Could not load subscribers.");

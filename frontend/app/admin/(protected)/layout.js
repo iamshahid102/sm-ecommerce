@@ -1,23 +1,13 @@
-import {
-  LayoutDashboard,
-  LogOut,
-  Package,
-  ShoppingBag,
-  Store,
-} from "lucide-react";
+import { LogOut, Store } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAdminAction } from "@/app/actions/auth";
+import { AdminNav } from "@/components/admin/admin-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth/dal";
 import { initials } from "@/lib/format";
-
-const soonItems = [
-  { label: "Catalog", icon: Package },
-  { label: "Orders", icon: ShoppingBag },
-];
 
 export default async function AdminLayout({ children }) {
   const { profile } = await requireAdmin();
@@ -37,35 +27,7 @@ export default async function AdminLayout({ children }) {
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-5" aria-label="Admin">
-          <Link
-            href="/admin"
-            className="flex items-center gap-3 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white"
-            aria-current="page"
-          >
-            <LayoutDashboard
-              className="size-4 text-sky-300"
-              aria-hidden="true"
-            />
-            Dashboard
-          </Link>
-
-          {soonItems.map((item) => (
-            <div
-              key={item.label}
-              className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-400"
-              aria-disabled="true"
-            >
-              <span className="flex items-center gap-3">
-                <item.icon className="size-4" aria-hidden="true" />
-                {item.label}
-              </span>
-              <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[10px]">
-                Next
-              </span>
-            </div>
-          ))}
-        </nav>
+        <AdminNav />
 
         <div className="border-t border-white/10 p-3">
           <Link
@@ -121,7 +83,7 @@ export default async function AdminLayout({ children }) {
                 <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
                   Store administration
                 </p>
-                <p className="text-sm font-medium">Dashboard</p>
+                <p className="text-sm font-medium">Workspace</p>
               </div>
             </div>
 
@@ -142,6 +104,9 @@ export default async function AdminLayout({ children }) {
                 </Button>
               </form>
             </div>
+          </div>
+          <div className="border-t lg:hidden">
+            <AdminNav variant="horizontal" />
           </div>
         </header>
 

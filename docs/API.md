@@ -6,10 +6,12 @@ The API is implemented with Express 5 and Supabase Postgres. The contract below
 is the source of truth for the frontend and tests. Fields may be added in a
 backward-compatible way; removing or renaming a field is a breaking change.
 
-The document describes the complete target contract. **Phase 1 implements the
-System routes, `/me`, and `/admin/dashboard`.** Catalog, cart, checkout, order,
-review, CMS, and payment routes are implemented in later phases; their contracts
-are listed here so the frontend and database can be built against a stable shape.
+The local implementation covers system routes, public catalog/CMS, customer
+profile, addresses, cart, wishlist, coupons, reviews, COD checkout, order
+tracking, and the full admin portal (catalog, orders, customers, reviews,
+coupons, CMS, settings, messages, subscribers, reports, audit logs, uploads).
+Card payments and Stripe webhooks are intentionally deferred until a Stripe
+account is connected.
 
 ## Authentication
 
@@ -301,7 +303,7 @@ Caller's own review. Triggers aggregate recalculation.
 
 ### `GET /admin/dashboard`
 
-Phase 1 returns:
+Dashboard returns:
 
 ```json
 {
@@ -337,99 +339,89 @@ Phase 1 returns:
 products where stock is at or below `low_stock_threshold`. The totals and the
 low-stock list are computed by the `admin_dashboard_metrics()` database function,
 so PostgREST's 1000-row response cap cannot truncate lifetime revenue or counts.
-Date-range parameters and the sales chart series are added in the reports phase;
-no `range` query is accepted yet.
 
 ### Products
 
-- `GET /admin/products` — all products including drafts and soft-deleted
-  (optional `includeDeleted=true`). Filters: search, category, brand, status.
+- `GET /admin/products` — all products including drafts. Filters: `q`, `status`
+  (`all`, `published`, `draft`, `low_stock`, `out_of_stock`), `page`, `limit`.
 - `POST /admin/products` — full product payload with SEO fields, images,
-  variants, publish/feature flags.
+  variants, and publish/feature flags.
 - `GET /admin/products/:id`
-- `PUT /admin/products/:id`
+- `PATCH /admin/products/:id`
 - `DELETE /admin/products/:id` — soft delete (`deleted_at`). Existing orders
   keep working.
-- `POST /admin/products/:id/restore`
-- `POST /admin/products/:id/images` — multipart upload, max 5 MB each,
-  jpg/png/webp, max 8 images. Writes to Supabase Storage.
-- `DELETE /admin/products/:id/images/:imageId` — removes a product image.
-- `PUT /admin/products/:id/variants` — replaces variants (size/color/SKU/stock).
+- `POST /admin/uploads` — multipart upload for `product`, `cms`, or `site`
+  buckets. Max 5 MB per file, jpg/png/webp only. Returns uploaded public URLs.
 
 Product validation: title 3-200, slug unique, price > 0, discount price < price,
-stock >= 0, SKU unique when present, category exists, images <= 8.
+stock >= 0, SKU unique when present, category exists, images <= 8, and at most
+one primary image. Image and variant records are saved with the product payload.
 
 ### Categories and brands
 
-- `GET/POST /admin/categories`, `PUT/DELETE /admin/categories/:id`
-- `GET/POST /admin/brands`, `PUT/DELETE /admin/brands/:id`
+- `GET/POST /admin/categories`, `PATCH/DELETE /admin/categories/:id`
+- `GET/POST /admin/brands`, `PATCH/DELETE /admin/brands/:id`
 
 Deleting a category/brand with products is blocked; deactivate instead.
 
 ### Orders
 
-- `GET /admin/orders` — all orders. Filters: status, payment status, search,
-  date range.
+- `GET /admin/orders` — all orders. Filters: `status`, `q`, `page`, `limit`.
 - `GET /admin/orders/:id`
 - `PATCH /admin/orders/:id/status` — body `status`, optional `tracking_number`,
-  `note`, `courier`. Enforces the transition table in `DECISIONS.md`, writes
-  history, and emails the customer.
-- `PATCH /admin/orders/:id/payment` — body `payment_status` (`paid` |
-  `refunded` | `failed`) with a note. Card orders normally change via webhook.
-- `POST /admin/orders/:id/refund` — records a refund note; Stripe refund is
-  attempted for card orders.
-- `GET /admin/orders/:id/invoice`
+  `courier`, `note`, `admin_note`. Enforces the transition table, writes history,
+  and emails the customer. Delivered COD orders become `paid` automatically.
+- `PATCH /admin/orders/:id/note` — body `admin_note`; internal-only note.
+
+Invoices are printed from the browser order screen; no separate PDF endpoint is
+exposed.
 
 ### Customers
 
-- `GET /admin/customers` — search, sort by join date/order count.
-- `GET /admin/customers/:id` — profile, addresses, order history, totals.
-- `PATCH /admin/customers/:id` — `is_blocked`. Blocking does not delete data.
-  An admin cannot block themselves; the single admin is protected.
+- `GET /admin/customers` — filters: `q`, `role`, `blocked`, `page`, `limit`.
+- `GET /admin/customers/:id` — profile, stats, and order history.
+- `PATCH /admin/customers/:id/block` — body `is_blocked`. Blocking does not
+  delete data. The single admin account cannot be blocked.
+- `GET /admin/reports/customers.csv` — customer CSV export.
 
 ### Reviews
 
-- `GET /admin/reviews` — filter by visibility, rating, product.
-- `PATCH /admin/reviews/:id` — `is_visible`.
-- `DELETE /admin/reviews/:id`
+- `GET /admin/reviews` — filters: `q`, `visible`, `page`, `limit`.
+- `PATCH /admin/reviews/:id` — body `is_visible`.
 
 ### Coupons
 
-- `GET/POST /admin/coupons`, `PUT/DELETE /admin/coupons/:id`
+- `GET/POST /admin/coupons`, `PATCH/DELETE /admin/coupons/:id`
 - Fields: code, type (`percent|fixed`), value, min_subtotal, max_discount,
   starts_at, expires_at, usage_limit, per_user_limit, is_active.
 - Codes are uppercase, unique, and validated server-side.
 
 ### CMS
 
-- `GET/POST /admin/cms/banners`, `PUT/DELETE /admin/cms/banners/:id`
-- `GET/PUT /admin/cms/home` — section order and visibility.
-- `GET/POST /admin/cms/pages`, `PUT/DELETE /admin/cms/pages/:id`
-- `GET/PUT /admin/cms/menu` — header/footer items, nesting, order.
-- `PUT /admin/settings` — store name, logo, favicon, currency, shipping fee,
+- `GET/POST /admin/cms/banners`, `PATCH/DELETE /admin/cms/banners/:id`
+- `GET/POST /admin/cms/home-sections`,
+  `PATCH/DELETE /admin/cms/home-sections/:id`
+- `GET/POST /admin/cms/pages`, `PATCH/DELETE /admin/cms/pages/:id`
+- `GET/POST /admin/cms/menu`, `PATCH/DELETE /admin/cms/menu/:id`
+- `GET/PUT /admin/settings` — store name, logo, favicon, currency, shipping fee,
   free-shipping threshold, tax percent, payment methods, contact info, social
   links, SEO defaults, announcement.
-- `GET /admin/contact-messages`, `PATCH /admin/contact-messages/:id` (mark read)
-- `GET /admin/newsletter` — paginated subscriber list, CSV export.
+- `GET /admin/messages`, `PATCH /admin/messages/:id` (mark read),
+  `DELETE /admin/messages/:id`.
+- `GET /admin/subscribers`, `GET /admin/subscribers/export` — paginated list
+  and CSV export.
+- `GET /admin/audit-logs` — paginated admin audit trail.
 
 All CMS HTML is sanitized server-side before storage. SEO fields are length
-limited.
+limited, and menu links must be internal paths.
 
 ### Reports
 
-### `GET /admin/reports/sales`
-
-Query: `from`, `to`, `groupBy=day|week|month`. Returns gross sales, discounts,
-shipping, refunds, net revenue, order count, average order value, and top
-products. `format=csv` streams a CSV with the same data.
-
-### `GET /admin/reports/inventory`
-
-Low-stock and out-of-stock products, total inventory value.
-
-### `GET /admin/reports/customers`
-
-New vs returning customers, top customers by spend.
+- `GET /admin/reports/sales` — query `from`, `to` (max 366 days). Returns
+  `summary`, `daily`, `top_products`, `top_customers`, `status_breakdown`, and
+  `low_stock`.
+- `GET /admin/reports/orders.csv` — order CSV for the same optional date range.
+- `GET /admin/reports/customers.csv` — customer CSV export.
 
 ### Audit log
 

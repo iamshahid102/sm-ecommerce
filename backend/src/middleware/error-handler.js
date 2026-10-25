@@ -48,6 +48,20 @@ export function errorHandler(error, req, res, next) {
     });
   }
 
+  if (error?.name === "MulterError") {
+    const messages = {
+      LIMIT_FILE_SIZE: "Each image must be 5 MB or smaller.",
+      LIMIT_FILE_COUNT: "You can upload at most 8 images at a time.",
+      LIMIT_UNEXPECTED_FILE: "Unexpected upload field.",
+    };
+
+    return sendError(res, {
+      status: 422,
+      error: messages[error.code] || "The upload could not be processed.",
+      code: error.code,
+    });
+  }
+
   if (error instanceof SyntaxError && "body" in error) {
     return sendError(res, {
       status: 400,

@@ -1,4 +1,12 @@
-import { LayoutDashboard, LogOut, Store } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  Package,
+  ShoppingBag,
+  Star,
+  Store,
+} from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/app/actions/auth";
@@ -13,7 +21,7 @@ export default async function AccountLayout({ children }) {
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur print:hidden">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2.5">
@@ -24,14 +32,38 @@ export default async function AccountLayout({ children }) {
                 SM Store
               </span>
             </Link>
-            <nav className="hidden items-center gap-1 text-sm sm:flex">
+            <nav className="hidden items-center gap-1 text-sm lg:flex">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/">Store</Link>
               </Button>
-              <Button asChild variant="secondary" size="sm">
+              <Button asChild variant="ghost" size="sm">
                 <Link href="/account">
                   <LayoutDashboard className="size-4" aria-hidden="true" />
-                  My account
+                  Dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/account/orders">
+                  <Package className="size-4" aria-hidden="true" />
+                  Orders
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/account/addresses">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  Addresses
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/account/reviews">
+                  <Star className="size-4" aria-hidden="true" />
+                  Reviews
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/cart">
+                  <ShoppingBag className="size-4" aria-hidden="true" />
+                  Cart
                 </Link>
               </Button>
             </nav>
@@ -65,6 +97,23 @@ export default async function AccountLayout({ children }) {
             </form>
           </div>
         </div>
+        <nav
+          className="mx-auto flex w-full max-w-6xl items-center gap-1 overflow-x-auto border-t px-4 py-2 sm:px-6 lg:hidden"
+          aria-label="Account"
+        >
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/account">Dashboard</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/account/orders">Orders</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/account/addresses">Addresses</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/account/reviews">Reviews</Link>
+          </Button>
+        </nav>
       </header>
 
       <main
@@ -74,7 +123,7 @@ export default async function AccountLayout({ children }) {
         {children}
       </main>
 
-      <footer className="border-t">
+      <footer className="border-t print:hidden">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} SM Store. All rights reserved.</p>
           <Link

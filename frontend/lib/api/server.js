@@ -5,15 +5,16 @@ const API_URL = (
 ).replace(/\/$/, "");
 
 export class ServerApiError extends Error {
-  constructor(message, status, code) {
+  constructor(message, status, code, details) {
     super(message);
     this.name = "ServerApiError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
-export async function apiFetchServer(
+export async function apiFetchServerFull(
   path,
   { token, method = "GET", body } = {},
 ) {
@@ -53,8 +54,14 @@ export async function apiFetchServer(
       payload?.error || "The request could not be completed.",
       response.status,
       payload?.code,
+      payload?.details,
     );
   }
 
+  return payload;
+}
+
+export async function apiFetchServer(path, options) {
+  const payload = await apiFetchServerFull(path, options);
   return payload?.data;
 }

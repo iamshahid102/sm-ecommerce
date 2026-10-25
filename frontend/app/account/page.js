@@ -1,9 +1,19 @@
-import { CalendarDays, Package, ShieldCheck, UserRound } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  CalendarDays,
+  MapPin,
+  Package,
+  ShieldCheck,
+  Star,
+  UserRound,
+} from "lucide-react";
 
 import { PasswordForm } from "@/components/account/password-form";
 import { ProfileForm } from "@/components/account/profile-form";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,8 +21,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { requireCustomer } from "@/lib/auth/dal";
-import { formatDate, initials } from "@/lib/format";
+import { apiFetchServer } from "@/lib/api/server";
+import { getAccessToken, requireCustomer } from "@/lib/auth/dal";
+import { statusLabel, statusStyle } from "@/lib/commerce";
+import { formatCurrency, formatDate, initials } from "@/lib/format";
 
 export const metadata = {
   title: "My account",
@@ -20,7 +32,15 @@ export const metadata = {
 };
 
 export default async function AccountPage() {
-  const { profile } = await requireCustomer();
+  const { profile, supabase } = await requireCustomer();
+  const token = await getAccessToken(supabase);
+  let recentOrders = [];
+
+  try {
+    recentOrders = await apiFetchServer("/orders?limit=3", { token });
+  } catch {
+    recentOrders = [];
+  }
 
   return (
     <div className="space-y-8">
@@ -107,24 +127,98 @@ export default async function AccountPage() {
 
         <div className="space-y-6">
           <Card className="rounded-2xl shadow-card">
-            <CardHeader>
-              <span className="flex size-10 items-center justify-center rounded-xl bg-secondary text-primary">
-                <Package className="size-5" aria-hidden="true" />
-              </span>
-              <CardTitle className="mt-3">Orders</CardTitle>
-              <CardDescription>
-                Your order history and tracking will appear here after checkout
-                launches.
-              </CardDescription>
+            <CardHeader className="flex-row items-start justify-between gap-3">
+              <div>
+                <span className="flex size-10 items-center justify-center rounded-xl bg-secondary text-primary">
+                  <Package className="size-5" aria-hidden="true" />
+                </span>
+                <CardTitle className="mt-3">Recent orders</CardTitle>
+                <CardDescription>
+                  Track deliveries and review items you have received.
+                </CardDescription>
+              </div>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/account/orders">View all</Link>
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl border border-dashed bg-muted/40 px-4 py-6 text-center">
-                <p className="text-sm font-medium">No orders yet</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  The storefront and checkout arrive in the next phases. Your
-                  account is ready for them.
-                </p>
-              </div>
+              {recentOrders.length === 0 ? (
+                <div className="rounded-xl border border-dashed bg-muted/40 px-4 py-6 text-center">
+                  <p className="text-sm font-medium">No orders yet</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Your orders will appear here once you complete checkout.
+                  </p>
+                  <Button asChild size="sm" className="mt-3">
+                    <Link href="/products">Start shopping</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {recentOrders.map((order) => (
+                    <Link
+                      key={order.id}
+                      href={`/account/orders/${order.id}`}
+                      className="flex items-center justify-between gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/50"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {order.order_number}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(order.created_at)} · {order.items?.length ?? 0} item
+                          {(order.items?.length ?? 0) === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={statusStyle(order.status)}
+                        >
+                          {statusLabel(order.status)}
+                        </Badge>
+                        <span className="text-sm font-semibold">
+                          {formatCurrency(order.total)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl shadow-card">
+            <CardHeader>
+              <CardTitle className="text-base">Quick links</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2">
+              <Button asChild variant="outline" className="justify-between">
+                <Link href="/account/orders">
+                  <span className="flex items-center gap-2">
+                    <Package className="size-4" aria-hidden="true" />
+                    All orders
+                  </span>
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-between">
+                <Link href="/account/addresses">
+                  <span className="flex items-center gap-2">
+                    <MapPin className="size-4" aria-hidden="true" />
+                    Saved addresses
+                  </span>
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-between">
+                <Link href="/account/reviews">
+                  <span className="flex items-center gap-2">
+                    <Star className="size-4" aria-hidden="true" />
+                    My reviews
+                  </span>
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 

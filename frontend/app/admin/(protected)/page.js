@@ -1,14 +1,17 @@
+import Link from "next/link";
 import {
   AlertTriangle,
-  ArrowUpRight,
+  ArrowRight,
   Package,
   ShoppingBag,
   Users,
   Wallet,
 } from "lucide-react";
 
+import { SalesChart } from "@/components/admin/sales-chart";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -64,9 +67,13 @@ export default async function AdminDashboardPage() {
 
   let dashboard = null;
   let loadError = "";
+  let salesReport = null;
 
   try {
-    dashboard = await apiFetchServer("/admin/dashboard", { token });
+    [dashboard, salesReport] = await Promise.all([
+      apiFetchServer("/admin/dashboard", { token }),
+      apiFetchServer("/admin/reports/sales", { token }).catch(() => null),
+    ]);
   } catch (error) {
     loadError = error.message;
   }
@@ -161,12 +168,26 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
+      {salesReport?.daily?.length ? (
+        <Card className="rounded-2xl shadow-card">
+          <CardHeader>
+            <CardTitle>Revenue, last 30 days</CardTitle>
+            <CardDescription>
+              Daily order revenue, excluding cancelled orders.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SalesChart data={salesReport.daily} />
+          </CardContent>
+        </Card>
+      ) : null}
+
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <Card className="rounded-2xl shadow-card">
           <CardHeader>
             <CardTitle>Recent orders</CardTitle>
             <CardDescription>
-              The newest orders will appear here as checkout goes live.
+              The most recent orders placed in your store.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -178,7 +199,7 @@ export default async function AdminDashboardPage() {
                 />
                 <p className="mt-3 text-sm font-medium">No orders yet</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Orders will show up after the storefront and checkout phases.
+                  Orders appear here as soon as customers check out.
                 </p>
               </div>
             ) : (
@@ -196,7 +217,12 @@ export default async function AdminDashboardPage() {
                   {recentOrders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">
-                        {order.order_number}
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="hover:text-primary"
+                        >
+                          {order.order_number}
+                        </Link>
                       </TableCell>
                       <TableCell>{order.customer_name}</TableCell>
                       <TableCell>
@@ -285,23 +311,43 @@ export default async function AdminDashboardPage() {
                   ))}
                 </ul>
               )}
+              <Button asChild variant="outline" size="sm" className="mt-3 w-full">
+                <Link href="/admin/products?status=low_stock">
+                  Review inventory
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
 
       <Card className="rounded-2xl border-primary/15 bg-secondary/40 shadow-none">
-        <CardContent className="flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <CardContent className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium">Catalog management is next</p>
+            <p className="text-sm font-medium">Store health</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Add products, images, variants, and categories in the next phase.
+              {stats.lowStockCount} product(s) need restocking and{" "}
+              {stats.pendingOrders} order(s) are awaiting confirmation.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
-            Phase 2
-            <ArrowUpRight className="size-3.5" aria-hidden="true" />
-          </span>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/orders?status=pending">
+                Pending orders
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/products?status=low_stock">
+                Low stock
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/admin/products/new">Add product</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

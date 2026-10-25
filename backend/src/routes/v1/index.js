@@ -2,11 +2,15 @@ import { Router } from "express";
 
 import adminRoutes from "./admin.routes.js";
 import meRoutes from "./me.routes.js";
+import publicRoutes from "./public.routes.js";
+import shopRoutes from "./shop.routes.js";
 import systemRoutes from "./system.routes.js";
 
 const router = Router();
 
 router.use(systemRoutes);
+router.use(publicRoutes);
+router.use(shopRoutes);
 router.use("/me", meRoutes);
 router.use("/admin", adminRoutes);
 

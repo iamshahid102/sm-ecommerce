@@ -12,7 +12,9 @@ export async function listCoupons({ page = 1, limit = 20, q, activeOnly = false 
     .order("created_at", { ascending: false });
 
   if (q) query = query.ilike("code", `%${q.replace(/[%,()]/g, " ").trim()}%`);
-  if (activeOnly) query = query.eq("is_active", true);
+  if (activeOnly === true || activeOnly === "true") {
+    query = query.eq("is_active", true);
+  }
 
   const { data, error, count } = await query.range(from, to);
   throwSupabaseError(error, "Could not load coupons.");

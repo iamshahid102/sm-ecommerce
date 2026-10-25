@@ -13,7 +13,7 @@
     "dev:backend": "npm --prefix backend run dev",
     "build": "npm --prefix frontend run build",
     "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
-    "test": "npm --prefix backend test",
+    "test": "npm --prefix frontend test && npm --prefix backend test",
     "db:check": "npm --prefix backend run db:check",
     "db:check:schema": "npm --prefix backend run db:check -- --schema-only",
     "format": "prettier --write .",
