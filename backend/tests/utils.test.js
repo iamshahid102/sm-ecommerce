@@ -68,9 +68,7 @@ describe("CSV helper", () => {
       ],
     );
 
-    expect(csv).toBe(
-      'Name,Note\r\n"A, B","He said ""hi"""\r\n"Line\nbreak",',
-    );
+    expect(csv).toBe('Name,Note\r\n"A, B","He said ""hi"""\r\n"Line\nbreak",');
   });
 });
 

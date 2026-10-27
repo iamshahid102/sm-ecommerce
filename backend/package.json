@@ -6,7 +6,7 @@
   "description": "SM Store REST API (Express + Supabase)",
   "main": "src/server.js",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "node --watch src/server.js",

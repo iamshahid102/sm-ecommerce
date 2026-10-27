@@ -8,7 +8,9 @@ const PAKISTAN_OFFSET = "+05:00";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function resolveRange({ from, to }) {
-  const endDate = to ? new Date(`${to}T23:59:59.999${PAKISTAN_OFFSET}`) : new Date();
+  const endDate = to
+    ? new Date(`${to}T23:59:59.999${PAKISTAN_OFFSET}`)
+    : new Date();
   const startDate = from
     ? new Date(`${from}T00:00:00.000${PAKISTAN_OFFSET}`)
     : new Date(endDate.getTime() - 29 * DAY_MS);
@@ -17,10 +19,18 @@ function resolveRange({ from, to }) {
     throw new ApiError(422, "Invalid report date range.", "INVALID_DATE_RANGE");
   }
   if (startDate > endDate) {
-    throw new ApiError(422, "The start date must be before the end date.", "INVALID_DATE_RANGE");
+    throw new ApiError(
+      422,
+      "The start date must be before the end date.",
+      "INVALID_DATE_RANGE",
+    );
   }
   if (endDate.getTime() - startDate.getTime() > 366 * DAY_MS) {
-    throw new ApiError(422, "Reports are limited to 366 days.", "RANGE_TOO_LARGE");
+    throw new ApiError(
+      422,
+      "Reports are limited to 366 days.",
+      "RANGE_TOO_LARGE",
+    );
   }
 
   return { startDate, endDate };
@@ -84,7 +94,10 @@ export async function getSalesReport(query) {
   const validOrders = (orders ?? []).filter(
     (order) => !["cancelled", "returned"].includes(order.status),
   );
-  const revenue = validOrders.reduce((sum, order) => sum + Number(order.total), 0);
+  const revenue = validOrders.reduce(
+    (sum, order) => sum + Number(order.total),
+    0,
+  );
   const itemsSold = validOrders.reduce(
     (sum, order) =>
       sum +
@@ -126,7 +139,9 @@ export async function getSalesReport(query) {
         revenue: 0,
       };
       product.quantity += item.quantity;
-      product.revenue = Number((product.revenue + Number(item.line_total)).toFixed(2));
+      product.revenue = Number(
+        (product.revenue + Number(item.line_total)).toFixed(2),
+      );
       productMap.set(key, product);
     }
 
@@ -139,7 +154,9 @@ export async function getSalesReport(query) {
         spent: 0,
       };
       customer.orders += 1;
-      customer.spent = Number((customer.spent + Number(order.total)).toFixed(2));
+      customer.spent = Number(
+        (customer.spent + Number(order.total)).toFixed(2),
+      );
       customerMap.set(order.user_id, customer);
     }
   }
@@ -157,9 +174,13 @@ export async function getSalesReport(query) {
         : 0,
       items_sold: itemsSold,
       new_customers: newCustomers ?? 0,
-      cancelled_orders: (orders ?? []).filter((order) => order.status === "cancelled").length,
+      cancelled_orders: (orders ?? []).filter(
+        (order) => order.status === "cancelled",
+      ).length,
       discounts: Number(
-        validOrders.reduce((sum, order) => sum + Number(order.discount), 0).toFixed(2),
+        validOrders
+          .reduce((sum, order) => sum + Number(order.discount), 0)
+          .toFixed(2),
       ),
     },
     daily: [...dayMap.values()],

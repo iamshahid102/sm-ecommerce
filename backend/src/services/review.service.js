@@ -78,9 +78,7 @@ async function assertReviewAllowed(userId, productId, orderId) {
       "REVIEW_NOT_ALLOWED",
     );
   }
-  if (
-    !(data.order_items ?? []).some((item) => item.product_id === productId)
-  ) {
+  if (!(data.order_items ?? []).some((item) => item.product_id === productId)) {
     throw new ApiError(
       422,
       "This product is not part of that order.",

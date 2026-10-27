@@ -190,7 +190,10 @@ export async function adminCreateCoupon(req, res) {
 }
 
 export async function adminUpdateCoupon(req, res) {
-  const coupon = await updateCoupon(req.validated.params.id, req.validated.body);
+  const coupon = await updateCoupon(
+    req.validated.params.id,
+    req.validated.body,
+  );
   await recordAudit({
     actor: req.user,
     action: "coupon.update",
@@ -211,9 +214,13 @@ export async function adminDeleteCoupon(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Coupon deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Coupon deleted.",
+    },
+  );
 }
 
 export async function adminSalesReport(req, res) {

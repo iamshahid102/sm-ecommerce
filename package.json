@@ -4,7 +4,7 @@
   "private": true,
   "description": "SM Store - single-vendor e-commerce platform",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "setup": "npm install && npm --prefix frontend install && npm --prefix backend install",

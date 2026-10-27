@@ -64,7 +64,10 @@ import {
   adminUpdateSettings,
 } from "../../controllers/cms.controller.js";
 import { getDashboard } from "../../controllers/dashboard.controller.js";
-import { removeUpload, uploadImages } from "../../controllers/upload.controller.js";
+import {
+  removeUpload,
+  uploadImages,
+} from "../../controllers/upload.controller.js";
 import { requireAdmin, requireAuth } from "../../middleware/auth.js";
 import { imageUpload } from "../../middleware/upload.js";
 import { validate } from "../../middleware/validate.js";
@@ -192,7 +195,11 @@ router.patch(
   validate({ params: idParams, body: reviewModerationSchema }),
   adminModerateReview,
 );
-router.delete("/reviews/:id", validate({ params: idParams }), adminDeleteReview);
+router.delete(
+  "/reviews/:id",
+  validate({ params: idParams }),
+  adminDeleteReview,
+);
 
 // Customers.
 router.get(
@@ -219,11 +226,19 @@ router.patch(
   validate({ params: idParams, body: couponSchema }),
   adminUpdateCoupon,
 );
-router.delete("/coupons/:id", validate({ params: idParams }), adminDeleteCoupon);
+router.delete(
+  "/coupons/:id",
+  validate({ params: idParams }),
+  adminDeleteCoupon,
+);
 
 // Settings and CMS.
 router.get("/settings", adminGetSettings);
-router.put("/settings", validate({ body: settingsSchema }), adminUpdateSettings);
+router.put(
+  "/settings",
+  validate({ body: settingsSchema }),
+  adminUpdateSettings,
+);
 
 router.get("/cms/banners", adminListBanners);
 router.post(
@@ -267,7 +282,11 @@ router.patch(
   validate({ params: idParams, body: cmsPageSchema }),
   adminUpdatePage,
 );
-router.delete("/cms/pages/:id", validate({ params: idParams }), adminDeletePage);
+router.delete(
+  "/cms/pages/:id",
+  validate({ params: idParams }),
+  adminDeletePage,
+);
 
 router.get("/cms/menu", adminListMenu);
 router.post(
@@ -280,7 +299,11 @@ router.patch(
   validate({ params: idParams, body: menuItemSchema }),
   adminUpdateMenuItem,
 );
-router.delete("/cms/menu/:id", validate({ params: idParams }), adminDeleteMenuItem);
+router.delete(
+  "/cms/menu/:id",
+  validate({ params: idParams }),
+  adminDeleteMenuItem,
+);
 
 // Contact, newsletter, audit.
 router.get(
@@ -325,11 +348,7 @@ router.get(
 router.get("/reports/customers.csv", adminExportCustomers);
 
 // Uploads.
-router.post(
-  "/uploads",
-  imageUpload.array("images", 8),
-  uploadImages,
-);
+router.post("/uploads", imageUpload.array("images", 8), uploadImages);
 router.delete("/uploads", removeUpload);
 
 export default router;

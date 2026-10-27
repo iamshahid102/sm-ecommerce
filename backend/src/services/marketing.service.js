@@ -7,7 +7,10 @@ import { throwSupabaseError } from "../utils/supabase-error.js";
 import { sendEmail } from "./email.service.js";
 
 function unsubscribeUrl(token) {
-  const base = (env.FRONTEND_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  const base = (env.FRONTEND_URL ?? "http://localhost:3000").replace(
+    /\/+$/,
+    "",
+  );
   return `${base}/newsletter/unsubscribe?token=${encodeURIComponent(token)}`;
 }
 

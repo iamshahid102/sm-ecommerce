@@ -63,6 +63,9 @@ Use `npx.cmd`, not `npx`, when PowerShell blocks npm-generated shims.
    | 8     | `supabase/migrations/20261024000800_storage.sql`                |
    | 9     | `supabase/migrations/20261024000900_defaults.sql`               |
    | 10    | `supabase/migrations/20261024001000_dashboard_metrics.sql`      |
+   | 11    | `supabase/migrations/20261024001100_place_order.sql`            |
+   | 12    | `supabase/migrations/20261024001200_starter_content.sql`        |
+   | 13    | `supabase/migrations/20261024001300_inventory_fixes.sql`        |
 
 4. If a file errors, **stop**. Do not continue to the next file. Fix the cause
    and re-run that file (the migrations are written to be safe to re-run).
@@ -463,11 +466,12 @@ npm.cmd run test
 npm.cmd run build
 ```
 
-Phase 1 static result: frontend and backend lint clean, 26 Jest/Supertest tests
-pass, Prettier check passes, and the Next.js production build succeeds. The
-build does not require the database; the admin dashboard fetch is dynamic and
-only runs when the page is requested. The ten migrations are ready to apply but
-have not been applied to the connected project yet.
+Phase 1 static result: frontend and backend lint clean, the backend
+Jest/Supertest suite and frontend Node tests pass, and the Next.js production
+build succeeds. The build does not require the database; the admin dashboard
+fetch is dynamic and only runs when the page is requested. The thirteen
+migrations are ready to apply but have not been applied to the connected project
+yet.
 
 The connected project was checked during debugging: all 25 tables, all three
 storage buckets, the dashboard metrics function, and the admin profile were
@@ -484,10 +488,10 @@ diagnosis from the command line.
   login cannot create or read profiles.
 - The admin dashboard currently returns lifetime paid revenue plus current
   counts. The 7/30/90-day sales series and charts belong to the reports phase.
-- Product/catalog CRUD, storefront, cart, checkout, orders, reviews, CMS screens,
-  Stripe webhooks, Resend emails, and audit-log writes are implemented in later
-  phases; their tables, constraints, buckets, and some defensive triggers are
-  already present.
+- Product/catalog CRUD, storefront, cart, COD checkout, orders, reviews, CMS
+  screens, Resend emails, and audit-log writes are implemented in later phases.
+  Stripe webhooks and live card checkout remain deferred; their tables and
+  constraints are already present.
 - Supabase's default email service is rate-limited. Use custom SMTP for reliable
   production verification and recovery mail.
 - Stripe does not currently offer merchant accounts in Pakistan. The integration

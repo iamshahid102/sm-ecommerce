@@ -25,7 +25,10 @@ const RPC_MESSAGES = {
   ADDRESS_NOT_FOUND: [404, "Delivery address not found."],
   CART_EMPTY: [422, "Your cart is empty."],
   PRODUCT_UNAVAILABLE: [409, "A product in your cart is no longer available."],
-  VARIANT_UNAVAILABLE: [409, "A selected product option is no longer available."],
+  VARIANT_UNAVAILABLE: [
+    409,
+    "A selected product option is no longer available.",
+  ],
   OUT_OF_STOCK: [409, "One or more items are out of stock."],
   INVALID_PRICE: [422, "A product price is invalid."],
   COUPON_INVALID: [422, "The coupon code is not valid."],
@@ -79,7 +82,10 @@ export async function placeOrder(userId, input) {
     await sendOrderConfirmation(order);
   } catch (error) {
     // The order is already committed. Email delivery must never roll it back.
-    logger.warn({ err: error, orderId: order.id }, "Order confirmation email failed");
+    logger.warn(
+      { err: error, orderId: order.id },
+      "Order confirmation email failed",
+    );
   }
 
   try {
@@ -187,12 +193,13 @@ export async function cancelOrderForUser(userId, orderId) {
   const updated = await getOrderForUser(userId, orderId);
 
   try {
-    await sendOrderStatusEmail(updated, "cancelled", "Cancelled by the customer.");
-  } catch (error) {
-    logger.warn(
-      { err: error, orderId },
-      "Order cancellation email failed",
+    await sendOrderStatusEmail(
+      updated,
+      "cancelled",
+      "Cancelled by the customer.",
     );
+  } catch (error) {
+    logger.warn({ err: error, orderId }, "Order cancellation email failed");
   }
 
   return updated;
@@ -242,7 +249,9 @@ export async function updateOrderStatus(orderId, input) {
   const admin = getSupabaseAdmin();
   const { data: current, error } = await admin
     .from("orders")
-    .select("id, status, payment_method, customer_email, customer_name, order_number")
+    .select(
+      "id, status, payment_method, customer_email, customer_name, order_number",
+    )
     .eq("id", orderId)
     .maybeSingle();
   throwSupabaseError(error, "Order not found.", "ORDER_NOT_FOUND");

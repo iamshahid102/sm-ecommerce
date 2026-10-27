@@ -8,7 +8,7 @@ Target architecture from the project plan:
 | Express API                | Render / Railway / VPS                |
 | Database, Auth, Storage    | Supabase Cloud                        |
 | Email                      | Resend                                |
-| Payments                   | Stripe (cards) + COD                  |
+| Payments                   | COD (Stripe cards deferred)           |
 | Monitoring                 | Sentry, Vercel Analytics, UptimeRobot |
 
 Phase 1 provides the database, auth, storage, and admin foundation. This document
@@ -17,10 +17,10 @@ provision a staging project after the Phase 1 migrations are applied.
 
 ## 1. Prerequisites
 
-- Node.js 22+ (the repo is developed on Node 24).
+- Node.js 22.12+ (the repo is developed on Node 24).
 - A Supabase project (free tier is fine for staging).
-- A Stripe account with test keys (see the Pakistan caveat in
-  `docs/DECISIONS.md`).
+- A Stripe account only when card payments are implemented (deferred; see the
+  Pakistan caveat in `docs/DECISIONS.md`).
 - A Resend account and a verified sending domain.
 - Accounts on Vercel and Render/Railway.
 
@@ -145,15 +145,21 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<stripe-pk>
 `NEXT_PUBLIC_*` values are embedded in the browser bundle. Only publishable keys
 belong there.
 
-## 5. Stripe
+## 5. Stripe (deferred)
+
+> **Not implemented in this build.** Keep card payments disabled and use COD
+> only. The `stripe_events` table exists for a future integration, but there is
+> no checkout intent creation or webhook route yet.
+
+When card payments are implemented:
 
 1. Add the webhook endpoint `https://api.your-domain.com/api/v1/webhooks/stripe`
    in the Stripe dashboard.
 2. Subscribe to `payment_intent.succeeded`, `payment_intent.payment_failed`, and
    `charge.refunded`.
 3. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`.
-4. The webhook route uses the raw request body; do not put a JSON parser in
-   front of it (the app mounts it before `express.json()` in Phase 5).
+4. Mount the webhook route before `express.json()` so the raw request body is
+   available for signature verification.
 5. Test with the Stripe CLI:
 
    ```bash
@@ -165,9 +171,9 @@ belong there.
 
 1. Verify the sending domain in Resend and add the DNS records it provides.
 2. Set `RESEND_API_KEY` and `EMAIL_FROM`.
-3. Order and status emails are skipped (and logged) in development when the key
-   is absent; production startup should fail fast if email is required. This is
-   finalized in Phase 5.
+3. Order, status, contact acknowledgement, admin new-order, and newsletter
+   welcome emails are implemented. When the key is absent, `sendEmail` logs the
+   attempt and returns a skipped result instead of failing the business action.
 
 ## 7. Domain, TLS, and DNS
 
@@ -203,7 +209,8 @@ belong there.
 
 ## 9. CI/CD (Phase 9)
 
-GitHub Actions will run, on every pull request:
+No `.github/workflows` file is committed yet. The local verification command
+that CI should run on every pull request is:
 
 ```bash
 npm run setup
@@ -223,5 +230,5 @@ run `db push` automatically against production from an untrusted branch.
 - Database: migrations are additive and reviewed; destructive changes require a
   backup and a two-step deploy. Supabase point-in-time recovery is the last
   resort.
-- Payments: disable card payments in site settings while investigating; COD
-  remains available.
+- Payments: COD is the only enabled method. Keep card payments disabled until
+  the provider integration has its own verified runbook.

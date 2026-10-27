@@ -9,7 +9,10 @@ const DEFAULT_BATCH_SIZE = 1000;
  */
 export async function fetchAllRows(
   buildQuery,
-  { batchSize = DEFAULT_BATCH_SIZE, errorMessage = "Could not load records." } = {},
+  {
+    batchSize = DEFAULT_BATCH_SIZE,
+    errorMessage = "Could not load records.",
+  } = {},
 ) {
   const rows = [];
 

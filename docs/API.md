@@ -79,8 +79,9 @@ returned in production.
 
 `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `ADMIN_REQUIRED`,
 `ADMIN_CANNOT_SHOP`, `ACCOUNT_BLOCKED`, `NOT_FOUND`, `CONFLICT`, `OUT_OF_STOCK`,
-`INVALID_COUPON`, `INVALID_STATUS_TRANSITION`, `REVIEW_NOT_ALLOWED`,
-`ALREADY_REVIEWED`, `RATE_LIMITED`, `PAYLOAD_TOO_LARGE`,
+`INVALID_COUPON`, `INVALID_STATUS_TRANSITION`, `STATUS_UNCHANGED`,
+`INVALID_DATA`, `REVIEW_NOT_ALLOWED`, `ALREADY_REVIEWED`, `RATE_LIMITED`,
+`PAYLOAD_TOO_LARGE`,
 `INVALID_CURRENT_PASSWORD`, `PASSWORD_NOT_AVAILABLE`, `PROFILE_UPDATE_FAILED`,
 `PASSWORD_UPDATE_FAILED`, `AUTH_SERVICE_UNAVAILABLE`,
 `DASHBOARD_UNAVAILABLE`, `INTERNAL_ERROR`.
@@ -160,7 +161,8 @@ returns `201`.
 ### `POST /newsletter`
 
 Body: `email`. Idempotent. Returns `201` for a new subscriber and `200` if
-already subscribed. Rate limited.
+already subscribed. Rate limited. New and re-activated subscribers receive a
+welcome email containing their unsubscribe link when Resend is configured.
 
 ---
 
@@ -214,6 +216,8 @@ the current password with Supabase Auth before changing it. Returns `200` with
   Merges the guest cart, clamping to stock.
 
 Cart responses always use server prices. Client-supplied prices are ignored.
+The `summary` includes `tax_percent` so checkout can calculate its preview from
+the exact configured rate instead of inferring it from the tax amount.
 
 ### Coupons
 
@@ -241,8 +245,10 @@ Body:
 }
 ```
 
-`items` is optional; when omitted the server uses the saved cart. When present,
-the server still validates ownership and uses only IDs/quantities.
+`shipping_method` currently accepts only `standard`; the server stores that
+value and uses the configured flat/free shipping rule. `items` is optional; when
+omitted the server uses the saved cart. When present, the server still validates
+ownership and uses only IDs/quantities.
 
 Server behaviour (single Postgres RPC transaction):
 
@@ -257,7 +263,8 @@ Server behaviour (single Postgres RPC transaction):
 9. Increment coupon usage.
 
 Returns `201` with the order. `409 OUT_OF_STOCK` includes the affected items.
-For card payments the response also contains the Stripe client secret.
+Only `cod` is currently accepted; card requests are rejected until Stripe
+checkout is implemented.
 
 ### `GET /orders`
 
@@ -276,10 +283,8 @@ Allowed only when `status = 'pending'` and the order belongs to the caller.
 Restores stock and coupon usage in one transaction, appends history, and sends
 an email. `409 INVALID_STATUS_TRANSITION` otherwise.
 
-### `GET /orders/:id/invoice`
-
-Returns an HTML invoice (print-friendly) scoped to the caller. The admin variant
-is under `/admin/orders/:id/invoice`.
+Invoices are rendered by the order detail page and printed or saved as PDF from
+the browser. No separate invoice API endpoint is exposed.
 
 ### Reviews
 
@@ -342,8 +347,10 @@ so PostgREST's 1000-row response cap cannot truncate lifetime revenue or counts.
 
 ### Products
 
-- `GET /admin/products` — all products including drafts. Filters: `q`, `status`
+- `GET /admin/products` - all products including drafts. Filters: `q`, `status`
   (`all`, `published`, `draft`, `low_stock`, `out_of_stock`), `page`, `limit`.
+  `low_stock` is filtered by the generated `products.is_low_stock` column rather
+  than after pagination, so page counts are exact.
 - `POST /admin/products` — full product payload with SEO fields, images,
   variants, and publish/feature flags.
 - `GET /admin/products/:id`
@@ -368,10 +375,14 @@ Deleting a category/brand with products is blocked; deactivate instead.
 
 - `GET /admin/orders` — all orders. Filters: `status`, `q`, `page`, `limit`.
 - `GET /admin/orders/:id`
-- `PATCH /admin/orders/:id/status` — body `status`, optional `tracking_number`,
-  `courier`, `note`, `admin_note`. Enforces the transition table, writes history,
-  and emails the customer. Delivered COD orders become `paid` automatically.
-- `PATCH /admin/orders/:id/note` — body `admin_note`; internal-only note.
+- `PATCH /admin/orders/:id/status` - body `status`, optional `tracking_number`,
+  `courier`, `note`, `admin_note`. Enforces the transition table, persists the
+  customer-visible `note` on the new history row, and emails the customer.
+  Delivered COD orders become `paid` automatically.
+- `PATCH /admin/orders/:id/payment` - body `payment_status`
+  (`unpaid|paid|refunded|failed`). Updates the order and its payment record and
+  is audit logged. The admin uses this to mark collected COD cash or a refund.
+- `PATCH /admin/orders/:id/note` - body `admin_note`; internal-only note.
 
 Invoices are printed from the browser order screen; no separate PDF endpoint is
 exposed.
@@ -386,8 +397,10 @@ exposed.
 
 ### Reviews
 
-- `GET /admin/reviews` — filters: `q`, `visible`, `page`, `limit`.
-- `PATCH /admin/reviews/:id` — body `is_visible`.
+- `GET /admin/reviews` - filters: `q`, `visible`, `page`, `limit`.
+- `PATCH /admin/reviews/:id` - body `is_visible` (approve or hide).
+- `DELETE /admin/reviews/:id` - permanently delete a review; aggregates are
+  recalculated by the database trigger.
 
 ### Coupons
 
@@ -420,8 +433,10 @@ limited, and menu links must be internal paths.
 - `GET /admin/reports/sales` — query `from`, `to` (max 366 days). Returns
   `summary`, `daily`, `top_products`, `top_customers`, `status_breakdown`, and
   `low_stock`.
-- `GET /admin/reports/orders.csv` — order CSV for the same optional date range.
-- `GET /admin/reports/customers.csv` — customer CSV export.
+- `GET /admin/reports/orders.csv` - order CSV for the same optional date range.
+- `GET /admin/reports/customers.csv` - customer CSV export.
+- Report and CSV queries fetch in 1000-row batches, so PostgREST's default row
+  cap cannot silently truncate a large date range or customer list.
 
 ### Audit log
 
@@ -433,13 +448,11 @@ the admin at `GET /admin/audit-logs` and is never writable through the API.
 
 ## Webhooks
 
-### `POST /webhooks/stripe`
-
-Raw body, no auth header. Verifies `stripe-signature` against
-`STRIPE_WEBHOOK_SECRET`. Handles `payment_intent.succeeded`,
-`payment_intent.payment_failed`, and `charge.refunded`. Idempotent by Stripe
-event ID. Returns `400` for invalid signatures; never trusts the payload without
-verification.
+Stripe checkout and webhooks are **not implemented** in this build. The
+`stripe_events` table exists in the schema for future idempotency, but there is
+no `/webhooks/stripe` route and no SDK dependency. COD is the only enabled
+payment method. When Stripe is added, the webhook must use the raw request body
+and verify `stripe-signature` before writing anything.
 
 ## Rate limits
 

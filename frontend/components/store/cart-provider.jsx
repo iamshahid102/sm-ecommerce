@@ -13,26 +13,21 @@ import { toast } from "sonner";
 
 import { apiFetch } from "@/lib/api/client";
 import { createClient } from "@/lib/supabase/client";
-import {
-  guestCartItems,
-  guestLineId,
-  useCartStore,
-} from "@/lib/store/cart";
+import { guestCartItems, guestLineId, useCartStore } from "@/lib/store/cart";
 
 const CartContext = createContext(null);
 
 function calculateGuestSummary(items, settings) {
   const subtotal = Number(
     items
-      .reduce(
-        (sum, item) => sum + Number(item.unit_price) * item.quantity,
-        0,
-      )
+      .reduce((sum, item) => sum + Number(item.unit_price) * item.quantity, 0)
       .toFixed(2),
   );
   const threshold = settings?.free_shipping_threshold;
   const shipping =
-    threshold !== null && threshold !== undefined && subtotal >= Number(threshold)
+    threshold !== null &&
+    threshold !== undefined &&
+    subtotal >= Number(threshold)
       ? 0
       : Number(settings?.shipping_fee ?? 0);
   const tax = Number(
@@ -116,10 +111,7 @@ export function CartProvider({ children, role, settings }) {
       try {
         const currentGuestItems = useCartStore.getState().items;
 
-        if (
-          currentGuestItems.length > 0 &&
-          mergedFor.current !== user.id
-        ) {
+        if (currentGuestItems.length > 0 && mergedFor.current !== user.id) {
           const merged = await apiFetch("/cart/merge", {
             method: "POST",
             body: { items: guestCartItems(currentGuestItems) },
@@ -238,9 +230,7 @@ export function CartProvider({ children, role, settings }) {
     return guestItems.map((item) => ({
       ...item,
       id: item.id ?? guestLineId(item.product_id, item.variant_id),
-      line_total: Number(
-        (Number(item.unit_price) * item.quantity).toFixed(2),
-      ),
+      line_total: Number((Number(item.unit_price) * item.quantity).toFixed(2)),
     }));
   }, [guestItems, isAdmin, serverCart, user]);
 

@@ -49,7 +49,8 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
                 {settings?.store_name || "SM Store"}
               </p>
               <p className="text-xs text-slate-400">
-                {settings?.store_tagline || "Everyday essentials, thoughtfully selected."}
+                {settings?.store_tagline ||
+                  "Everyday essentials, thoughtfully selected."}
               </p>
             </div>
           </div>
@@ -149,7 +150,10 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
             ) : null}
             {settings?.address || settings?.city ? (
               <p className="flex items-start gap-2">
-                <MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                <MapPin
+                  className="mt-0.5 size-3.5 shrink-0"
+                  aria-hidden="true"
+                />
                 {[settings.address, settings.city, settings.country]
                   .filter(Boolean)
                   .join(", ")}

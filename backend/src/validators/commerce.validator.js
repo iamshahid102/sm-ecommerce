@@ -16,18 +16,22 @@ export const addressSchema = z
     full_name: z.string().trim().min(2).max(100),
     phone: phoneSchema,
     address_line1: z.string().trim().min(5).max(200),
-    address_line2: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(200).nullable(),
-    ).optional(),
+    address_line2: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(200).nullable(),
+      )
+      .optional(),
     city: z.string().trim().min(2).max(80),
     state: z.string().trim().min(2).max(80),
-    postal_code: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(20).nullable(),
-    ).optional(),
+    postal_code: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(20).nullable(),
+      )
+      .optional(),
     country: z.string().trim().length(2).toUpperCase().default("PK"),
     is_default: z.coerce.boolean().default(false),
   })
@@ -36,10 +40,12 @@ export const addressSchema = z
 export const cartItemSchema = z
   .object({
     product_id: uuidSchema,
-    variant_id: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.string().uuid().nullable(),
-    ).optional(),
+    variant_id: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.string().uuid().nullable(),
+      )
+      .optional(),
     quantity: z.coerce.number().int().min(1).max(99),
   })
   .strict();
@@ -50,9 +56,7 @@ export const cartMergeSchema = z
   })
   .strict();
 
-export const wishlistSchema = z
-  .object({ product_id: uuidSchema })
-  .strict();
+export const wishlistSchema = z.object({ product_id: uuidSchema }).strict();
 
 export const couponValidateSchema = z
   .object({
@@ -67,31 +71,44 @@ export const couponSchema = z
       .string()
       .trim()
       .toUpperCase()
-      .regex(/^[A-Z0-9_-]{3,30}$/, "Use 3-30 uppercase letters, numbers, _ or -."),
-    description: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(300).nullable(),
-    ).optional(),
+      .regex(
+        /^[A-Z0-9_-]{3,30}$/,
+        "Use 3-30 uppercase letters, numbers, _ or -.",
+      ),
+    description: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(300).nullable(),
+      )
+      .optional(),
     type: z.enum(["percent", "fixed"]),
     value: z.coerce.number().positive(),
     min_subtotal: z.coerce.number().min(0).default(0),
-    max_discount: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.coerce.number().positive().nullable(),
-    ).optional(),
-    starts_at: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.string().datetime({ offset: true }).nullable(),
-    ).optional(),
-    expires_at: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.string().datetime({ offset: true }).nullable(),
-    ).optional(),
-    usage_limit: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.coerce.number().int().positive().nullable(),
-    ).optional(),
+    max_discount: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.coerce.number().positive().nullable(),
+      )
+      .optional(),
+    starts_at: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.string().datetime({ offset: true }).nullable(),
+      )
+      .optional(),
+    expires_at: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.string().datetime({ offset: true }).nullable(),
+      )
+      .optional(),
+    usage_limit: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.coerce.number().int().positive().nullable(),
+      )
+      .optional(),
     per_user_limit: z.coerce.number().int().positive().default(1),
     is_active: z.coerce.boolean().default(true),
   })
@@ -111,10 +128,12 @@ export const couponSchema = z
 export const orderItemInputSchema = z
   .object({
     product_id: uuidSchema,
-    variant_id: z.preprocess(
-      (value) => (value === "" ? null : value),
-      z.string().uuid().nullable(),
-    ).optional(),
+    variant_id: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z.string().uuid().nullable(),
+      )
+      .optional(),
     quantity: z.coerce.number().int().min(1).max(99),
   })
   .strict();
@@ -122,21 +141,24 @@ export const orderItemInputSchema = z
 export const placeOrderSchema = z
   .object({
     address_id: uuidSchema,
+    shipping_method: z.literal("standard").default("standard"),
     payment_method: z.enum(["cod"], {
       message: "Cash on Delivery is the only available payment method.",
     }),
-    coupon_code: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === ""
-          ? null
-          : value,
-      z.string().trim().toUpperCase().max(30).nullable(),
-    ).optional(),
-    customer_note: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(1000).nullable(),
-    ).optional(),
+    coupon_code: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().toUpperCase().max(30).nullable(),
+      )
+      .optional(),
+    customer_note: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(1000).nullable(),
+      )
+      .optional(),
   })
   .strict();
 
@@ -171,26 +193,34 @@ export const orderStatusSchema = z
       "cancelled",
       "returned",
     ]),
-    note: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(500).nullable(),
-    ).optional(),
-    tracking_number: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(100).nullable(),
-    ).optional(),
-    courier: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(100).nullable(),
-    ).optional(),
-    admin_note: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().max(2000).nullable(),
-    ).optional(),
+    note: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(500).nullable(),
+      )
+      .optional(),
+    tracking_number: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(100).nullable(),
+      )
+      .optional(),
+    courier: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(100).nullable(),
+      )
+      .optional(),
+    admin_note: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().max(2000).nullable(),
+      )
+      .optional(),
   })
   .strict();
 
@@ -199,11 +229,13 @@ export const reviewSchema = z
     product_id: uuidSchema,
     order_id: uuidSchema,
     rating: z.coerce.number().int().min(1).max(5),
-    title: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().min(2).max(120).nullable(),
-    ).optional(),
+    title: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().min(2).max(120).nullable(),
+      )
+      .optional(),
     comment: z.string().trim().min(10).max(2000),
   })
   .strict();
@@ -211,11 +243,13 @@ export const reviewSchema = z
 export const reviewUpdateSchema = z
   .object({
     rating: z.coerce.number().int().min(1).max(5).optional(),
-    title: z.preprocess(
-      (value) =>
-        typeof value === "string" && value.trim() === "" ? null : value,
-      z.string().trim().min(2).max(120).nullable(),
-    ).optional(),
+    title: z
+      .preprocess(
+        (value) =>
+          typeof value === "string" && value.trim() === "" ? null : value,
+        z.string().trim().min(2).max(120).nullable(),
+      )
+      .optional(),
     comment: z.string().trim().min(10).max(2000).optional(),
   })
   .strict();
@@ -341,4 +375,3 @@ export const adminNoteSchema = z
 export const readMessageSchema = z
   .object({ is_read: z.coerce.boolean() })
   .strict();
-

@@ -18,7 +18,9 @@ function normalizeLine(line) {
   if (!product || product.deleted_at || !product.is_published) return null;
 
   const variant = line.variant_id
-    ? (product.product_variants ?? []).find((item) => item.id === line.variant_id)
+    ? (product.product_variants ?? []).find(
+        (item) => item.id === line.variant_id,
+      )
     : null;
 
   if (line.variant_id && (!variant || !variant.is_active)) return null;
@@ -64,9 +66,7 @@ export async function getCart(userId) {
 
   const items = (data ?? []).map(normalizeLine).filter(Boolean);
   const settings = await getSettings();
-  const subtotal = money(
-    items.reduce((sum, item) => sum + item.line_total, 0),
-  );
+  const subtotal = money(items.reduce((sum, item) => sum + item.line_total, 0));
   const shippingFee =
     settings.free_shipping_threshold !== null &&
     subtotal >= Number(settings.free_shipping_threshold)
@@ -136,7 +136,8 @@ export async function addCartItem(userId, input) {
     ? existingQuery.eq("variant_id", input.variant_id)
     : existingQuery.is("variant_id", null);
 
-  const { data: existing, error: existingError } = await existingQuery.maybeSingle();
+  const { data: existing, error: existingError } =
+    await existingQuery.maybeSingle();
   throwSupabaseError(existingError, "Could not load your cart.");
 
   const quantity = Math.min(

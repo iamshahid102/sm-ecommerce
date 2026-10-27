@@ -44,7 +44,7 @@ the safer/current option is used.
 ## ADR-004: Backend is ESM JavaScript
 
 - **Status:** Accepted (Phase 0)
-- **Decision:** Express runs as native ESM (`"type": "module"`) on Node 22+. All
+- **Decision:** Express runs as native ESM (`"type": "module"`) on Node 22.12+. All
   relative imports include the `.js` extension. Jest uses Babel only as a test
   transform; production code is not transpiled.
 - **Rationale:** Aligns with modern Node and the frontend module system without
@@ -104,7 +104,7 @@ the safer/current option is used.
 
 ## ADR-009: Order and payment rules
 
-- **Status:** Accepted (Phase 0), schema implemented (Phase 1)
+- **Status:** COD implemented; card payments deferred
 - **Decision:**
   - All totals are recalculated server-side. Arithmetic that combines prices,
     discounts, tax, and shipping is done in integer paisa and rounded once
@@ -113,15 +113,15 @@ the safer/current option is used.
     transaction.
   - Shipping fee and free-shipping threshold come from `site_settings`.
   - Tax is stored as a configurable percentage and defaults to `0`.
-  - COD orders become `paid` when marked `delivered`; card orders become `paid`
-    only from a verified Stripe webhook.
-  - A card payment is authorized at checkout, but the order is only confirmed
-    after the webhook succeeds. Failed/abandoned card orders are cancelled and
-    stock restored.
+  - COD orders become `paid` when marked `delivered`. The admin can also mark a
+    COD payment paid or refunded explicitly.
+  - Card checkout is disabled in this build. When it is implemented, card
+    orders must become `paid` only from a verified Stripe webhook; a card order
+    must not be confirmed from the browser redirect alone.
 - **Caveat:** Stripe does not currently offer merchant accounts in Pakistan.
-  The integration will be fully implemented and testable with Stripe test keys;
-  going live with cards requires a supported Stripe account or the future
-  JazzCash/Easypaisa integration listed in the plan.
+  A future integration can be tested with Stripe test keys; going live with
+  cards requires a supported Stripe account or the JazzCash/Easypaisa option
+  listed in the plan.
 - **Schema deviation:** The plan's sample uses `numeric(10,2)`. The implementation
   uses `numeric(12,2)` for money so large PKR order totals and aggregates do not
   overflow. Display and API values still use two decimals.
@@ -284,3 +284,22 @@ nothing`.
 - **Rationale:** Starting production with a localhost CORS allow-list is a
   configuration failure that should stop the process, not fail silently in the
   browser.
+
+## ADR-022: Database-side low-stock filtering and batched exports
+
+- **Status:** Accepted (Phase 8)
+- **Context:** Admin pagination must agree with the low-stock filter. Filtering
+  after `range()` can return an empty page while matching rows exist later.
+  PostgREST also caps an unpaginated select at 1000 rows, which can silently
+  truncate reports and CSV exports on a busy store.
+- **Decision:**
+  - `products.is_low_stock` is a stored generated column, indexed for the admin
+    low-stock filter and its exact count.
+  - Report and CSV queries re-run the query for 1000-row windows until a short
+    batch is returned.
+  - Variant order lines restore only `product_variants.stock`; base-product
+    lines restore only `products.stock`.
+  - Checkout previews use the exact configured `tax_percent`, while the order
+    RPC remains authoritative for the committed total.
+- **Consequence:** Admin counts, large exports, and cancellation stock changes
+  stay correct without loading every row into the browser or inflating stock.

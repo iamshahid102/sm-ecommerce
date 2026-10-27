@@ -21,6 +21,9 @@ supabase/
     20261024000800_storage.sql
     20261024000900_defaults.sql
     20261024001000_dashboard_metrics.sql
+    20261024001100_place_order.sql
+    20261024001200_starter_content.sql
+    20261024001300_inventory_fixes.sql
 ```
 
 The 25 public tables are:
@@ -31,8 +34,11 @@ The 25 public tables are:
 `site_settings`, `banners`, `home_sections`, `cms_pages`, `menu_items`,
 `contact_messages`, `newsletter_subscribers`, `audit_logs`, `stripe_events`.
 
-Migration 0010 also adds `admin_dashboard_metrics()`, a service-role-only
-function that computes dashboard totals without PostgREST's 1000-row cap.
+Migration 0010 adds `admin_dashboard_metrics()`, a service-role-only function
+that computes dashboard totals without PostgREST's 1000-row cap. Migration 0011
+adds the transactional `place_order()` RPC. Migration 0012 adds starter CMS
+pages, menus, and home-section defaults. Migration 0013 adds the generated
+`products.is_low_stock` column and corrects variant stock restoration.
 
 ## Apply to a hosted project
 
@@ -49,8 +55,8 @@ npx.cmd --yes supabase@latest migration list
 
 ### SQL Editor alternative
 
-Run the ten migration files in filename order in the Supabase SQL Editor. Each
-file must finish before starting the next. The SQL Editor does not update the
+Run all thirteen migration files in filename order in the Supabase SQL Editor.
+Each file must finish before starting the next. The SQL Editor does not update the
 CLI's `supabase_migrations.schema_migrations` history, so keep using the editor
 or mark the applied versions with `supabase migration repair` before switching to
 `db push`. After applying, reload the schema cache if PostgREST still reports
@@ -60,8 +66,9 @@ or mark the applied versions with `supabase migration repair` before switching t
 notify pgrst, 'reload schema';
 ```
 
-The migrations are safe to re-run but do not alter existing tables. Future
-schema changes must be new migration files.
+The migrations are additive and written to be safe to re-run; where a later
+migration changes a function or adds a generated column, it uses idempotent DDL.
+Future schema changes must be new migration files.
 
 After applying the migrations, reload the PostgREST schema cache and verify the
 live project from the repository root:

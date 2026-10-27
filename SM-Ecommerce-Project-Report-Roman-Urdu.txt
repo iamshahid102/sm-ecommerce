@@ -1,0 +1,548 @@
+================================================================================
+SM STORE - E-COMMERCE PROJECT COMPLETION REPORT (ROMAN URDU)
+================================================================================
+
+Date: 27 October 2026
+Project: sm-ecommerce / SM Store
+Location: D:\Coding\sm-ecommerce
+Report language: Roman Urdu
+Prepared as: Senior Full Stack Developer handover
+
+--------------------------------------------------------------------------------
+1. KHULASA (EXECUTIVE SUMMARY)
+--------------------------------------------------------------------------------
+
+Is project ko "E-Commerce Website - Complete Project Plan (Roman Urdu).md" ke
+mutabiq locally implement kiya gaya hai. Plan ke tamam core development phases
+(setup, database schema, auth, admin panel, storefront, cart, checkout, orders,
+reviews, CMS, reports aur local quality checks) code level par complete hain.
+
+Aap ki hidayat ke mutabiq do cheezen deliberately skip/defer ki gayi hain:
+
+1. LIVE SUPABASE DATABASE CONNECTION
+   - Supabase project ke sath live connection, migrations apply, RLS/storage/
+     auth ki live verification, aur admin seed intentionally nahi kiya gaya.
+   - Tamam migrations SQL files ke through likhi gayi hain, lekin live database
+     par apply nahi hui hain.
+
+2. STRIPE CARD PAYMENT / WEBHOOK INTEGRATION
+   - Stripe checkout, payment intent aur webhook signature verification implement
+     nahi kiye gaye.
+   - Checkout sirf Cash on Delivery (COD) par chal raha hai.
+   - Admin settings mein card payments disabled hain.
+
+Is waqt project ka status yeh hai:
+
+- Local lint: PASS
+- Local tests: PASS (frontend 9 + backend 55 = 64 tests)
+- Next.js production build: PASS
+- Live database / RLS / storage / real order flow: NOT VERIFIED (database apply
+  nahi hui)
+- Live deployment / E2E / monitoring: NOT DONE
+
+Is liye project ko "local implementation complete" kaha ja sakta hai, lekin
+"fully production-ready" nahi, jab tak live Supabase migrations, admin seed,
+live auth/RLS/storage verification aur deployment complete na ho jaye.
+
+--------------------------------------------------------------------------------
+2. PLAN KE PHASES KA STATUS
+--------------------------------------------------------------------------------
+
+Plan Phase                          Status
+----------------------------------- --------------------------------------------
+1. Setup (Next.js, Tailwind,
+   shadcn/ui, Express, ESLint,
+   Prettier, env structure)         COMPLETE
+
+2. Database + Auth
+   (tables, RLS, triggers,
+   admin seed, login/register,
+   guards)                          CODE + MIGRATIONS COMPLETE
+                                    LIVE APPLY / SEED / RLS VERIFICATION PENDING
+
+3. Admin Catalog
+   (dashboard, categories,
+   products CRUD, image upload,
+   variants, stock)                 COMPLETE
+
+4. Store Frontend
+   (home, listing, filters,
+   detail, search, SEO)             COMPLETE
+
+5. Cart + Checkout
+   (cart, wishlist, addresses,
+   coupons, COD order placement)    COMPLETE
+
+6. Orders
+   (customer tracking, admin order
+   management, emails, invoice)     COMPLETE
+
+7. Reviews
+   (delivered-order rule,
+   moderation, rating aggregation)  COMPLETE
+
+8. CMS Portal
+   (banners, pages, Tiptap editor,
+   menu, home sections, settings,
+   contact inbox, subscribers)      COMPLETE
+
+9. Reports + Polish
+   (charts, CSV exports, low-stock,
+   responsive/error states)         COMPLETE
+
+10. Testing + Deploy
+   (unit/API tests, E2E, deploy,
+   domain, CI/CD, monitoring)        LOCAL LINT/TEST/BUILD COMPLETE
+                                     LIVE E2E / DEPLOY / CI / MONITORING PENDING
+
+Note: Project phase numbering plan se ek shift hai (ADR-002). Plan Phase 3
+(Admin Catalog) project Phase 2 ke tor par implement hua. Neeche features plan
+ke hisaab se likhe gaye hain.
+
+--------------------------------------------------------------------------------
+3. KYA KYA COMPLETE HUA (DETAIL)
+--------------------------------------------------------------------------------
+
+3.1 FOUNDATION / SETUP
+-----------------------
+- Next.js 16 App Router (JavaScript) frontend.
+- Tailwind CSS v4 aur shadcn/ui components.
+- Express 5 backend, native ESM, Node 22.12+ requirement (sanitize-html 2.18
+  ki ESM dependency ke liye required).
+- Root scripts: setup, dev, lint, test, build, db:check, format.
+- Frontend aur backend ke alag package trees aur lockfiles.
+- Environment examples, .gitignore, Prettier, ESLint.
+- Shared UI primitives: button, card, dialog, sheet, table, tabs, select,
+  dropdown, badge, alert, input, textarea, skeleton, pagination, sonner, etc.
+- Root error, loading, not-found, robots aur sitemap routes.
+- `frontend/proxy.js` Next.js 16 ke liye session refresh + optimistic guard
+  (middleware.js ka replacement, ADR-001).
+
+3.2 DATABASE SCHEMA (13 MIGRATIONS, 25 PUBLIC TABLES)
+-----------------------------------------------------
+Migrations supabase/migrations/ mein hain:
+
+0001 extensions_and_enums
+0002 core_profiles_catalog
+0003 commerce
+0004 cms_and_settings
+0005 audit_and_webhooks
+0006 functions_and_triggers
+0007 rls_policies
+0008 storage
+0009 defaults
+0010 dashboard_metrics
+0011 place_order
+0012 starter_content
+0013 inventory_fixes
+
+25 public tables:
+profiles, addresses, categories, brands, products, product_images,
+product_variants, coupons, orders, order_items, order_status_history, payments,
+coupon_redemptions, cart_items, wishlist, reviews, site_settings, banners,
+home_sections, cms_pages, menu_items, contact_messages, newsletter_subscribers,
+audit_logs, stripe_events.
+
+Database rules implemented:
+- Money columns numeric(12,2); integer-paisa arithmetic aur single rounding.
+- Order place hona, stock kam hona, coupon usage, payment row, order items,
+  address snapshot, status history aur cart clear -- sab ek transactional RPC
+  `place_order()` mein.
+- Variant orders variant stock se deduct hote hain; base product stock se nahi.
+- Cancelled/returned orders par stock restore trigger.
+- Review insert/update/delete par product avg_rating aur review_count refresh.
+- One admin only: partial unique index `only_one_admin`.
+- Soft delete products (`deleted_at`) taake purane orders break na hon.
+- Products ka generated column `is_low_stock` (migration 0013) taake low-stock
+  filter pagination ke sath correct rahe.
+- Storage buckets aur RLS policies har table par likhi gayi hain.
+
+3.3 AUTH / AUTHORIZATION
+------------------------
+- Supabase Auth signup/login/logout.
+- Email confirmation callback route `/auth/callback` (PKCE exchange).
+- Forgot password aur reset password screens.
+- Public signup sirf customer create karta hai; admin signup route nahi hai.
+- Exactly one admin `ADMIN_EMAIL` / `ADMIN_PASSWORD` se backend seed script ke
+  zariye create hota hai (live seed pending).
+- Express har protected request par Bearer token verify karta hai, profile
+  service-role se load karta hai, blocked account reject karta hai.
+- Server-side DAL `/account/*` aur `/admin/*` par profile/role re-check karta hai.
+- Customer data hamesha authenticated user id par scope hota hai (IDOR
+  protection).
+- Admin store browse kar sakta hai lekin shop/cart/review nahi kar sakta
+  (`ADMIN_CANNOT_SHOP`).
+- Profile update role/is_blocked ko change nahi kar sakta (DB trigger guard).
+- Blocked customer ko cart, wishlist, address aur order access nahi milta.
+
+3.4 ADMIN PANEL
+---------------
+- Admin login aur protected shell/sidebar navigation.
+- Dashboard: revenue, orders, customers, products, pending orders, low stock,
+  status counts, recent orders aur 30-day revenue chart (Recharts).
+- Products: create/edit/delete (soft delete), drafts/published, featured,
+  SEO fields, multiple images, primary image, variants (size/color/SKU/price
+  delta/stock/active), stock, low-stock filter.
+- Categories aur brands CRUD, parent category support.
+- Media upload: multipart, jpg/png/webp only, max 5 MB, Supabase Storage.
+- Orders: filters/search, detail, status transitions, tracking number, courier,
+  customer-visible status note, internal admin note.
+- Payment status manual update: unpaid / paid / refunded / failed; order aur
+  payment record dono update hote hain, audit log banta hai.
+- Delivered COD order automatically paid mark hota hai.
+- Customers: list/search/detail, order history, block/unblock; single admin
+  block nahi ho sakta.
+- Reviews: approve/hide and permanent delete; rating aggregates trigger se
+  refresh hote hain.
+- Coupons: percent/fixed, min subtotal, max discount, dates, usage/per-user
+  limits, active toggle.
+- CMS: banners, pages (Tiptap rich text), menu, home sections, settings, contact
+  messages, newsletter subscribers, subscriber CSV export.
+- Audit logs screen.
+- Reports: sales summary, daily series, top products, top customers, status
+  breakdown, low-stock list, order CSV, customer CSV.
+- Admin order detail par printable invoice (browser print/save PDF).
+- Admin new-order email alert (ADMIN_EMAIL set hone par).
+
+3.5 STOREFRONT
+--------------
+- Home page: hero/banner, featured products, categories, offers/home sections,
+  CMS-driven announcement and settings.
+- Product listing: search, category, brand, price, rating, in-stock, featured,
+  sorting, pagination.
+- Product detail: image gallery, variants, stock status, quantity, add to cart,
+  wishlist, reviews, related products, breadcrumb, JSON-LD Product schema.
+- Category pages.
+- Cart: guest cart (Zustand persisted), quantity update, remove, clear, coupon.
+- Login ke baad guest cart merge hota hai.
+- Wishlist (guest/local + authenticated database wishlist).
+- Checkout: address selection/create, standard delivery method, COD payment,
+  coupon, order summary, customer note, place order.
+- Contact form and newsletter subscribe/unsubscribe.
+- CMS static pages `/[slug]` sanitized HTML ke sath.
+- Header search, cart count, account menu, mobile navigation.
+- Footer with configurable menu and social links (only valid http/https links).
+- SEO: metadata, Open Graph product image, dynamic sitemap.xml, robots.txt,
+  canonical site URL helper.
+- `StoreImage` component safe image rendering/fallback ke sath.
+
+3.6 CUSTOMER ACCOUNT
+--------------------
+- Account dashboard/profile update.
+- Password change current-password verification ke sath.
+- Addresses CRUD, default address, delete protection.
+- Orders list with pagination/status/search filters.
+- Order detail: items, address snapshot, payment, totals, status timeline,
+  tracking number, cancel button (only pending), print invoice.
+- Reviews: create only delivered order ke baad, edit/delete apni review.
+- Account navigation responsive/mobile.
+- Unauthorized users ko destination-aware login redirect.
+
+3.7 CART / CHECKOUT / ORDERS
+----------------------------
+- Server-side prices authoritative hain; client price ignore hoti hai.
+- Cart summary: subtotal, shipping, tax, tax_percent, discount, total, currency,
+  free-shipping threshold.
+- Coupon validation server-side, usage limit aur per-user limit RPC mein.
+- COD only checkout; card explicitly disabled.
+- `place_order` RPC: row locks, stock validation, price recalculation, coupon
+  revalidation, order/items/payment/history creation, address snapshot, stock
+  decrement, cart clear, coupon usage increment.
+- Shipping method: standard (single configured method).
+- Tax configured percentage se calculate hota hai; checkout preview exact
+  `tax_percent` use karta hai.
+- Order status transitions DB trigger se enforce hote hain.
+- Customer cancel only pending; stock restore.
+- Admin status change par customer ko email, history row, tracking/courier aur
+  optional note.
+- COD delivered par payment paid.
+- Printable invoice customer aur admin dono screens par.
+
+3.8 REVIEWS
+------------
+- Review sirf delivered order wale customer ko allowed.
+- One review per product per user.
+- Rating 1-5, title/comment validation.
+- Public product detail par visible reviews paginated.
+- Admin moderation: visible/hidden + permanent delete.
+- DB trigger product rating/count update karta hai.
+- Customer apni review edit/delete kar sakta hai.
+
+3.9 CMS / CONTENT
+-----------------
+- CMS pages with server-side `sanitize-html`.
+- Tiptap client editor admin ke liye; HTML server par dobara sanitize hota hai.
+- Banners, home sections order/active state, menu location/order/parent.
+- Site settings: store name/tagline/logo/favicon, currency/symbol, shipping fee,
+  free-shipping threshold, tax percent, COD/card toggles, contact details,
+  address, social links, SEO defaults, announcement.
+- Starter content migration 0012: About, FAQ, Privacy, Terms, Return, Shipping
+  pages aur default menu/home sections.
+- Contact inbox admin mein; mark read/delete.
+- Newsletter subscribers list/search/pagination/CSV.
+- Newsletter welcome email with unsubscribe link (Resend configured hone par).
+
+3.10 REPORTS / DASHBOARD / EXPORTS
+----------------------------------
+- Dashboard metrics RPC PostgREST row cap se independent.
+- 30-day revenue chart Recharts.
+- Sales reports date range (max 366 days), daily series, top products/customers,
+  status breakdown, low stock.
+- Orders/customers/subscribers CSV exports.
+- Report/CSV queries 1000-row batches mein fetch hoti hain, is liye large data
+  silently truncate nahi hota.
+- Admin audit logs list with action/entity filters.
+
+--------------------------------------------------------------------------------
+4. SECURITY / QUALITY BASELINE
+--------------------------------------------------------------------------------
+
+Implemented in code and migrations:
+- RLS enabled on every public table; policies for anon/authenticated/admin and
+  service-role bypass where appropriate.
+- Customer-owned rows auth.uid() se scoped.
+- Shopping tables block/role checks.
+- Service-role key sirf backend par; frontend bundle mein nahi.
+- Express: Helmet, strict CORS allow-list, global rate limit, login/contact/
+  review/order-specific limits.
+- Zod validation on API bodies/queries; strict schemas where needed.
+- Supabase JWT verification + server-side profile/role checks.
+- CMS HTML server-side sanitized; allowed tags/attributes/schemes restricted.
+- Upload limits and MIME allow-list; memory storage, bucket path control.
+- Admin write audit logs (actor, action, entity, changes, IP, user agent).
+- No secrets committed; .env files ignored.
+- Transactional email HTML interpolation `escapeHtml` se escaped; status notes
+  line breaks `<br>` ke sath escaped.
+- Account/profile changes role/is_blocked protected by DB trigger.
+- One admin enforced by DB partial unique index.
+- Dependency audit after fixes:
+  backend production dependencies: 0 vulnerabilities
+  frontend production dependencies: 0 vulnerabilities
+  (multer 2.5.0, sanitize-html 2.18.1; Jest config updated for ESM transform)
+
+Important security caveat:
+- RLS, storage buckets, auth flows aur `place_order` ko live Supabase par test
+  nahi kiya gaya. Code review + unit tests security claims ko support karte hain,
+  lekin live pen-test/RLS verification abhi baqi hai.
+
+--------------------------------------------------------------------------------
+5. TESTING AUR VERIFICATION (FINAL RESULT)
+--------------------------------------------------------------------------------
+
+Commands run from D:\Coding\sm-ecommerce:
+
+1) LINT
+   npm.cmd run lint
+   Result: PASS
+   - frontend ESLint: clean
+   - backend ESLint: clean
+
+2) TESTS
+   npm.cmd run test
+   Result: PASS
+   - Frontend Node tests: 9 passed / 9
+   - Backend Jest + Supertest suites: 9 passed / 9 suites
+   - Backend tests: 55 passed / 55
+   - Total: 64 tests passed, 0 failed
+   Covered areas include commerce helpers, formatting, validators, sanitization,
+   pricing/utils, auth/system mocks, pagination, and CMS settings validation.
+
+3) PRODUCTION BUILD
+   cmd /c "npm.cmd run build"
+   Result: PASS
+   - Next.js 16.4.3 (Turbopack)
+   - Compiled successfully
+   - Page data collection + static generation completed
+   - Storefront, auth, account, admin, sitemap, robots and API routes built
+   - No build errors
+
+4) DEPENDENCY AUDIT
+   npm.cmd audit --omit=dev   (backend)
+   Result: 0 vulnerabilities
+
+   npm.cmd audit --omit=dev   (frontend)
+   Result: 0 vulnerabilities
+
+5) DATABASE CHECKS
+   npm.cmd run db:check
+   NOT RUN / EXPECTED TO FAIL because no live database schema was applied.
+   The command is ready for live verification after migrations + admin seed.
+
+NOT TESTED (because live infrastructure is intentionally deferred):
+- Live signup/login/email verification/password reset.
+- RLS policies with real anon/authenticated requests.
+- Storage upload/download and bucket policies.
+- `place_order` transaction with real products/stock.
+- Admin seed and one-admin constraint live.
+- Payment/email webhooks and real Resend delivery.
+- Playwright/E2E full purchase journey.
+- Mobile/real-browser manual QA.
+- Production deployment, domain, SSL, monitoring.
+
+--------------------------------------------------------------------------------
+6. FINAL REVIEW MEIN KYE GAYE EXTRA FIXES
+--------------------------------------------------------------------------------
+
+Is final pass mein code review ke doran yeh important issues find aur fix kiye:
+
+1. Admin status note `order_status_history` mein persist hota hai; pehle sirf
+   orders table ke admin note mein ja sakta tha aur customer timeline par nahi
+   aata tha.
+2. `restore_order_stock()` fix: variant order cancel/return par base product
+   stock inflate nahi hota; sirf variant stock restore hota hai.
+3. Contact, newsletter, order confirmation, admin new-order aur status emails
+   mein HTML escaping; newsletter welcome/unsubscribe link add hua.
+4. Cart summary mein `tax_percent` add; checkout preview exact rate use karta hai.
+5. Admin product edit ab inactive variants bhi load karta hai, taake save par
+   inactive variant delete/duplicate na ho.
+6. Report/CSV queries 1000-row batches mein paginate hoti hain.
+7. Admin low-stock filter DB generated column se filter hota hai, JavaScript-side
+   post-pagination filter nahi.
+8. Social links server validator aur footer renderer mein sirf http/https allow.
+9. Admin order payment status update endpoint + UI; refund/paid manual control.
+10. Admin review permanent delete + audit log.
+11. Order status same status par resubmit hone se DB invalid transition error
+    aata tha; ab clear 409 STATUS_UNCHANGED error hai.
+12. Admin order form status/payment local state refresh ke baad stale nahi hota.
+13. Backend dependency vulnerabilities fix (multer/sanitize-html) aur Jest ESM
+    transform config.
+14. Checkout par standard delivery method UI add ki gayi; `shipping_method`
+    schema mein accepted hai.
+15. Docs (README, API, DEPLOYMENT, DECISIONS, PHASE-1, Supabase README) current
+    behavior ke mutabiq update kiye; Stripe ko deferred clearly mark kiya.
+
+--------------------------------------------------------------------------------
+7. KYA SKIP / DEFER HUA (CLEAR LIST)
+--------------------------------------------------------------------------------
+
+A) LIVE SUPABASE (aap ki hidayat ke mutabiq)
+   - Migrations 0001-0013 live database par apply nahi hui.
+   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` se admin seed nahi kiya gaya.
+   - `/health/ready` live database par `schema_missing`/503 dega jab tak apply
+     na ho.
+   - RLS, storage, auth, DB triggers, `place_order` RPC live verify nahi hue.
+   - Live Supabase email rate limits / SMTP setup test nahi hua.
+
+B) STRIPE / CARD PAYMENT
+   - Stripe SDK install nahi kiya.
+   - Checkout sirf COD.
+   - Stripe payment intent, client secret, webhook route, signature verify,
+     refund webhook -- sab deferred.
+   - Card payments admin settings mein disabled rakhi gayi hain.
+   - Future Stripe implementation ke liye `stripe_events` table schema mein
+     mojood hai lekin route/logic nahi hai.
+
+C) TESTING / DEPLOYMENT
+   - Playwright E2E suite add nahi hui (live DB ke baghair meaningful nahi thi).
+   - GitHub Actions workflow file add nahi hui.
+   - Vercel/Render deployment, domain, SSL, backups, Sentry, UptimeRobot nahi.
+   - Manual cross-browser/mobile QA live app par nahi hui.
+
+D) OPTIONAL / FUTURE ENHANCEMENTS
+   - Google OAuth (optional) nahi.
+   - Dark mode toggle (optional) nahi.
+   - Framer Motion animations (design guideline) add nahi.
+   - JazzCash/Easypaisa, courier API, blog/Q&A, WhatsApp notification,
+     multi-language/RTL, PWA, abandoned-cart emails, recommendations -- plan ke
+     future section ke items hain, is build ka scope nahi.
+
+E) LIVE CONTENT
+   - Starter CMS pages/menu/home defaults mojood hain, lekin real business
+     content, real product images/products, policies aur contact details aap ko
+     admin se enter karni hongi.
+   - Product data/seed real store ke liye add nahi kiya gaya.
+
+--------------------------------------------------------------------------------
+8. NEXT STEPS (LIVE KARNE KE LIYE RECOMMENDED ORDER)
+--------------------------------------------------------------------------------
+
+1. Supabase project par `docs/PHASE-1.md` ke mutabiq migrations apply karein
+   (CLI `db push` ya SQL Editor).
+2. Supabase Authentication -> URL Configuration mein local redirect URLs add
+   karein:
+   - http://localhost:3000/auth/callback
+   - http://localhost:3100/auth/callback
+   (port 3000 is machine par occupied hai; manual run ke liye 3100 use karein.)
+3. `backend/.env` mein Supabase URL, anon key, service-role key, FRONTEND_URL,
+   ADMIN_EMAIL, ADMIN_PASSWORD set karein.
+4. Admin seed:
+   Set-Location backend
+   npm.cmd run seed:admin
+5. Verify:
+   npm.cmd run db:check
+   npm.cmd run db:check:schema
+6. Live manual checks:
+   - customer signup + email verification
+   - customer login/logout/password reset
+   - admin login aur customer admin route access 403
+   - RLS: do customers ek dusre ka order/address na dekh saken
+   - product create, image upload, variant stock
+   - cart merge, coupon, COD checkout, order status, email, invoice
+   - review delivered-order rule aur moderation
+7. Resend configure karein (RESEND_API_KEY, EMAIL_FROM) aur welcome/order emails
+   test karein.
+8. Stripe account available ho to card checkout + verified webhook implement
+   karein; warna COD-only business flow continue rakhein.
+9. Playwright E2E, CI workflow, deployment, monitoring aur backups add karein.
+10. Live security review/pen-test aur production smoke test ke baad hi project ko
+    production-ready declare karein.
+
+--------------------------------------------------------------------------------
+9. IMPORTANT FILES
+--------------------------------------------------------------------------------
+
+Project plan:
+- E-Commerce Website - Complete Project Plan (Roman Urdu).md
+
+Documentation:
+- README.md
+- docs/API.md
+- docs/PHASE-1.md
+- docs/DEPLOYMENT.md
+- docs/DECISIONS.md
+- supabase/README.md
+
+Database:
+- supabase/migrations/20261024000100_extensions_and_enums.sql
+- ...
+- supabase/migrations/20261024001300_inventory_fixes.sql
+
+Key backend areas:
+- backend/src/services/order.service.js
+- backend/src/services/catalog.service.js
+- backend/src/services/report.service.js
+- backend/src/services/marketing.service.js
+- backend/src/services/email.service.js
+- backend/src/controllers/admin.controller.js
+- backend/src/routes/v1/admin.routes.js
+- backend/src/validators/commerce.validator.js
+
+Key frontend areas:
+- frontend/app/(store)/                  storefront
+- frontend/app/account/                  customer account
+- frontend/app/admin/(protected)/        admin panel
+- frontend/components/store/             cart/checkout/product UI
+- frontend/components/admin/             admin forms/managers
+- frontend/app/sitemap.js, robots.js, not-found.js, error.js, loading.js
+
+--------------------------------------------------------------------------------
+10. CONCLUSION
+--------------------------------------------------------------------------------
+
+Plan ke mutabiq jo bhi local development, code, database migrations, UI, admin
+panel, storefront, checkout (COD), orders, reviews, CMS, reports, security
+baseline aur automated checks is environment mein possible thay, woh complete
+kar diye gaye hain.
+
+Do bari cheezen aap ki hidayat ke mutabiq intentionally baqi hain:
+
+- Live Supabase apply/seed/RLS/storage/auth verification.
+- Stripe card payment aur verified webhook integration.
+
+In dono ke baghair project local development/demo ke liye tayyar hai, lekin
+live customers ke liye production deployment se pehle upar diye gaye Next Steps
+zaroor complete karne honge.
+
+================================================================================
+END OF REPORT
+================================================================================

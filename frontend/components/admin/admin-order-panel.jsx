@@ -20,7 +20,8 @@ import {
 export function AdminOrderPanel({ order }) {
   const router = useRouter();
   const nextStatuses = NEXT_ORDER_STATUSES[order.status] ?? [];
-  const [status, setStatus] = useState(nextStatuses[0] ?? "");
+  const [statusDraft, setStatusDraft] = useState(null);
+  const status = statusDraft ?? nextStatuses[0] ?? "";
   const [note, setNote] = useState("");
   const [trackingNumber, setTrackingNumber] = useState(
     order.tracking_number ?? "",
@@ -51,6 +52,7 @@ export function AdminOrderPanel({ order }) {
       });
       toast.success(`Order moved to ${statusLabel(status)}.`);
       setNote("");
+      setStatusDraft(null);
       router.refresh();
     } catch (error) {
       const details = Array.isArray(error?.details)
@@ -126,7 +128,7 @@ export function AdminOrderPanel({ order }) {
                 <select
                   id="order-status"
                   value={status}
-                  onChange={(event) => setStatus(event.target.value)}
+                  onChange={(event) => setStatusDraft(event.target.value)}
                   className="mt-1.5 h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 >
                   {nextStatuses.map((next) => (
@@ -236,7 +238,12 @@ export function AdminOrderPanel({ order }) {
             maxLength={2000}
             placeholder="Visible to admins only."
           />
-          <Button type="button" variant="outline" onClick={saveNote} disabled={notePending}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={saveNote}
+            disabled={notePending}
+          >
             {notePending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (

@@ -10,11 +10,15 @@ import {
   MapPin,
   Plus,
   Tag,
+  Truck,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { AddressForm, apiErrorMessage } from "@/components/account/address-form";
+import {
+  AddressForm,
+  apiErrorMessage,
+} from "@/components/account/address-form";
 import { useCart } from "@/components/store/cart-provider";
 import { StoreImage } from "@/components/store/store-image";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -48,7 +52,9 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
       initialAddresses[0]?.id ??
       "",
   );
-  const [addressDialog, setAddressDialog] = useState(initialAddresses.length === 0);
+  const [addressDialog, setAddressDialog] = useState(
+    initialAddresses.length === 0,
+  );
   const [addressPending, setAddressPending] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [coupon, setCoupon] = useState(null);
@@ -71,7 +77,10 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
       tax,
       discount,
       total: round(
-        Number(summary.subtotal) - discount + Number(summary.shipping_fee) + tax,
+        Number(summary.subtotal) -
+          discount +
+          Number(summary.shipping_fee) +
+          tax,
       ),
     };
   }, [coupon, initialCart.summary]);
@@ -139,6 +148,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
         method: "POST",
         body: {
           address_id: addressId,
+          shipping_method: "standard",
           payment_method: "cod",
           coupon_code: coupon?.coupon?.code ?? null,
           customer_note: customerNote || null,
@@ -236,9 +246,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
                             : ""}
                           <br />
                           {address.city}, {address.state}
-                          {address.postal_code
-                            ? ` ${address.postal_code}`
-                            : ""}
+                          {address.postal_code ? ` ${address.postal_code}` : ""}
                           <br />
                           {address.phone}
                         </p>
@@ -248,6 +256,34 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="size-4 text-primary" aria-hidden="true" />
+              Delivery method
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-primary bg-secondary/40 p-4">
+              <input
+                type="radio"
+                name="shipping_method"
+                value="standard"
+                defaultChecked
+                className="mt-1 size-4"
+              />
+              <div>
+                <p className="text-sm font-semibold">Standard delivery</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Dispatched within 1-2 working days. The delivery fee is
+                  calculated in the order summary and is free above the store
+                  threshold.
+                </p>
+              </div>
+            </label>
           </CardContent>
         </Card>
 
@@ -314,7 +350,9 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
               <div className="flex gap-2">
                 <Input
                   value={couponCode}
-                  onChange={(event) => setCouponCode(event.target.value.toUpperCase())}
+                  onChange={(event) =>
+                    setCouponCode(event.target.value.toUpperCase())
+                  }
                   placeholder="Enter coupon code"
                   maxLength={30}
                 />
@@ -387,7 +425,9 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping</span>
                 <span>
-                  {totals.shipping === 0 ? "Free" : formatCurrency(totals.shipping)}
+                  {totals.shipping === 0
+                    ? "Free"
+                    : formatCurrency(totals.shipping)}
                 </span>
               </div>
               <div className="flex justify-between">

@@ -6,7 +6,11 @@ const emptyToNull = (value) =>
 const nullableText = (max) =>
   z.preprocess(
     emptyToNull,
-    z.string().trim().max(max, `Must be ${max} characters or fewer.`).nullable(),
+    z
+      .string()
+      .trim()
+      .max(max, `Must be ${max} characters or fewer.`)
+      .nullable(),
   );
 
 const optionalUrl = z.preprocess(
@@ -53,9 +57,7 @@ const menuUrl = z
   .max(2048)
   .refine(
     (value) =>
-      value.startsWith("/") &&
-      !value.startsWith("//") &&
-      !value.includes("\\"),
+      value.startsWith("/") && !value.startsWith("//") && !value.includes("\\"),
     "Menu links must be internal paths such as /products.",
   );
 
@@ -68,17 +70,18 @@ export const settingsSchema = z
     currency: z.string().trim().length(3).toUpperCase(),
     currency_symbol: z.string().trim().min(1).max(8),
     shipping_fee: z.coerce.number().min(0).max(1000000),
-    free_shipping_threshold: z.preprocess(
-      emptyToNull,
-      z.coerce.number().min(0).nullable(),
-    ).optional(),
+    free_shipping_threshold: z
+      .preprocess(emptyToNull, z.coerce.number().min(0).nullable())
+      .optional(),
     tax_percent: z.coerce.number().min(0).max(100),
     cod_enabled: z.coerce.boolean(),
     card_enabled: z.coerce.boolean().default(false),
-    contact_email: z.preprocess(
-      emptyToNull,
-      z.email("Enter a valid email address.").nullable(),
-    ).optional(),
+    contact_email: z
+      .preprocess(
+        emptyToNull,
+        z.email("Enter a valid email address.").nullable(),
+      )
+      .optional(),
     contact_phone: nullableText(30).optional(),
     whatsapp_number: nullableText(30).optional(),
     address: nullableText(300).optional(),
@@ -100,19 +103,23 @@ export const bannerSchema = z
     image_url: z.string().trim().min(1).max(2048),
     mobile_image_url: optionalUrl.optional(),
     button_text: nullableText(40).optional(),
-    button_link: z.preprocess(
-      emptyToNull,
-      z
-        .string()
-        .trim()
-        .max(2048)
-        .refine(
-          (value) =>
-            value.startsWith("/") || value.startsWith("http://") || value.startsWith("https://"),
-          "Enter an internal path or a full URL.",
-        )
-        .nullable(),
-    ).optional(),
+    button_link: z
+      .preprocess(
+        emptyToNull,
+        z
+          .string()
+          .trim()
+          .max(2048)
+          .refine(
+            (value) =>
+              value.startsWith("/") ||
+              value.startsWith("http://") ||
+              value.startsWith("https://"),
+            "Enter an internal path or a full URL.",
+          )
+          .nullable(),
+      )
+      .optional(),
     placement: z.enum(["home_hero", "home_promo"]).default("home_hero"),
     sort_order: z.coerce.number().int().min(0).max(9999).default(0),
     is_active: z.coerce.boolean().default(true),
@@ -134,7 +141,10 @@ export const homeSectionSchema = z
       .string()
       .trim()
       .toLowerCase()
-      .regex(/^[a-z0-9_]{2,40}$/, "Use lowercase letters, numbers, or underscores."),
+      .regex(
+        /^[a-z0-9_]{2,40}$/,
+        "Use lowercase letters, numbers, or underscores.",
+      ),
     title: nullableText(120).optional(),
     subtitle: nullableText(300).optional(),
     config: z.record(z.string(), z.unknown()).default({}),
@@ -149,7 +159,10 @@ export const cmsPageSchema = z
       .string()
       .trim()
       .toLowerCase()
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens.")
+      .regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "Use lowercase words separated by hyphens.",
+      )
       .max(120),
     title: z.string().trim().min(2).max(150),
     excerpt: nullableText(300).optional(),
@@ -166,10 +179,9 @@ export const menuItemSchema = z
     location: z.enum(["header", "footer"]).default("header"),
     label: z.string().trim().min(1).max(60),
     url: menuUrl,
-    parent_id: z.preprocess(
-      emptyToNull,
-      z.string().uuid().nullable(),
-    ).optional(),
+    parent_id: z
+      .preprocess(emptyToNull, z.string().uuid().nullable())
+      .optional(),
     sort_order: z.coerce.number().int().min(0).max(9999).default(0),
     is_active: z.coerce.boolean().default(true),
     opens_new_tab: z.coerce.boolean().default(false),
@@ -182,6 +194,9 @@ export const uploadSchema = z.object({
     .string()
     .trim()
     .max(80)
-    .regex(/^[a-z0-9/_-]*$/i, "Folder may only contain letters, numbers, /, _ and -.")
+    .regex(
+      /^[a-z0-9/_-]*$/i,
+      "Folder may only contain letters, numbers, /, _ and -.",
+    )
     .optional(),
 });

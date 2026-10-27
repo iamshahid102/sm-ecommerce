@@ -26,7 +26,8 @@ function sortProducts(query, sort) {
   if (sort === "price_asc") return query.order("price", { ascending: true });
   if (sort === "price_desc") return query.order("price", { ascending: false });
   if (sort === "rating") return query.order("avg_rating", { ascending: false });
-  if (sort === "popular") return query.order("review_count", { ascending: false });
+  if (sort === "popular")
+    return query.order("review_count", { ascending: false });
   return query.order("created_at", { ascending: false });
 }
 
@@ -50,8 +51,7 @@ function normalizeProduct(product, { includeInactive = false } = {}) {
     primary_image: images[0]?.url ?? null,
     effective_price: Number(product.discount_price ?? product.price),
     in_stock:
-      product.stock > 0 ||
-      activeVariants.some((variant) => variant.stock > 0),
+      product.stock > 0 || activeVariants.some((variant) => variant.stock > 0),
   };
 }
 
@@ -106,11 +106,14 @@ export async function listProducts(filters) {
     .is("deleted_at", null);
 
   const resolved = await resolveCatalogFilters(filters);
-  if (resolved.category_id) query = query.eq("category_id", resolved.category_id);
+  if (resolved.category_id)
+    query = query.eq("category_id", resolved.category_id);
   if (resolved.brand_id) query = query.eq("brand_id", resolved.brand_id);
   if (filters.featured === "true") query = query.eq("is_featured", true);
-  if (filters.min_price !== undefined) query = query.gte("price", filters.min_price);
-  if (filters.max_price !== undefined) query = query.lte("price", filters.max_price);
+  if (filters.min_price !== undefined)
+    query = query.gte("price", filters.min_price);
+  if (filters.max_price !== undefined)
+    query = query.lte("price", filters.max_price);
 
   const search = cleanSearch(filters.q);
   if (search) {
@@ -172,7 +175,9 @@ export async function listCategories({ activeOnly = true } = {}) {
   const admin = getSupabaseAdmin();
   let query = admin
     .from("categories")
-    .select("id, name, slug, description, image_url, parent_id, is_active, sort_order, meta_title, meta_description")
+    .select(
+      "id, name, slug, description, image_url, parent_id, is_active, sort_order, meta_title, meta_description",
+    )
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
 
@@ -272,9 +277,7 @@ async function syncProductVariants(productId, variants = []) {
 
   const existingIds = new Set((existing ?? []).map((variant) => variant.id));
   const keepIds = new Set(
-    variants
-      .map((variant) => variant.id)
-      .filter((id) => existingIds.has(id)),
+    variants.map((variant) => variant.id).filter((id) => existingIds.has(id)),
   );
   const removeIds = (existing ?? [])
     .map((variant) => variant.id)
@@ -369,7 +372,9 @@ export async function updateProduct(id, input) {
   ]) {
     if (input[key] !== undefined) {
       payload[key] =
-        key === "category_id" || key === "brand_id" ? input[key] || null : input[key];
+        key === "category_id" || key === "brand_id"
+          ? input[key] || null
+          : input[key];
     }
   }
 
@@ -434,7 +439,8 @@ export async function listAdminProducts(filters) {
   if (filters.status === "low_stock") query = query.eq("is_low_stock", true);
 
   const resolved = await resolveCatalogFilters(filters);
-  if (resolved.category_id) query = query.eq("category_id", resolved.category_id);
+  if (resolved.category_id)
+    query = query.eq("category_id", resolved.category_id);
   if (resolved.brand_id) query = query.eq("brand_id", resolved.brand_id);
 
   const search = cleanSearch(filters.q);
@@ -486,11 +492,7 @@ export async function updateCategory(id, input) {
   const payload = { ...input, parent_id: input.parent_id ?? null };
 
   if (input.slug || input.name) {
-    payload.slug = await uniqueSlug(
-      "categories",
-      input.slug || input.name,
-      id,
-    );
+    payload.slug = await uniqueSlug("categories", input.slug || input.name, id);
   }
 
   const { data, error } = await admin
@@ -543,7 +545,10 @@ export async function updateBrand(id, input) {
 }
 
 export async function deleteBrand(id) {
-  const { error } = await getSupabaseAdmin().from("brands").delete().eq("id", id);
+  const { error } = await getSupabaseAdmin()
+    .from("brands")
+    .delete()
+    .eq("id", id);
   throwSupabaseError(error, "Could not delete the brand.");
   return { id };
 }

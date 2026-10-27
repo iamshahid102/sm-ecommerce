@@ -1,7 +1,7 @@
 # SM Store
 
 Single-vendor e-commerce platform for Pakistan: one Admin, unlimited customers,
-PKR pricing, Cash on Delivery and Stripe card payments.
+PKR pricing, and Cash on Delivery checkout (Stripe card payments deferred).
 
 Built with **Next.js 16 (App Router, JavaScript)**, **Tailwind CSS v4**,
 **shadcn/ui**, **Express 5**, and **Supabase** (Postgres, Auth, Storage).
@@ -42,7 +42,7 @@ workspaces. The root package only orchestrates development.
 
 ## Quick start
 
-Requirements: Node.js 22+ and npm 10+ (developed on Node 24 / npm 12), and a
+Requirements: Node.js 22.12+ and npm 10+ (developed on Node 24 / npm 12), and a
 Supabase project.
 
 ```powershell
@@ -105,7 +105,7 @@ If PowerShell blocks `npm` (execution policy), use `npm.cmd` for every command.
 | `npm run dev:backend`                 | Run Express with `--watch`                       |
 | `npm run build`                       | Production build of the frontend                 |
 | `npm run lint`                        | ESLint for frontend and backend                  |
-| `npm run test`                        | Frontend Node tests + backend Jest/Supertest   |
+| `npm run test`                        | Frontend Node tests + backend Jest/Supertest     |
 | `npm run db:check`                    | Verify tables, buckets, defaults, and the admin  |
 | `npm run db:check:schema`             | Same check before the admin is seeded            |
 | `npm run format`                      | Prettier for JS, CSS, JSON, and Markdown         |
@@ -131,30 +131,30 @@ the single active admin is missing. To check the schema before seeding, run
 
 ### `frontend/.env.local`
 
-| Variable                             | Required | Notes                                  |
-| ------------------------------------ | -------- | -------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`           | Yes      | Project URL                            |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Yes      | Public anon/publishable key            |
-| `NEXT_PUBLIC_API_URL`                | Yes      | `http://localhost:4000/api/v1` locally |
-| `NEXT_PUBLIC_SITE_URL`               | Yes      | Used for metadata and canonical URLs   |
-| `NEXT_PUBLIC_STORE_NAME`             | No       | Defaults to SM Store                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 4+ | Stripe `pk_...`                        |
+| Variable                             | Required | Notes                                       |
+| ------------------------------------ | -------- | ------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Yes      | Project URL                                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Yes      | Public anon/publishable key                 |
+| `NEXT_PUBLIC_API_URL`                | Yes      | `http://localhost:4000/api/v1` locally      |
+| `NEXT_PUBLIC_SITE_URL`               | Yes      | Used for metadata and canonical URLs        |
+| `NEXT_PUBLIC_STORE_NAME`             | No       | Defaults to SM Store                        |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Deferred | Stripe `pk_...` when card checkout is added |
 
 ### `backend/.env`
 
-| Variable                         | Required | Notes                                 |
-| -------------------------------- | -------- | ------------------------------------- |
-| `NODE_ENV`                       | Yes      | `development` / `test` / `production` |
-| `PORT`                           | No       | Defaults to 4000                      |
-| `FRONTEND_URL`                   | Yes      | Exact allowed CORS origin             |
-| `SUPABASE_URL`                   | Yes      | Server-side project URL               |
-| `SUPABASE_SERVICE_ROLE_KEY`      | Yes      | **Never** expose to the browser       |
-| `SUPABASE_ANON_KEY`              | Yes      | Used only to verify customer tokens   |
-| `RESEND_API_KEY`                 | Phase 5+ | Transactional email                   |
-| `EMAIL_FROM`                     | Phase 5+ | Verified sender                       |
-| `STRIPE_SECRET_KEY`              | Phase 4+ | Card payments                         |
-| `STRIPE_WEBHOOK_SECRET`          | Phase 4+ | Webhook signature verification        |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed     | Used only by `seed:admin`             |
+| Variable                         | Required | Notes                                  |
+| -------------------------------- | -------- | -------------------------------------- |
+| `NODE_ENV`                       | Yes      | `development` / `test` / `production`  |
+| `PORT`                           | No       | Defaults to 4000                       |
+| `FRONTEND_URL`                   | Yes      | Exact allowed CORS origin              |
+| `SUPABASE_URL`                   | Yes      | Server-side project URL                |
+| `SUPABASE_SERVICE_ROLE_KEY`      | Yes      | **Never** expose to the browser        |
+| `SUPABASE_ANON_KEY`              | Yes      | Used only to verify customer tokens    |
+| `RESEND_API_KEY`                 | Optional | Transactional email; no-op when absent |
+| `EMAIL_FROM`                     | Optional | Verified sender for Resend             |
+| `STRIPE_SECRET_KEY`              | Deferred | Card payments when Stripe is added     |
+| `STRIPE_WEBHOOK_SECRET`          | Deferred | Webhook signature verification         |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed     | Used only by `seed:admin`              |
 
 Production startup validates that `FRONTEND_URL`, the Supabase URL, anon key,
 and service-role key are present. The frontend never imports the service-role
@@ -191,8 +191,10 @@ key.
 - Helmet, strict CORS, global rate limits, and sensitive-route rate limits.
 - Zod validation on API bodies; file buckets accept only JPEG/PNG/WebP up to
   5 MB and are written only through the API/service role.
-- Stripe webhook signature verification and audit-log writes arrive in their
-  respective phases; the database tables and idempotency store exist now.
+- Admin writes are recorded in `audit_logs` with actor, action, entity, changed
+  fields, IP, and user agent. Stripe checkout and webhook handling are
+  intentionally not implemented; only COD is enabled, and card payments stay
+  disabled in settings until a payment provider is connected.
 - No secrets in the repository; `.env*` is ignored except for examples.
 
 ## Documentation
@@ -212,14 +214,20 @@ key.
       scripts
 - [x] Phase 1 — Database schema, RLS, triggers, storage rules, admin seed,
       customer auth, account area, admin guard
-- [ ] Phase 2 — Admin catalog and product management
-- [ ] Phase 3 — Storefront, search, filters, product pages
-- [ ] Phase 4 — Cart, wishlist, checkout, orders (transactional RPC)
-- [ ] Phase 5 — Order management, tracking, emails, invoices
-- [ ] Phase 6 — Reviews and moderation
-- [ ] Phase 7 — CMS portal
-- [ ] Phase 8 — Reports, polish, performance
-- [ ] Phase 9 — E2E tests, security review, deployment
+- [x] Phase 2 - Admin catalog, media uploads, inventory, and dashboard layout
+- [x] Phase 3 - Storefront, search, filters, product pages, SEO, and sitemap
+- [x] Phase 4 - Cart, wishlist, coupons, addresses, COD checkout transaction
+- [x] Phase 5 - Order management, tracking timeline, emails, and printable invoice
+- [x] Phase 6 - Reviews, delivered-order rule, moderation, and rating aggregation
+- [x] Phase 7 - CMS pages, banners, menu, home sections, settings, and contact inbox
+- [x] Phase 8 - Reports, CSV exports, charts, responsive polish, and error states
+- [x] Phase 9 (local) - Lint, unit/API-mock tests, security review, and build
+- [ ] Phase 9 (live) - Apply migrations, seed admin, Playwright E2E, Stripe, deploy
+
+Live Supabase verification, Stripe checkout/webhooks, and deployment remain
+intentionally unfinished. See
+[`SM-Ecommerce-Project-Report-Roman-Urdu.txt`](SM-Ecommerce-Project-Report-Roman-Urdu.txt)
+for the full Roman Urdu handover.
 
 ## License
 
