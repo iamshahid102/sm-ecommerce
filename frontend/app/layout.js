@@ -57,7 +57,11 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} ${poppins.variable}`}
+    >
       <body className="min-h-svh">
         <a
           href="#main-content"

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/commerce.test.js tests/format.test.js"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/category-tree.test.js tests/commerce.test.js tests/format.test.js tests/sw-cleanup.test.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",

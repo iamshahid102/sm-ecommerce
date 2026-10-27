@@ -4,6 +4,7 @@ import {
   Baby,
   BadgeCheck,
   Banknote,
+  BookOpen,
   Dumbbell,
   Gift,
   Heart,
@@ -37,6 +38,18 @@ export const metadata = {
 const categoryIcons = [
   { keys: ["women", "woman", "fashion", "clothing", "apparel"], icon: Shirt },
   { keys: ["men", "man"], icon: Shirt },
+  {
+    keys: [
+      "book",
+      "fiction",
+      "novel",
+      "literature",
+      "read",
+      "academic",
+      "urdu",
+    ],
+    icon: BookOpen,
+  },
   { keys: ["home", "living", "decor", "furniture"], icon: Home },
   { keys: ["beauty", "skin", "care"], icon: Sparkles },
   { keys: ["electronic", "mobile", "phone", "tech"], icon: Smartphone },
@@ -94,7 +107,10 @@ const benefits = [
 function HeroVisual({ storeName }) {
   return (
     <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_75%_20%,rgba(56,189,248,0.4),transparent_30%),linear-gradient(135deg,#0b1220_0%,#111b3a_50%,#1e3a8a_100%)] p-8 sm:p-12">
-      <div className="absolute inset-0 bg-dot-grid opacity-30" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-dot-grid opacity-30"
+        aria-hidden="true"
+      />
       <div
         className="absolute -top-12 -right-12 size-44 rounded-full border border-white/10"
         aria-hidden="true"
@@ -238,7 +254,7 @@ export default async function HomePage() {
           aria-hidden="true"
           className="absolute -right-24 bottom-0 size-80 rounded-full border border-primary/10"
         />
-        <div className="store-container relative grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-16">
+        <div className="relative store-container grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-16">
           <div className="relative z-10 max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 px-3.5 py-1.5 text-[11px] font-semibold tracking-wide text-primary shadow-sm backdrop-blur">
               <Sparkles className="size-3.5" aria-hidden="true" />
@@ -277,8 +293,14 @@ export default async function HomePage() {
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-slate-600">
               {heroTrust.map((item) => (
-                <span key={item.label} className="inline-flex items-center gap-1.5">
-                  <item.icon className="size-4 text-primary" aria-hidden="true" />
+                <span
+                  key={item.label}
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <item.icon
+                    className="size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   {item.label}
                 </span>
               ))}
@@ -319,11 +341,15 @@ export default async function HomePage() {
                         {spotlight?.categories?.name || "SM Store"}
                       </p>
                       <p className="mt-1 line-clamp-1 font-heading text-base font-semibold text-white sm:text-lg">
-                        {spotlight?.title || heroBanner?.title || "Curated essentials"}
+                        {spotlight?.title ||
+                          heroBanner?.title ||
+                          "Curated essentials"}
                       </p>
                     </div>
                     <Link
-                      href={spotlight ? `/products/${spotlight.slug}` : "/products"}
+                      href={
+                        spotlight ? `/products/${spotlight.slug}` : "/products"
+                      }
                       className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-slate-950 shadow-sm transition-colors hover:bg-primary hover:text-white"
                     >
                       Shop now
@@ -342,7 +368,9 @@ export default async function HomePage() {
                 <p className="text-[11px] font-semibold text-slate-950">
                   Nationwide delivery
                 </p>
-                <p className="text-[10px] text-slate-500">Dispatched in 1–2 days</p>
+                <p className="text-[10px] text-slate-500">
+                  Dispatched in 1–2 days
+                </p>
               </div>
             </div>
 
@@ -451,7 +479,10 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        <section aria-label="Store offers" className="grid gap-4 md:grid-cols-2">
+        <section
+          aria-label="Store offers"
+          className="grid gap-4 md:grid-cols-2"
+        >
           {promoBanner ? (
             <Link
               href={promoBanner.button_link || "/products"}
@@ -516,8 +547,8 @@ export default async function HomePage() {
                   Free shipping over {formatCurrency(freeShipping)}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-blue-50">
-                  A flat {formatCurrency(shippingFee)} delivery fee applies below
-                  the threshold.
+                  A flat {formatCurrency(shippingFee)} delivery fee applies
+                  below the threshold.
                 </p>
                 <span className="mt-5 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 transition-colors group-hover:bg-slate-950 group-hover:text-white">
                   Start shopping
@@ -576,7 +607,10 @@ export default async function HomePage() {
 
         {bestSellers.length > 0 ? (
           <section aria-label="Best sellers">
-            <SectionHeading title="Best sellers" href="/products?sort=popular" />
+            <SectionHeading
+              title="Best sellers"
+              href="/products?sort=popular"
+            />
             <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
               {bestSellers.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -598,10 +632,17 @@ export default async function HomePage() {
               policies or get in touch with the store team.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
-              <Button asChild className="rounded-full bg-slate-950 hover:bg-primary">
+              <Button
+                asChild
+                className="rounded-full bg-slate-950 hover:bg-primary"
+              >
                 <Link href="/contact">Contact the store</Link>
               </Button>
-              <Button asChild variant="outline" className="rounded-full bg-white">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full bg-white"
+              >
                 <Link href="/faq">Read the FAQ</Link>
               </Button>
             </div>

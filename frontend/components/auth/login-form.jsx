@@ -29,7 +29,7 @@ const queryErrors = {
   profile_unavailable: {
     title: "Account data unavailable",
     description:
-      "We could not load your profile. The database migrations may not be applied yet.",
+      "We could not load your profile. Apply the latest database migrations and RLS grants, then try again.",
   },
   profile_missing: {
     title: "Profile not found",
@@ -42,6 +42,14 @@ const queryErrors = {
       "This account is a customer account. Use the customer sign-in, or ask the store owner for admin access.",
   },
 };
+
+function profileLookupErrorMessage(error) {
+  if (error?.code === "42501") {
+    return "The database denied access to your profile (error 42501). Apply the latest RLS grant migration, then try again.";
+  }
+
+  return "Your profile could not be loaded. Apply the latest database migrations and RLS grants, then try again.";
+}
 
 function signInErrorMessage(error) {
   const message = error?.message?.toLowerCase() ?? "";
@@ -115,10 +123,12 @@ export function LoginForm({
       .maybeSingle();
 
     if (profileError) {
+      console.error("Profile lookup failed after sign-in.", {
+        code: profileError.code,
+        message: profileError.message,
+      });
       await supabase.auth.signOut();
-      setServerError(
-        "Your profile could not be loaded. The database migrations may not be applied yet.",
-      );
+      setServerError(profileLookupErrorMessage(profileError));
       return;
     }
 

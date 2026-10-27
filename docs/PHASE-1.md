@@ -456,6 +456,32 @@ set is_blocked = false
 where id = '<CUSTOMER_A_UUID>';
 ```
 
+**11. RLS helper functions are executable by authenticated users.** Expect all
+three columns to be `true`. If a profile read or RPC reports
+`42501 permission denied for function is_admin`, apply
+`supabase/migrations/20261027000100_grant_rls_function_execute.sql` and retry.
+From the backend folder, `npm.cmd run db:check-auth` signs in as the configured
+admin and checks this exact path end to end. `npm run db:check` uses the
+service-role key, so it bypasses RLS and cannot catch this class of failure.
+
+```sql
+select
+  has_function_privilege(
+    'authenticated', 'public.is_admin()', 'EXECUTE'
+  ) as auth_can_is_admin,
+  has_function_privilege(
+    'authenticated', 'public.is_customer()', 'EXECUTE'
+  ) as auth_can_is_customer,
+  has_function_privilege(
+    'authenticated', 'public.can_review(uuid, uuid)', 'EXECUTE'
+  ) as auth_can_can_review;
+
+begin;
+set local role authenticated;
+select public.is_admin();
+rollback;
+```
+
 ## 6. Build and test verification
 
 Run from the repository root:

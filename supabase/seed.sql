@@ -9,5 +9,11 @@
 --   cd backend
 --   npm run seed:admin
 --
--- Demo catalog/order rows will be added here in a later phase and must never be
--- applied to production automatically.
+-- The book and clothing demo catalog is seeded through the backend service-role
+-- script so images can be uploaded to Storage and the seed can be re-run
+-- idempotently:
+--
+--   npm run seed:catalog
+--
+-- See docs/CATALOG-SEED.md. It must never be applied to production
+-- automatically.

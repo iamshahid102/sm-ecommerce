@@ -42,7 +42,9 @@ export function SiteHeader({ settings, categories = [], profile }) {
   const accountHref = isAdmin ? "/admin" : profile ? "/account" : "/login";
   const storeName = settings?.store_name || "SM Store";
   const freeShipping = Number(settings?.free_shipping_threshold ?? 5000);
-  const navCategories = categories.slice(0, 3);
+  const navCategories = categories
+    .filter((category) => !category.parent_id)
+    .slice(0, 3);
 
   function closeMenu() {
     setMobileOpen(false);

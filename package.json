@@ -16,6 +16,8 @@
     "test": "npm --prefix frontend test && npm --prefix backend test",
     "db:check": "npm --prefix backend run db:check",
     "db:check:schema": "npm --prefix backend run db:check -- --schema-only",
+    "db:check-auth": "npm --prefix backend run db:check-auth",
+    "seed:catalog": "node backend/scripts/seed-catalog.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

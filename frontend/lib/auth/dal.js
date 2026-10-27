@@ -23,6 +23,13 @@ export const getSessionProfile = cache(async () => {
     .eq("id", claims.sub)
     .maybeSingle();
 
+  if (profileError) {
+    console.error("Profile lookup failed while loading the session.", {
+      code: profileError.code,
+      message: profileError.message,
+    });
+  }
+
   return {
     supabase,
     claims,

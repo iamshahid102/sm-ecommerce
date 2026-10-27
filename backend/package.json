@@ -17,7 +17,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --runInBand",
     "db:check": "node scripts/check-database.js",
-    "seed:admin": "node scripts/seed-admin.js"
+    "db:check-auth": "node scripts/check-admin-auth.js",
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:catalog": "node scripts/seed-catalog.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiFetchPublicFull, buildQuery } from "@/lib/api/public";
+import { flattenCategories } from "@/lib/category-tree";
 import { cn } from "@/lib/utils";
 
 function cleanValue(value) {
@@ -65,15 +66,15 @@ function PaginationLinks({ meta, params, basePath }) {
   );
 }
 
-function FilterFields({
-  params,
-  categories,
-  brands,
-  fixedCategory,
-  idPrefix,
-}) {
+function FilterFields({ params, categories, brands, fixedCategory, idPrefix }) {
+  const categoryRows = flattenCategories(categories);
+
   return (
-    <form action={fixedCategory ? undefined : "/products"} method="get" className="space-y-4">
+    <form
+      action={fixedCategory ? undefined : "/products"}
+      method="get"
+      className="space-y-4"
+    >
       {fixedCategory ? (
         <input type="hidden" name="category" value={fixedCategory} />
       ) : null}
@@ -110,9 +111,9 @@ function FilterFields({
             className="mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
           >
             <option value="">All categories</option>
-            {categories.map((category) => (
+            {categoryRows.map((category) => (
               <option key={category.id} value={category.slug}>
-                {category.name}
+                {category.label}
               </option>
             ))}
           </select>
@@ -200,7 +201,9 @@ function FilterFields({
           Apply filters
         </Button>
         <Button asChild variant="outline" className="rounded-full">
-          <Link href={fixedCategory ? `/categories/${fixedCategory}` : "/products"}>
+          <Link
+            href={fixedCategory ? `/categories/${fixedCategory}` : "/products"}
+          >
             Reset
           </Link>
         </Button>
@@ -276,7 +279,7 @@ export async function CatalogPageView({
           aria-hidden="true"
           className="absolute -top-24 right-0 size-72 rounded-full bg-primary/10 blur-3xl"
         />
-        <div className="store-container relative py-10 sm:py-12">
+        <div className="relative store-container py-10 sm:py-12">
           <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500">
             <Link href="/" className="transition-colors hover:text-primary">
               Home
@@ -306,7 +309,10 @@ export async function CatalogPageView({
         <details className="group mb-6 rounded-2xl border border-slate-200 bg-white shadow-soft lg:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
             <span className="inline-flex items-center gap-2">
-              <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
+              <SlidersHorizontal
+                className="size-4 text-primary"
+                aria-hidden="true"
+              />
               Filters and sorting
             </span>
             <ChevronDown
@@ -384,7 +390,11 @@ export async function CatalogPageView({
                     Try a different search or clear your filters to see the full
                     collection.
                   </p>
-                  <Button asChild variant="outline" className="mt-5 rounded-full">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="mt-5 rounded-full"
+                  >
                     <Link href={basePath}>Clear filters</Link>
                   </Button>
                 </CardContent>

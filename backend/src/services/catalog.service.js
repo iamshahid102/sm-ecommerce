@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "../config/supabase.js";
 import { ApiError } from "../utils/api-error.js";
+import { collectDescendantCategoryIds } from "../utils/category-tree.js";
 import { paginationMeta } from "../utils/pagination.js";
 import { slugify } from "../utils/slug.js";
 import { throwSupabaseError } from "../utils/supabase-error.js";
@@ -71,7 +72,18 @@ async function resolveCatalogFilters({ category, brand }) {
     if (!data) {
       throw new ApiError(404, "Category not found.", "CATEGORY_NOT_FOUND");
     }
-    filters.category_id = data.id;
+
+    const { data: categoryTree, error: treeError } = await admin
+      .from("categories")
+      .select("id, parent_id")
+      .eq("is_active", true);
+
+    throwSupabaseError(treeError, "Could not load category filters.");
+
+    filters.category_ids = collectDescendantCategoryIds(
+      categoryTree ?? [],
+      data.id,
+    );
   }
 
   if (brand) {
@@ -106,8 +118,8 @@ export async function listProducts(filters) {
     .is("deleted_at", null);
 
   const resolved = await resolveCatalogFilters(filters);
-  if (resolved.category_id)
-    query = query.eq("category_id", resolved.category_id);
+  if (resolved.category_ids?.length)
+    query = query.in("category_id", resolved.category_ids);
   if (resolved.brand_id) query = query.eq("brand_id", resolved.brand_id);
   if (filters.featured === "true") query = query.eq("is_featured", true);
   if (filters.min_price !== undefined)
@@ -439,8 +451,8 @@ export async function listAdminProducts(filters) {
   if (filters.status === "low_stock") query = query.eq("is_low_stock", true);
 
   const resolved = await resolveCatalogFilters(filters);
-  if (resolved.category_id)
-    query = query.eq("category_id", resolved.category_id);
+  if (resolved.category_ids?.length)
+    query = query.in("category_id", resolved.category_ids);
   if (resolved.brand_id) query = query.eq("brand_id", resolved.brand_id);
 
   const search = cleanSearch(filters.q);
