@@ -385,7 +385,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
       </div>
 
       <aside>
-        <Card className="sticky top-24 rounded-2xl shadow-card">
+        <Card className="sticky top-32 rounded-2xl border-slate-200/80 shadow-card">
           <CardHeader>
             <CardTitle>Your order</CardTitle>
           </CardHeader>
@@ -464,7 +464,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="h-12 w-full rounded-full bg-slate-950 hover:bg-primary"
               disabled={pending || addresses.length === 0}
             >
               {pending ? (

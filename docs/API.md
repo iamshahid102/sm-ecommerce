@@ -114,8 +114,8 @@ returns `503` with `code: "NOT_READY"` and
 
 ### `GET /products`
 
-Query: `search`, `category` (slug), `brand` (slug), `minPrice`, `maxPrice`,
-`rating` (1-5), `inStock` (`true`), `featured` (`true`), `sort`
+Query: `q`, `category` (slug), `brand` (slug), `min_price`, `max_price`,
+`featured` (`true|false`), `sort`
 (`newest|price_asc|price_desc|rating|popular`), `page`, `limit`.
 
 Returns published, non-deleted products with primary image, category, brand,
@@ -139,10 +139,12 @@ Active categories with product counts, ordered by `sort_order`.
 
 Active brands with product counts.
 
-### `GET /cms/home`
+### `GET /home`
 
-Returns active banners ordered by `sort_order`, enabled home sections, and
-public site settings (store name, logo, contact, social links, announcement).
+Returns public site settings, active banners ordered by `sort_order`, enabled
+home sections, active categories, and product collections for the storefront:
+`featured`, `new_arrivals`, and `best_sellers`. Settings include the store name,
+logo, contact details, social links, and announcement.
 
 ### `GET /cms/pages/:slug`
 

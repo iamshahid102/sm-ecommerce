@@ -97,7 +97,7 @@ export async function getPublishedPages(req, res) {
 }
 
 export async function getHome(req, res) {
-  const [settings, banners, sections, categories, featured, latest] =
+  const [settings, banners, sections, categories, featured, latest, popular] =
     await Promise.all([
       getSettings(),
       listBanners(),
@@ -105,6 +105,7 @@ export async function getHome(req, res) {
       listCategories(),
       listProducts({ featured: "true", sort: "newest", page: 1, limit: 8 }),
       listProducts({ sort: "newest", page: 1, limit: 8 }),
+      listProducts({ sort: "popular", page: 1, limit: 8 }),
     ]);
 
   return sendSuccess(
@@ -116,6 +117,7 @@ export async function getHome(req, res) {
       categories,
       featured: featured.items,
       new_arrivals: latest.items,
+      best_sellers: popular.items,
     },
     { message: "Home page loaded." },
   );

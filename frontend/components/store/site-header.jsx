@@ -4,20 +4,35 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Banknote,
   Heart,
   LayoutDashboard,
   Menu,
   Search,
   ShoppingBag,
+  Truck,
   UserRound,
   X,
 } from "lucide-react";
 
 import { useCart } from "@/components/store/cart-provider";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/products", label: "Shop all" },
+  { href: "/products?sort=newest", label: "New arrivals" },
+  { href: "/products?sort=popular", label: "Best sellers" },
+];
+
+function isActivePath(pathname, href) {
+  if (href.includes("?")) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function SiteHeader({ settings, categories = [], profile }) {
   const pathname = usePathname();
@@ -25,157 +40,293 @@ export function SiteHeader({ settings, categories = [], profile }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAdmin = profile?.role === "admin";
   const accountHref = isAdmin ? "/admin" : profile ? "/account" : "/login";
+  const storeName = settings?.store_name || "SM Store";
+  const freeShipping = Number(settings?.free_shipping_threshold ?? 5000);
+  const navCategories = categories.slice(0, 3);
 
-  const navCategories = categories.slice(0, 5);
+  function closeMenu() {
+    setMobileOpen(false);
+  }
 
   return (
     <>
-      {settings?.announcement_active && settings?.announcement_text ? (
-        <div className="bg-slate-950 px-4 py-2 text-center text-xs font-medium text-white">
-          {settings.announcement_text}
-        </div>
-      ) : null}
-
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setMobileOpen((value) => !value)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileOpen ? (
-              <X className="size-5" aria-hidden="true" />
-            ) : (
-              <Menu className="size-5" aria-hidden="true" />
-            )}
-          </Button>
-
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-hero-gradient text-sm font-bold text-white shadow-lg shadow-primary/20">
-              SM
+      <div className="bg-slate-950 text-white">
+        <div className="store-container flex h-9 items-center justify-between gap-4 text-[11px] font-medium">
+          <div className="hidden items-center gap-6 text-slate-300 sm:flex">
+            <span className="inline-flex items-center gap-1.5">
+              <Truck className="size-3.5 text-sky-300" aria-hidden="true" />
+              Free shipping over {formatCurrency(freeShipping)}
             </span>
-            <div className="hidden sm:block">
-              <p className="font-heading text-base leading-tight font-semibold">
-                {settings?.store_name || "SM Store"}
-              </p>
-              <p className="text-[10px] tracking-wide text-muted-foreground uppercase">
-                Everyday essentials
-              </p>
-            </div>
-          </Link>
-
-          <nav className="ml-4 hidden items-center gap-1 lg:flex" aria-label="Main">
-            <Button
-              asChild
-              variant={pathname === "/products" ? "secondary" : "ghost"}
-              size="sm"
-            >
-              <Link href="/products">Shop all</Link>
-            </Button>
-            {navCategories.map((category) => (
-              <Button key={category.id} asChild variant="ghost" size="sm">
-                <Link href={`/categories/${category.slug}`}>{category.name}</Link>
-              </Button>
-            ))}
-          </nav>
-
-          <form
-            action="/products"
-            className="relative ml-auto hidden w-full max-w-sm md:block"
+            <span className="inline-flex items-center gap-1.5">
+              <Banknote className="size-3.5 text-sky-300" aria-hidden="true" />
+              Cash on Delivery
+            </span>
+          </div>
+          <p className="mx-auto truncate text-center text-slate-100">
+            {settings?.announcement_active && settings?.announcement_text
+              ? settings.announcement_text
+              : "Thoughtfully selected essentials, delivered across Pakistan."}
+          </p>
+          <Link
+            href="/contact"
+            className="hidden shrink-0 text-slate-300 transition-colors hover:text-white sm:block"
           >
-            <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              name="q"
-              placeholder="Search products…"
-              className="h-9 bg-muted/50 pl-9"
-              aria-label="Search products"
-            />
-          </form>
+            Need help?
+          </Link>
+        </div>
+      </div>
 
-          <div className="ml-auto flex items-center gap-0.5 md:ml-2">
-            <Button asChild variant="ghost" size="icon" aria-label="Wishlist">
-              <Link href="/wishlist">
-                <Heart className="size-5" aria-hidden="true" />
-              </Link>
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
+        <div className="store-container">
+          <div className="flex h-[72px] items-center gap-3 lg:gap-6">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 shrink-0 rounded-full lg:hidden"
+              onClick={() => setMobileOpen((value) => !value)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+            >
+              {mobileOpen ? (
+                <X className="size-5" aria-hidden="true" />
+              ) : (
+                <Menu className="size-5" aria-hidden="true" />
+              )}
             </Button>
-            <Button asChild variant="ghost" size="icon" aria-label="Account">
-              <Link href={accountHref}>
+
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-2.5"
+              aria-label={`${storeName} home`}
+            >
+              <span className="relative flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
+                <ShoppingBag className="size-5" aria-hidden="true" />
+                <span className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-white" />
+              </span>
+              <span className="flex flex-col">
+                <span className="font-heading text-lg leading-none font-semibold tracking-tight text-slate-950 sm:text-xl">
+                  {storeName}
+                </span>
+                <span className="mt-1 hidden text-[9px] font-semibold tracking-[0.18em] text-slate-500 uppercase sm:block">
+                  Everyday essentials
+                </span>
+              </span>
+            </Link>
+
+            <form
+              action="/products"
+              className="relative mx-auto hidden w-full max-w-xl md:block"
+              role="search"
+            >
+              <Search
+                className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
+              <Input
+                name="q"
+                placeholder="Search for products, categories and more..."
+                className="h-11 rounded-full border-slate-200 bg-slate-50 pr-14 pl-11 text-sm shadow-none placeholder:text-slate-400 focus-visible:border-primary/40 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-primary/10"
+                aria-label="Search products"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                className="absolute top-1/2 right-1.5 size-8 -translate-y-1/2 rounded-full bg-slate-950 hover:bg-primary"
+                aria-label="Search"
+              >
+                <Search className="size-4" aria-hidden="true" />
+              </Button>
+            </form>
+
+            <div className="ml-auto flex items-center gap-1 md:ml-0">
+              <Link
+                href="/wishlist"
+                className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 sm:flex"
+              >
+                <Heart className="size-5" aria-hidden="true" />
+                <span className="hidden xl:inline">Wishlist</span>
+              </Link>
+              <Link
+                href={accountHref}
+                className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 sm:flex"
+              >
                 {isAdmin ? (
                   <LayoutDashboard className="size-5" aria-hidden="true" />
                 ) : (
                   <UserRound className="size-5" aria-hidden="true" />
                 )}
+                <span className="hidden xl:inline">
+                  {isAdmin ? "Dashboard" : profile ? "Account" : "Sign in"}
+                </span>
               </Link>
-            </Button>
-            <Button asChild variant="ghost" size="icon" className="relative" aria-label="Cart">
-              <Link href="/cart">
+              <Link
+                href="/cart"
+                className="relative ml-0 inline-flex h-11 items-center gap-2 rounded-full bg-slate-950 px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary sm:ml-1"
+                aria-label="Open cart"
+              >
                 <ShoppingBag className="size-5" aria-hidden="true" />
+                <span className="hidden sm:inline">Cart</span>
                 {hydrated && count > 0 ? (
-                  <Badge className="absolute -top-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full p-0 text-[10px]">
+                  <span className="flex min-w-5 items-center justify-center rounded-full bg-white px-1.5 py-0.5 text-[10px] leading-none font-bold text-slate-950">
                     {count > 99 ? "99+" : count}
-                  </Badge>
+                  </span>
                 ) : null}
               </Link>
-            </Button>
+            </div>
           </div>
-        </div>
 
-        {mobileOpen ? (
-          <div className="border-t bg-background px-4 py-4 lg:hidden">
-            <form action="/products" className="relative mb-4">
+          <div className="pb-3 md:hidden">
+            <form action="/products" className="relative" role="search">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-400"
                 aria-hidden="true"
               />
               <Input
                 name="q"
-                placeholder="Search products…"
-                className="bg-muted/50 pl-9"
+                placeholder="Search products..."
+                className="h-10 rounded-full border-slate-200 bg-slate-50 pr-11 pl-10 text-sm shadow-none"
                 aria-label="Search products"
               />
-            </form>
-            <div className="grid gap-1">
-              <Link
-                href="/products"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
+              <button
+                type="submit"
+                className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-slate-950 text-white"
+                aria-label="Search"
               >
-                Shop all
-              </Link>
-              {categories.map((category) => (
+                <Search className="size-3.5" aria-hidden="true" />
+              </button>
+            </form>
+          </div>
+
+          <nav
+            className="hidden h-12 items-center justify-center gap-7 border-t border-slate-100 text-sm font-medium text-slate-600 lg:flex"
+            aria-label="Main navigation"
+          >
+            {navLinks.map((link) => {
+              const active = isActivePath(pathname, link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={cn(
+                    "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
+                    active && "text-slate-950",
+                  )}
+                >
+                  {link.label}
+                  {active ? (
+                    <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />
+                  ) : null}
+                </Link>
+              );
+            })}
+            {navCategories.map((category) => {
+              const href = `/categories/${category.slug}`;
+              const active = pathname === href;
+              return (
                 <Link
                   key={category.id}
-                  href={`/categories/${category.slug}`}
-                  onClick={() => setMobileOpen(false)}
+                  href={href}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-sm hover:bg-muted",
-                    pathname === `/categories/${category.slug}` &&
-                      "bg-muted font-medium",
+                    "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
+                    active && "text-slate-950",
                   )}
                 >
                   {category.name}
+                  {active ? (
+                    <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />
+                  ) : null}
                 </Link>
-              ))}
-              <Link
-                href={accountHref}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm hover:bg-muted"
-              >
-                {isAdmin ? "Admin dashboard" : profile ? "My account" : "Sign in"}
-              </Link>
-              <Link
-                href="/contact"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm hover:bg-muted"
-              >
-                Contact
-              </Link>
+              );
+            })}
+            <Link
+              href="/contact"
+              className={cn(
+                "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
+                pathname === "/contact" && "text-slate-950",
+              )}
+            >
+              Contact
+              {pathname === "/contact" ? (
+                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />
+              ) : null}
+            </Link>
+          </nav>
+        </div>
+
+        {mobileOpen ? (
+          <div
+            id="mobile-menu"
+            className="border-t border-slate-100 bg-white lg:hidden"
+          >
+            <div className="store-container py-5">
+              <nav className="grid gap-1" aria-label="Mobile navigation">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      "rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950",
+                      isActivePath(pathname, link.href) &&
+                        "bg-secondary text-primary",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/contact"
+                  onClick={closeMenu}
+                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                >
+                  Contact
+                </Link>
+              </nav>
+
+              {categories.length > 0 ? (
+                <div className="mt-4 border-t border-slate-100 pt-4">
+                  <p className="px-3 text-[10px] font-semibold tracking-[0.16em] text-slate-400 uppercase">
+                    Shop by category
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {categories.map((category) => (
+                      <Link
+                        key={category.id}
+                        href={`/categories/${category.slug}`}
+                        onClick={closeMenu}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-primary/30 hover:bg-secondary hover:text-primary"
+                      >
+                        {category.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+                <Link
+                  href="/wishlist"
+                  onClick={closeMenu}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600"
+                >
+                  <Heart className="size-4" aria-hidden="true" />
+                  Wishlist
+                </Link>
+                <Link
+                  href={accountHref}
+                  onClick={closeMenu}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600"
+                >
+                  {isAdmin ? (
+                    <LayoutDashboard className="size-4" aria-hidden="true" />
+                  ) : (
+                    <UserRound className="size-4" aria-hidden="true" />
+                  )}
+                  {isAdmin ? "Dashboard" : profile ? "My account" : "Sign in"}
+                </Link>
+              </div>
             </div>
           </div>
         ) : null}

@@ -33,13 +33,13 @@ export default async function WishlistPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div>
-        <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+        <p className="text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
           Saved for later
         </p>
-        <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">
+        <h1 className="mt-1 font-heading text-3xl font-semibold tracking-[-0.02em] text-slate-950">
           Your wishlist
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-slate-500">
           Products you love, kept in one place.
         </p>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { apiFetchPublic } from "@/lib/api/public";
@@ -40,22 +40,31 @@ export function NewsletterForm({ source = "footer" }) {
     <form onSubmit={onSubmit} className="flex flex-col gap-2 sm:flex-row">
       <div className="relative flex-1">
         <Mail
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400"
           aria-hidden="true"
         />
         <Input
           type="email"
-          required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="Your email address"
-          className="bg-background pl-9"
+          placeholder="Enter your email address"
+          className="h-11 rounded-full border-white bg-white pr-4 pl-11 text-sm shadow-sm placeholder:text-slate-400 focus-visible:ring-primary/20"
           aria-label="Email address"
+          required
         />
       </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-        Subscribe
+      <Button
+        type="submit"
+        size="lg"
+        className="h-11 rounded-full bg-slate-950 px-6 text-white shadow-sm hover:bg-primary"
+        disabled={pending}
+      >
+        {pending ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Send className="size-4" aria-hidden="true" />
+        )}
+        {pending ? "Subscribing…" : "Subscribe"}
       </Button>
     </form>
   );

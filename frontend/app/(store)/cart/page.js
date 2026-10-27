@@ -88,16 +88,16 @@ export default function CartPage() {
   const progress = threshold > 0 ? Math.min(100, (summary.subtotal / threshold) * 100) : 100;
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="store-container py-9 sm:py-11">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
             Your bag
           </p>
-          <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">
+          <h1 className="mt-1 font-heading text-3xl font-semibold tracking-[-0.02em] text-slate-950">
             Shopping cart
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-slate-500">
             {count} item{count === 1 ? "" : "s"} ready for checkout.
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function CartPage() {
           type="button"
           variant="ghost"
           size="sm"
-          className="text-muted-foreground"
+          className="rounded-full text-slate-500"
           onClick={() => {
             if (window.confirm("Remove every item from your cart?")) clear();
           }}
@@ -125,7 +125,7 @@ export default function CartPage() {
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
           {items.map((line) => (
-            <Card key={line.id} className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
+            <Card key={line.id} className="gap-0 overflow-hidden rounded-2xl border-slate-200/80 py-0 shadow-soft">
               <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                 <Link
                   href={`/products/${line.product?.slug}`}
@@ -158,7 +158,7 @@ export default function CartPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
-                  <div className="flex items-center rounded-lg border">
+                  <div className="flex items-center rounded-full border border-slate-200 bg-white">
                     <Button
                       type="button"
                       variant="ghost"
@@ -205,7 +205,7 @@ export default function CartPage() {
         </div>
 
         <aside>
-          <Card className="sticky top-24 rounded-2xl shadow-card">
+          <Card className="sticky top-32 rounded-2xl border-slate-200/80 shadow-card">
             <CardHeader>
               <CardTitle>Order summary</CardTitle>
             </CardHeader>
@@ -257,7 +257,7 @@ export default function CartPage() {
                 </div>
               ) : null}
 
-              <Button asChild size="lg" className="w-full">
+              <Button asChild size="lg" className="h-12 w-full rounded-full bg-slate-950 hover:bg-primary">
                 <Link href={isAuthenticated ? "/checkout" : "/login?next=/checkout"}>
                   {isAuthenticated ? "Proceed to checkout" : "Sign in to checkout"}
                   <ArrowRight className="size-4" aria-hidden="true" />

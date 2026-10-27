@@ -111,7 +111,7 @@ export function ProductPurchasePanel({ product }) {
                   }}
                   disabled={variant.stock <= 0}
                   className={[
-                    "rounded-lg border px-3 py-2 text-sm transition-colors",
+                    "rounded-full border px-4 py-2 text-sm transition-colors",
                     variant.id === variantId
                       ? "border-primary bg-secondary font-medium text-primary"
                       : "bg-background hover:bg-muted",
@@ -128,21 +128,19 @@ export function ProductPurchasePanel({ product }) {
         </div>
       ) : null}
 
-      <div className="flex items-center gap-4 rounded-2xl border bg-card p-4">
+      <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
         <div>
-          <p className="text-xs text-muted-foreground">Total price</p>
-          <p className="font-heading text-2xl font-semibold">
+          <p className="text-xs text-slate-500">Total price</p>
+          <p className="font-heading text-2xl font-semibold text-slate-950">
             {formatCurrency(unitPrice * quantity)}
           </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-xs text-slate-500">
             {formatCurrency(unitPrice)} each
           </p>
         </div>
         <div className="ml-auto">
-          <p className="mb-1 text-right text-xs text-muted-foreground">
-            Quantity
-          </p>
-          <div className="flex items-center rounded-lg border">
+          <p className="mb-1 text-right text-xs text-slate-500">Quantity</p>
+          <div className="flex items-center rounded-full border border-slate-200 bg-white">
             <Button
               type="button"
               variant="ghost"
@@ -174,7 +172,7 @@ export function ProductPurchasePanel({ product }) {
         <Button
           type="button"
           size="lg"
-          className="flex-1"
+          className="h-12 flex-1 rounded-full bg-slate-950 text-sm font-semibold shadow-lg shadow-slate-950/10 hover:bg-primary"
           onClick={handleAdd}
           disabled={!inStock || pending}
         >
@@ -189,7 +187,7 @@ export function ProductPurchasePanel({ product }) {
           type="button"
           size="lg"
           variant="outline"
-          className="flex-1"
+          className="h-12 flex-1 rounded-full border-slate-300 text-sm font-semibold"
           onClick={handleBuyNow}
           disabled={!inStock || pending}
         >
@@ -199,6 +197,7 @@ export function ProductPurchasePanel({ product }) {
           type="button"
           size="lg"
           variant="outline"
+          className="size-12 rounded-full border-slate-300 p-0"
           onClick={handleWishlist}
           disabled={wishlistPending}
           aria-label="Add to wishlist"
@@ -211,7 +210,7 @@ export function ProductPurchasePanel({ product }) {
         </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs leading-5 text-slate-500">
         {inStock
           ? `${stock} in stock. Cash on Delivery is available at checkout.`
           : "This option is currently out of stock."}

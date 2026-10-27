@@ -25,7 +25,7 @@
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #2563eb;
-  --radius: 0.75rem;
+  --radius: 0.875rem;
   --chart-1: #2563eb;
   --chart-2: #38bdf8;
   --chart-3: #1e3a8a;
@@ -113,10 +113,16 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
 
+  --shadow-soft: 0 1px 2px 0 rgb(15 23 42 / 0.04);
   --shadow-card:
-    0 1px 2px 0 rgb(11 15 26 / 0.04), 0 12px 32px -12px rgb(11 15 26 / 0.12);
-  --shadow-lift: 0 18px 40px -18px rgb(37 99 235 / 0.45);
+    0 1px 2px 0 rgb(15 23 42 / 0.03),
+    0 16px 40px -24px rgb(15 23 42 / 0.16);
+  --shadow-float:
+    0 24px 60px -24px rgb(15 23 42 / 0.22),
+    0 8px 20px -12px rgb(37 99 235 / 0.18);
+  --shadow-lift: 0 22px 44px -22px rgb(37 99 235 / 0.45);
 }
 
 @layer base {
@@ -192,6 +198,49 @@
   transition:
     transform 200ms ease,
     box-shadow 200ms ease;
+}
+
+@utility bg-hero-soft {
+  background-color: #eff6ff;
+  background-image:
+    radial-gradient(circle at 12% 20%, rgb(255 255 255 / 0.9), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgb(56 189 248 / 0.16), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, #eff6ff 48%, #e0ecff 100%);
+}
+
+@utility bg-dot-grid {
+  background-image: radial-gradient(rgb(37 99 235 / 0.16) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility store-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility line-clamp-2-safe {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 @supports (backdrop-filter: blur(1px)) {

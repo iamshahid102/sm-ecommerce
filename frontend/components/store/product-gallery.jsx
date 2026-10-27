@@ -11,7 +11,7 @@ export function ProductGallery({ images = [], title }) {
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted">
+      <div className="relative aspect-square overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-soft">
         <StoreImage
           src={current?.url}
           alt={current?.alt_text || title}

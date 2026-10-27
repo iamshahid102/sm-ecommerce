@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-
 export function SectionHeading({
   eyebrow,
   title,
@@ -11,29 +9,33 @@ export function SectionHeading({
   linkLabel = "View all",
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="flex items-end justify-between gap-4">
+      <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+          <p className="mb-1.5 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-slate-950 sm:text-[28px]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-500">
             {description}
           </p>
         ) : null}
       </div>
       {href ? (
-        <Button asChild variant="outline" size="sm" className="w-fit">
-          <Link href={href}>
-            {linkLabel}
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </Button>
+        <Link
+          href={href}
+          className="group inline-flex shrink-0 items-center gap-1.5 pb-1 text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
+        >
+          {linkLabel}
+          <ArrowRight
+            className="size-4 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </Link>
       ) : null}
     </div>
   );
