@@ -16,6 +16,7 @@ import {
   listPages,
   listSubscribers,
   markContactRead,
+  unsubscribeNewsletter,
   updateBanner,
   updateHomeSection,
   updateMenuItem,
@@ -27,7 +28,6 @@ import {
   createContactMessage,
   exportSubscribersCsv,
   subscribeNewsletter,
-  unsubscribeNewsletter,
 } from "../services/marketing.service.js";
 import { listAuditLogs } from "../services/audit.service.js";
 import { recordAudit } from "../services/audit.service.js";
