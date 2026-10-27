@@ -12,7 +12,7 @@ the admin dashboard to work.
 
 ## 1. Apply the migrations
 
-Run **one** method, not both. Both methods run the same ten files in order.
+Run **one** method, not both. Both methods run the same thirteen files in order.
 
 ### Option A — Supabase CLI (recommended, Windows PowerShell)
 

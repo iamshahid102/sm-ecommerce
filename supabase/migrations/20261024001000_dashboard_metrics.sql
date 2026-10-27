@@ -30,7 +30,11 @@ as $$
       coalesce(
         sum(total) filter (where payment_status = 'paid'),
         0
-      ) as total_revenue,
+      ) as total_revenue
+    from public.orders
+  ),
+  status_stats as (
+    select
       coalesce(
         jsonb_object_agg(status::text, status_count),
         '{}'::jsonb
@@ -39,7 +43,7 @@ as $$
       select status, count(*) as status_count
       from public.orders
       group by status
-    ) grouped
+    ) status_counts
   )
   select jsonb_build_object(
     'total_revenue', order_stats.total_revenue,
@@ -51,7 +55,7 @@ as $$
     ),
     'total_products', product_stats.total_products,
     'low_stock_count', product_stats.low_stock_count,
-    'order_status_counts', order_stats.order_status_counts,
+    'order_status_counts', status_stats.order_status_counts,
     'low_stock_products', coalesce(
       (
         select jsonb_agg(
@@ -77,7 +81,8 @@ as $$
     )
   )
   from product_stats
-  cross join order_stats;
+  cross join order_stats
+  cross join status_stats;
 $$;
 
 revoke all on function public.admin_dashboard_metrics()
