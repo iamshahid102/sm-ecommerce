@@ -6,6 +6,7 @@ import {
   adminBlockCustomer,
   adminCreateCoupon,
   adminDeleteCoupon,
+  adminDeleteReview,
   adminExportCustomers,
   adminExportOrders,
   adminGetCustomer,
@@ -17,6 +18,7 @@ import {
   adminModerateReview,
   adminSalesReport,
   adminUpdateCoupon,
+  adminUpdateOrderPayment,
   adminUpdateOrderStatus,
 } from "../../controllers/admin.controller.js";
 import {
@@ -92,6 +94,7 @@ import {
   customerAdminSchema,
   orderListQuerySchema,
   orderStatusSchema,
+  paymentStatusSchema,
   readMessageSchema,
   reportQuerySchema,
   reviewModerationSchema,
@@ -168,6 +171,11 @@ router.patch(
   adminUpdateOrderStatus,
 );
 router.patch(
+  "/orders/:id/payment",
+  validate({ params: idParams, body: paymentStatusSchema }),
+  adminUpdateOrderPayment,
+);
+router.patch(
   "/orders/:id/note",
   validate({ params: idParams, body: adminNoteSchema }),
   adminAddOrderNote,
@@ -184,6 +192,7 @@ router.patch(
   validate({ params: idParams, body: reviewModerationSchema }),
   adminModerateReview,
 );
+router.delete("/reviews/:id", validate({ params: idParams }), adminDeleteReview);
 
 // Customers.
 router.get(

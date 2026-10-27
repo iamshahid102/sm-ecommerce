@@ -322,6 +322,12 @@ export const adminCouponQuerySchema = z
   })
   .strip();
 
+export const paymentStatusSchema = z
+  .object({
+    payment_status: z.enum(["unpaid", "paid", "refunded", "failed"]),
+  })
+  .strict();
+
 export const adminNoteSchema = z
   .object({
     admin_note: z.preprocess(

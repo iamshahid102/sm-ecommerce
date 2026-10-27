@@ -60,10 +60,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
   const totals = useMemo(() => {
     const summary = initialCart.summary;
     const discount = Number(coupon?.discount ?? 0);
-    const taxRate =
-      Number(summary.subtotal) > 0
-        ? Number(summary.tax) / Number(summary.subtotal)
-        : 0;
+    const taxRate = Number(summary.tax_percent ?? 0) / 100;
     const tax = round(
       Math.max(0, Number(summary.subtotal) - discount) * taxRate,
     );

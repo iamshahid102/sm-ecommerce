@@ -1,8 +1,13 @@
 import { getSupabaseAdmin } from "../config/supabase.js";
 import { ApiError } from "../utils/api-error.js";
+import { logger } from "../utils/logger.js";
 import { paginationMeta } from "../utils/pagination.js";
 import { throwSupabaseError } from "../utils/supabase-error.js";
-import { sendOrderConfirmation, sendOrderStatusEmail } from "./email.service.js";
+import {
+  sendAdminNewOrder,
+  sendOrderConfirmation,
+  sendOrderStatusEmail,
+} from "./email.service.js";
 
 const ORDER_DETAIL_SELECT = `
   *,
@@ -72,8 +77,15 @@ export async function placeOrder(userId, input) {
 
   try {
     await sendOrderConfirmation(order);
-  } catch {
+  } catch (error) {
     // The order is already committed. Email delivery must never roll it back.
+    logger.warn({ err: error, orderId: order.id }, "Order confirmation email failed");
+  }
+
+  try {
+    await sendAdminNewOrder(order);
+  } catch (error) {
+    logger.warn({ err: error, orderId: order.id }, "Admin order alert failed");
   }
 
   return order;
@@ -172,7 +184,18 @@ export async function cancelOrderForUser(userId, orderId) {
     .eq("user_id", userId);
   throwSupabaseError(updateError, "Could not cancel the order.");
 
-  return getOrderForUser(userId, orderId);
+  const updated = await getOrderForUser(userId, orderId);
+
+  try {
+    await sendOrderStatusEmail(updated, "cancelled", "Cancelled by the customer.");
+  } catch (error) {
+    logger.warn(
+      { err: error, orderId },
+      "Order cancellation email failed",
+    );
+  }
+
+  return updated;
 }
 
 export async function listOrdersForAdmin(filters) {
@@ -228,6 +251,14 @@ export async function updateOrderStatus(orderId, input) {
     throw new ApiError(404, "Order not found.", "ORDER_NOT_FOUND");
   }
 
+  if (current.status === input.status) {
+    throw new ApiError(
+      409,
+      "The order is already in that status.",
+      "STATUS_UNCHANGED",
+    );
+  }
+
   const payload = { status: input.status };
   if (input.tracking_number !== undefined) {
     payload.tracking_number = input.tracking_number;
@@ -256,15 +287,69 @@ export async function updateOrderStatus(orderId, input) {
     throwSupabaseError(paymentError, "Could not update the payment.");
   }
 
+  if (input.note) {
+    // The database trigger writes the history row; attach the customer-facing
+    // note to that row so it appears on the order timeline.
+    const { data: history, error: historyError } = await admin
+      .from("order_status_history")
+      .select("id")
+      .eq("order_id", orderId)
+      .eq("status", input.status)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    throwSupabaseError(historyError, "Could not load the order timeline.");
+
+    if (history) {
+      const { error: noteError } = await admin
+        .from("order_status_history")
+        .update({ note: input.note })
+        .eq("id", history.id);
+      throwSupabaseError(noteError, "Could not save the status note.");
+    }
+  }
+
   const updated = await getOrderForAdmin(data.id);
 
   try {
-    await sendOrderStatusEmail(updated, input.status);
-  } catch {
+    await sendOrderStatusEmail(updated, input.status, input.note);
+  } catch (error) {
     // Email failures do not invalidate a committed status change.
+    logger.warn(
+      { err: error, orderId, status: input.status },
+      "Order status email failed",
+    );
   }
 
   return updated;
+}
+
+export async function updateOrderPaymentStatus(orderId, paymentStatus) {
+  const admin = getSupabaseAdmin();
+  const { data: current, error } = await admin
+    .from("orders")
+    .select("id")
+    .eq("id", orderId)
+    .maybeSingle();
+  throwSupabaseError(error, "Order not found.", "ORDER_NOT_FOUND");
+
+  if (!current) {
+    throw new ApiError(404, "Order not found.", "ORDER_NOT_FOUND");
+  }
+
+  const { error: updateError } = await admin
+    .from("orders")
+    .update({ payment_status: paymentStatus })
+    .eq("id", orderId);
+  throwSupabaseError(updateError, "Could not update the payment status.");
+
+  const { error: paymentError } = await admin
+    .from("payments")
+    .update({ status: paymentStatus })
+    .eq("order_id", orderId);
+  throwSupabaseError(paymentError, "Could not update the payment record.");
+
+  return getOrderForAdmin(orderId);
 }
 
 export async function addOrderNote(orderId, note) {

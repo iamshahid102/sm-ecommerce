@@ -26,6 +26,21 @@ const optionalUrl = z.preprocess(
     .nullable(),
 );
 
+const socialUrl = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine((value) => {
+    if (value === "") return true;
+
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "Enter a valid http(s) URL.");
+
 const optionalDate = z.preprocess(
   emptyToNull,
   z.string().datetime({ offset: true }).nullable(),
@@ -69,7 +84,7 @@ export const settingsSchema = z
     address: nullableText(300).optional(),
     city: nullableText(80).optional(),
     country: z.string().trim().length(2).toUpperCase().default("PK"),
-    social_links: z.record(z.string(), z.string().trim().max(2048)).default({}),
+    social_links: z.record(z.string().max(40), socialUrl).default({}),
     announcement_text: nullableText(200).optional(),
     announcement_active: z.coerce.boolean().default(false),
     meta_title: nullableText(70).optional(),

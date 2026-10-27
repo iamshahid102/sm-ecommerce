@@ -1,4 +1,5 @@
 import { env, isProduction } from "../config/env.js";
+import { escapeHtml } from "../utils/html.js";
 import { logger } from "../utils/logger.js";
 
 const RESEND_URL = "https://api.resend.com/emails";
@@ -59,24 +60,54 @@ export async function sendOrderConfirmation(order) {
     subject: `Order ${order.order_number} confirmed`,
     html: layout(
       "Thank you for your order",
-      `<p>Hi ${order.customer_name},</p>
-       <p>We received your order <strong>${order.order_number}</strong>.</p>
-       <p>Total: <strong>PKR ${order.total}</strong></p>
+      `<p>Hi ${escapeHtml(order.customer_name)},</p>
+       <p>We received your order <strong>${escapeHtml(order.order_number)}</strong>.</p>
+       <p>Total: <strong>PKR ${escapeHtml(order.total)}</strong></p>
        <p>Payment method: ${order.payment_method === "cod" ? "Cash on Delivery" : "Card"}</p>
        <p>We will email you again when the status changes.</p>`,
     ),
   });
 }
 
-export async function sendOrderStatusEmail(order, status) {
+export async function sendAdminNewOrder(order) {
+  if (!env.ADMIN_EMAIL) {
+    return { skipped: true };
+  }
+
+  const itemLines = (order.items ?? [])
+    .map(
+      (item) =>
+        `${escapeHtml(item.quantity)} × ${escapeHtml(item.title)} — ${escapeHtml(item.line_total)}`,
+    )
+    .join("<br>");
+
+  return sendEmail({
+    to: env.ADMIN_EMAIL,
+    subject: `New order ${order.order_number}`,
+    html: layout(
+      "New order received",
+      `<p>Order <strong>${escapeHtml(order.order_number)}</strong> was placed by ${escapeHtml(order.customer_name)}.</p>
+       <p>Total: <strong>PKR ${escapeHtml(order.total)}</strong></p>
+       <p>${itemLines}</p>
+       <p>Open the admin order page to confirm and fulfil it.</p>`,
+    ),
+  });
+}
+
+export async function sendOrderStatusEmail(order, status, note) {
+  const noteHtml = note
+    ? `<p><strong>Note:</strong> ${escapeHtml(note).replaceAll("\n", "<br>")}</p>`
+    : "";
+
   return sendEmail({
     to: order.customer_email,
     subject: `Order ${order.order_number} is now ${status}`,
     html: layout(
       `Your order is ${status}`,
-      `<p>Hi ${order.customer_name},</p>
-       <p>Order <strong>${order.order_number}</strong> status is now <strong>${status}</strong>.</p>
-       ${order.tracking_number ? `<p>Tracking number: <strong>${order.tracking_number}</strong></p>` : ""}`,
+      `<p>Hi ${escapeHtml(order.customer_name)},</p>
+       <p>Order <strong>${escapeHtml(order.order_number)}</strong> status is now <strong>${escapeHtml(status)}</strong>.</p>
+       ${order.tracking_number ? `<p>Tracking number: <strong>${escapeHtml(order.tracking_number)}</strong></p>` : ""}
+       ${noteHtml}`,
     ),
   });
 }

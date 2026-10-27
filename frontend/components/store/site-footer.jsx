@@ -21,6 +21,15 @@ const socialIcons = {
   youtube: Video,
 };
 
+function isHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function SiteFooter({ settings, categories = [], menu = [] }) {
   const footerMenu = menu.filter(
     (item) => item.location === "footer" && item.is_active,
@@ -51,7 +60,7 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
           <div className="mt-5 flex items-center gap-2">
             {Object.entries(socialIcons).map(([key, Icon]) => {
               const href = socials[key];
-              if (!href) return null;
+              if (!isHttpUrl(href)) return null;
               return (
                 <a
                   key={key}

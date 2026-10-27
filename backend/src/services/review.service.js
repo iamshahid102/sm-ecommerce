@@ -151,6 +151,22 @@ export async function deleteReview(userId, id) {
   return { id };
 }
 
+export async function deleteReviewAsAdmin(id) {
+  const { data, error } = await getSupabaseAdmin()
+    .from("reviews")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  throwSupabaseError(error, "Could not delete the review.");
+
+  if (!data) {
+    throw new ApiError(404, "Review not found.", "NOT_FOUND");
+  }
+
+  return { id };
+}
+
 export async function listAdminReviews({ page = 1, limit = 20, q, visible }) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;

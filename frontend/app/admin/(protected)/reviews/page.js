@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Search } from "lucide-react";
 
+import { AdminDeleteButton } from "@/components/admin/admin-delete-button";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { ReviewVisibilityButton } from "@/components/admin/review-visibility-button";
@@ -133,10 +134,17 @@ export default async function AdminReviewsPage({ searchParams }) {
                     </Badge>
                   </div>
                 </div>
-                <ReviewVisibilityButton
-                  reviewId={review.id}
-                  isVisible={review.is_visible}
-                />
+                <div className="flex flex-wrap items-center gap-1">
+                  <ReviewVisibilityButton
+                    reviewId={review.id}
+                    isVisible={review.is_visible}
+                  />
+                  <AdminDeleteButton
+                    endpoint={`/admin/reviews/${review.id}`}
+                    label="Delete"
+                    confirmText="Permanently delete this review? This cannot be undone."
+                  />
+                </div>
               </div>
               {review.title ? (
                 <p className="mt-3 text-sm font-medium">{review.title}</p>

@@ -43,6 +43,7 @@ function calculateGuestSummary(items, settings) {
     subtotal,
     shipping_fee: shipping,
     tax,
+    tax_percent: Number(settings?.tax_percent ?? 0),
     discount: 0,
     total: Number((subtotal + shipping + tax).toFixed(2)),
     currency: settings?.currency ?? "PKR",

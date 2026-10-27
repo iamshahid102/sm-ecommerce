@@ -35,5 +35,24 @@ export function throwSupabaseError(error, fallback, code = "DATABASE_ERROR") {
     );
   }
 
+  if (error.code === "23514") {
+    throw new ApiError(
+      422,
+      "The submitted values do not satisfy a database rule.",
+      "INVALID_DATA",
+    );
+  }
+
+  if (
+    error.code === "P0001" &&
+    String(error.message ?? "").includes("INVALID_STATUS_TRANSITION")
+  ) {
+    throw new ApiError(
+      409,
+      "The order cannot move to that status.",
+      "INVALID_STATUS_TRANSITION",
+    );
+  }
+
   throw new ApiError(500, fallback, code);
 }

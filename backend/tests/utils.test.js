@@ -1,4 +1,5 @@
 import { toCsv } from "../src/utils/csv.js";
+import { escapeHtml } from "../src/utils/html.js";
 import {
   clampDiscount,
   fromPaisa,
@@ -38,6 +39,19 @@ describe("slug helpers", () => {
   test("fall back when the base has no usable characters", () => {
     expect(uniqueSlug("!!!", "1")).toBe("item-1");
     expect(uniqueSlug("", "")).toBe("item");
+  });
+});
+
+describe("HTML escaping", () => {
+  test("escapes every HTML-sensitive character", () => {
+    expect(escapeHtml(`<script>"x" & 'y'</script>`)).toBe(
+      "&lt;script&gt;&quot;x&quot; &amp; &#39;y&#39;&lt;/script&gt;",
+    );
+  });
+
+  test("treats nullish values as an empty string", () => {
+    expect(escapeHtml(null)).toBe("");
+    expect(escapeHtml(undefined)).toBe("");
   });
 });
 

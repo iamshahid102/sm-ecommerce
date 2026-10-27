@@ -6,9 +6,9 @@ import { throwSupabaseError } from "../utils/supabase-error.js";
 
 const PRODUCT_SELECT = `
   id, title, slug, short_description, description, category_id, brand_id,
-  price, discount_price, sku, stock, low_stock_threshold, is_published,
-  is_featured, avg_rating, review_count, meta_title, meta_description,
-  og_image_url, created_at, updated_at,
+  price, discount_price, sku, stock, low_stock_threshold, is_low_stock,
+  is_published, is_featured, avg_rating, review_count, meta_title,
+  meta_description, og_image_url, created_at, updated_at,
   categories ( id, name, slug ),
   brands ( id, name, slug ),
   product_images ( id, url, alt_text, sort_order, is_primary ),
@@ -30,16 +30,18 @@ function sortProducts(query, sort) {
   return query.order("created_at", { ascending: false });
 }
 
-function normalizeProduct(product) {
+function normalizeProduct(product, { includeInactive = false } = {}) {
   if (!product) return null;
 
   const images = [...(product.product_images ?? [])].sort((a, b) => {
     if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
     return a.sort_order - b.sort_order;
   });
-  const variants = [...(product.product_variants ?? [])]
-    .filter((variant) => variant.is_active)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  const allVariants = [...(product.product_variants ?? [])].sort(
+    (a, b) => a.sort_order - b.sort_order,
+  );
+  const activeVariants = allVariants.filter((variant) => variant.is_active);
+  const variants = includeInactive ? allVariants : activeVariants;
 
   return {
     ...product,
@@ -47,7 +49,9 @@ function normalizeProduct(product) {
     variants,
     primary_image: images[0]?.url ?? null,
     effective_price: Number(product.discount_price ?? product.price),
-    in_stock: product.stock > 0 || variants.some((variant) => variant.stock > 0),
+    in_stock:
+      product.stock > 0 ||
+      activeVariants.some((variant) => variant.stock > 0),
   };
 }
 
@@ -266,8 +270,11 @@ async function syncProductVariants(productId, variants = []) {
     .eq("product_id", productId);
   throwSupabaseError(existingError, "Could not load product variants.");
 
+  const existingIds = new Set((existing ?? []).map((variant) => variant.id));
   const keepIds = new Set(
-    variants.map((variant) => variant.id).filter(Boolean),
+    variants
+      .map((variant) => variant.id)
+      .filter((id) => existingIds.has(id)),
   );
   const removeIds = (existing ?? [])
     .map((variant) => variant.id)
@@ -293,9 +300,14 @@ async function syncProductVariants(productId, variants = []) {
       sort_order: variant.sort_order ?? index,
     };
 
-    const query = variant.id
-      ? admin.from("product_variants").update(payload).eq("id", variant.id)
-      : admin.from("product_variants").insert(payload);
+    const query =
+      variant.id && existingIds.has(variant.id)
+        ? admin
+            .from("product_variants")
+            .update(payload)
+            .eq("id", variant.id)
+            .eq("product_id", productId)
+        : admin.from("product_variants").insert(payload);
     const { error } = await query;
     throwSupabaseError(error, "Could not save product variants.");
   }
@@ -419,6 +431,7 @@ export async function listAdminProducts(filters) {
   if (filters.status === "published") query = query.eq("is_published", true);
   if (filters.status === "draft") query = query.eq("is_published", false);
   if (filters.status === "out_of_stock") query = query.eq("stock", 0);
+  if (filters.status === "low_stock") query = query.eq("is_low_stock", true);
 
   const resolved = await resolveCatalogFilters(filters);
   if (resolved.category_id) query = query.eq("category_id", resolved.category_id);
@@ -434,15 +447,8 @@ export async function listAdminProducts(filters) {
   const { data, error, count } = await query;
   throwSupabaseError(error, "Could not load products.");
 
-  let items = (data ?? []).map(normalizeProduct);
-  if (filters.status === "low_stock") {
-    items = items.filter(
-      (product) => product.stock > 0 && product.stock <= product.low_stock_threshold,
-    );
-  }
-
   return {
-    items,
+    items: (data ?? []).map(normalizeProduct),
     meta: paginationMeta({ page, limit, total: count ?? 0 }),
   };
 }
@@ -460,7 +466,7 @@ export async function getAdminProduct(id) {
     throw new ApiError(404, "Product not found.", "PRODUCT_NOT_FOUND");
   }
 
-  return normalizeProduct(data);
+  return normalizeProduct(data, { includeInactive: true });
 }
 
 export async function createCategory(input) {

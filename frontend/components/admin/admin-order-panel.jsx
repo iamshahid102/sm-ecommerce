@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Printer, Save } from "lucide-react";
+import { Loader2, Printer, Save, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiFetch } from "@/lib/api/client";
-import { NEXT_ORDER_STATUSES, statusLabel } from "@/lib/commerce";
+import {
+  NEXT_ORDER_STATUSES,
+  PAYMENT_STATUS_LABELS,
+  statusLabel,
+} from "@/lib/commerce";
 
 export function AdminOrderPanel({ order }) {
   const router = useRouter();
@@ -23,8 +27,11 @@ export function AdminOrderPanel({ order }) {
   );
   const [courier, setCourier] = useState(order.courier ?? "");
   const [adminNote, setAdminNote] = useState(order.admin_note ?? "");
+  const [paymentDraft, setPaymentDraft] = useState(null);
+  const paymentStatus = paymentDraft ?? order.payment_status ?? "unpaid";
   const [statusPending, setStatusPending] = useState(false);
   const [notePending, setNotePending] = useState(false);
+  const [paymentPending, setPaymentPending] = useState(false);
 
   async function saveStatus(event) {
     event.preventDefault();
@@ -52,6 +59,26 @@ export function AdminOrderPanel({ order }) {
       toast.error(details || error.message);
     } finally {
       setStatusPending(false);
+    }
+  }
+
+  async function savePayment() {
+    setPaymentPending(true);
+    try {
+      await apiFetch(`/admin/orders/${order.id}/payment`, {
+        method: "PATCH",
+        body: { payment_status: paymentStatus },
+      });
+      toast.success("Payment status updated.");
+      setPaymentDraft(null);
+      router.refresh();
+    } catch (error) {
+      const details = Array.isArray(error?.details)
+        ? error.details.map((item) => item.message).join(" ")
+        : "";
+      toast.error(details || error.message);
+    } finally {
+      setPaymentPending(false);
     }
   }
 
@@ -151,6 +178,49 @@ export function AdminOrderPanel({ order }) {
               </Button>
             </form>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl shadow-none">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="size-4 text-primary" aria-hidden="true" />
+            Payment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <Label htmlFor="payment-status">Payment status</Label>
+            <select
+              id="payment-status"
+              value={paymentStatus}
+              onChange={(event) => setPaymentDraft(event.target.value)}
+              className="mt-1.5 h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              {Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={savePayment}
+            disabled={paymentPending || paymentStatus === order.payment_status}
+          >
+            {paymentPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" aria-hidden="true" />
+            )}
+            Save payment status
+          </Button>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Use Paid for collected COD cash, and Refunded after a return or
+            refund.
+          </p>
         </CardContent>
       </Card>
 

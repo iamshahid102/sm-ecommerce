@@ -13,9 +13,14 @@ import {
   addOrderNote,
   getOrderForAdmin,
   listOrdersForAdmin,
+  updateOrderPaymentStatus,
   updateOrderStatus,
 } from "../services/order.service.js";
-import { listAdminReviews, moderateReview } from "../services/review.service.js";
+import {
+  deleteReviewAsAdmin,
+  listAdminReviews,
+  moderateReview,
+} from "../services/review.service.js";
 import {
   exportCustomersCsv,
   exportOrdersCsv,
@@ -66,6 +71,22 @@ export async function adminUpdateOrderStatus(req, res) {
   return sendSuccess(res, order, { message: "Order updated." });
 }
 
+export async function adminUpdateOrderPayment(req, res) {
+  const order = await updateOrderPaymentStatus(
+    req.validated.params.id,
+    req.validated.body.payment_status,
+  );
+  await recordAudit({
+    actor: req.user,
+    action: "order.payment_status",
+    entityType: "order",
+    entityId: order.id,
+    changes: { payment_status: req.validated.body.payment_status },
+    req,
+  });
+  return sendSuccess(res, order, { message: "Payment status updated." });
+}
+
 export async function adminAddOrderNote(req, res) {
   const order = await addOrderNote(
     req.validated.params.id,
@@ -104,6 +125,18 @@ export async function adminModerateReview(req, res) {
     req,
   });
   return sendSuccess(res, review, { message: "Review updated." });
+}
+
+export async function adminDeleteReview(req, res) {
+  const review = await deleteReviewAsAdmin(req.validated.params.id);
+  await recordAudit({
+    actor: req.user,
+    action: "review.delete",
+    entityType: "review",
+    entityId: review.id,
+    req,
+  });
+  return sendSuccess(res, review, { message: "Review deleted." });
 }
 
 export async function adminListCustomers(req, res) {

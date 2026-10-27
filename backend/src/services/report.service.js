@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "../config/supabase.js";
 import { ApiError } from "../utils/api-error.js";
 import { toCsv } from "../utils/csv.js";
+import { fetchAllRows } from "../utils/supabase-pagination.js";
 import { throwSupabaseError } from "../utils/supabase-error.js";
 
 const PAKISTAN_OFFSET = "+05:00";
@@ -48,18 +49,21 @@ export async function getSalesReport(query) {
   const { startDate, endDate } = resolveRange(query);
   const admin = getSupabaseAdmin();
 
-  const { data: orders, error } = await admin
-    .from("orders")
-    .select(
-      `id, order_number, user_id, customer_name, customer_email, status,
-       payment_method, payment_status, subtotal, shipping_fee, discount, tax,
-       total, coupon_code, created_at,
-       order_items ( product_id, title, quantity, unit_price, line_total )`,
-    )
-    .gte("created_at", startDate.toISOString())
-    .lte("created_at", endDate.toISOString())
-    .order("created_at", { ascending: true });
-  throwSupabaseError(error, "Could not build the sales report.");
+  const orders = await fetchAllRows(
+    () =>
+      admin
+        .from("orders")
+        .select(
+          `id, order_number, user_id, customer_name, customer_email, status,
+           payment_method, payment_status, subtotal, shipping_fee, discount, tax,
+           total, coupon_code, created_at,
+           order_items ( product_id, title, quantity, unit_price, line_total )`,
+        )
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString())
+        .order("created_at", { ascending: true }),
+    { errorMessage: "Could not build the sales report." },
+  );
 
   const { count: newCustomers, error: customerError } = await admin
     .from("profiles")
@@ -174,17 +178,20 @@ export async function getSalesReport(query) {
 
 export async function exportOrdersCsv(query) {
   const { startDate, endDate } = resolveRange(query);
-  const { data, error } = await getSupabaseAdmin()
-    .from("orders")
-    .select(
-      "order_number, customer_name, customer_email, status, payment_method, payment_status, subtotal, shipping_fee, discount, tax, total, coupon_code, created_at",
-    )
-    .gte("created_at", startDate.toISOString())
-    .lte("created_at", endDate.toISOString())
-    .order("created_at", { ascending: false });
-  throwSupabaseError(error, "Could not export orders.");
+  const rows = await fetchAllRows(
+    () =>
+      getSupabaseAdmin()
+        .from("orders")
+        .select(
+          "order_number, customer_name, customer_email, status, payment_method, payment_status, subtotal, shipping_fee, discount, tax, total, coupon_code, created_at",
+        )
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString())
+        .order("created_at", { ascending: false }),
+    { errorMessage: "Could not export orders." },
+  );
 
-  return toCsv(data ?? [], [
+  return toCsv(rows, [
     { key: "order_number", label: "Order" },
     { key: "customer_name", label: "Customer" },
     { key: "customer_email", label: "Email" },
@@ -202,13 +209,16 @@ export async function exportOrdersCsv(query) {
 }
 
 export async function exportCustomersCsv() {
-  const { data, error } = await getSupabaseAdmin()
-    .from("profiles")
-    .select("email, full_name, phone, role, is_blocked, created_at")
-    .order("created_at", { ascending: false });
-  throwSupabaseError(error, "Could not export customers.");
+  const rows = await fetchAllRows(
+    () =>
+      getSupabaseAdmin()
+        .from("profiles")
+        .select("email, full_name, phone, role, is_blocked, created_at")
+        .order("created_at", { ascending: false }),
+    { errorMessage: "Could not export customers." },
+  );
 
-  return toCsv(data ?? [], [
+  return toCsv(rows, [
     { key: "email", label: "Email" },
     { key: "full_name", label: "Name" },
     { key: "phone", label: "Phone" },

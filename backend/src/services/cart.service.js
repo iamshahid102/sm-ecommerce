@@ -81,6 +81,7 @@ export async function getCart(userId) {
       subtotal,
       shipping_fee: shippingFee,
       tax,
+      tax_percent: Number(settings.tax_percent ?? 0),
       discount: 0,
       total: money(subtotal + shippingFee + tax),
       currency: settings.currency,
