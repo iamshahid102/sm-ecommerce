@@ -25,6 +25,16 @@ export function formatDate(value) {
   }).format(date);
 }
 
+export function firstName(name) {
+  const source = String(name ?? "").trim();
+
+  if (!source) {
+    return "";
+  }
+
+  return source.split(/\s+/)[0];
+}
+
 export function initials(name, email) {
   const source = (name || email || "?").trim();
   const parts = source.split(/\s+/).filter(Boolean);

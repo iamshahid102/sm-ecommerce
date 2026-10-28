@@ -27,7 +27,7 @@ import { statusLabel, statusStyle } from "@/lib/commerce";
 import { formatCurrency, formatDate, initials } from "@/lib/format";
 
 export const metadata = {
-  title: "My account",
+  title: "My profile",
   description: "Manage your SM Store profile and account security.",
 };
 
@@ -58,7 +58,7 @@ export default async function AccountPage() {
             </Avatar>
             <div>
               <p className="text-xs font-medium tracking-widest text-sky-300 uppercase">
-                My account
+                My profile
               </p>
               <h1 className="mt-1 font-heading text-2xl font-semibold sm:text-3xl">
                 {profile.full_name || "Welcome back"}
@@ -165,7 +165,8 @@ export default async function AccountPage() {
                           {order.order_number}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDate(order.created_at)} · {order.items?.length ?? 0} item
+                          {formatDate(order.created_at)} ·{" "}
+                          {order.items?.length ?? 0} item
                           {(order.items?.length ?? 0) === 1 ? "" : "s"}
                         </p>
                       </div>

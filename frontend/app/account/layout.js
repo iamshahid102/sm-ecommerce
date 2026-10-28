@@ -1,119 +1,83 @@
-import {
-  LayoutDashboard,
-  LogOut,
-  MapPin,
-  Package,
-  ShoppingBag,
-  Star,
-  Store,
-} from "lucide-react";
+import { LogOut, ShoppingBag, Store } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/app/actions/auth";
+import { AccountNav } from "@/components/account/account-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireCustomer } from "@/lib/auth/dal";
-import { initials } from "@/lib/format";
+import { firstName, initials } from "@/lib/format";
 
 export default async function AccountLayout({ children }) {
   const { profile } = await requireCustomer();
+  const customerName = firstName(profile.full_name) || "Customer";
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur print:hidden">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-hero-gradient text-sm font-bold text-white shadow-lg shadow-primary/20">
-                SM
-              </span>
-              <span className="font-heading text-lg font-semibold tracking-tight">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-[0_1px_0_rgba(15,23,42,0.03)] backdrop-blur-xl print:hidden">
+        <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center gap-3 px-4 sm:px-6 lg:px-8 xl:gap-5">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+            <span className="relative flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
+              <ShoppingBag className="size-5" aria-hidden="true" />
+              <span className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-white" />
+            </span>
+            <span className="flex flex-col">
+              <span className="font-heading text-lg leading-none font-semibold tracking-tight text-slate-950">
                 SM Store
               </span>
-            </Link>
-            <nav className="hidden items-center gap-1 text-sm lg:flex">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/">Store</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/account">
-                  <LayoutDashboard className="size-4" aria-hidden="true" />
-                  Dashboard
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/account/orders">
-                  <Package className="size-4" aria-hidden="true" />
-                  Orders
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/account/addresses">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  Addresses
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/account/reviews">
-                  <Star className="size-4" aria-hidden="true" />
-                  Reviews
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/cart">
-                  <ShoppingBag className="size-4" aria-hidden="true" />
-                  Cart
-                </Link>
-              </Button>
-            </nav>
-          </div>
+              <span className="mt-1 hidden text-[9px] font-semibold tracking-[0.18em] text-slate-500 uppercase sm:block">
+                My account
+              </span>
+            </span>
+          </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden items-center gap-2.5 rounded-full border bg-card py-1 pr-3 pl-1 md:flex">
-              <Avatar size="sm">
-                <AvatarFallback className="bg-secondary text-xs font-semibold text-primary">
+          <span
+            className="hidden h-6 w-px bg-slate-200 xl:block"
+            aria-hidden="true"
+          />
+
+          <AccountNav />
+
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/account"
+              className="hidden items-center gap-2.5 rounded-full border border-slate-200 bg-white py-1 pr-3 pl-1 shadow-sm transition-colors hover:border-primary/25 hover:bg-slate-50 md:flex"
+              aria-label={`Open ${customerName}'s profile`}
+            >
+              <Avatar size="sm" className="size-8">
+                <AvatarFallback className="bg-secondary text-[11px] font-semibold text-primary">
                   {initials(profile.full_name, profile.email)}
                 </AvatarFallback>
               </Avatar>
-              <div className="min-w-0">
-                <p className="max-w-40 truncate text-xs font-medium">
-                  {profile.full_name || "Customer"}
-                </p>
-                <p className="max-w-40 truncate text-[11px] text-muted-foreground">
-                  {profile.email}
-                </p>
-              </div>
-              <Badge variant="secondary" className="text-[10px]">
-                Customer
-              </Badge>
-            </div>
+              <span className="min-w-0">
+                <span className="block max-w-32 truncate text-xs font-semibold text-slate-900">
+                  {customerName}
+                </span>
+                <span className="block text-[10px] font-medium text-slate-500">
+                  Customer account
+                </span>
+              </span>
+            </Link>
 
             <form action={signOutAction}>
-              <Button type="submit" variant="outline" size="sm">
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-full border-slate-200 bg-white px-3 text-slate-600 shadow-sm hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+              >
                 <LogOut className="size-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Sign out</span>
               </Button>
             </form>
           </div>
         </div>
-        <nav
-          className="mx-auto flex w-full max-w-6xl items-center gap-1 overflow-x-auto border-t px-4 py-2 sm:px-6 lg:hidden"
-          aria-label="Account"
-        >
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/account">Dashboard</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/account/orders">Orders</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/account/addresses">Addresses</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/account/reviews">Reviews</Link>
-          </Button>
-        </nav>
+
+        <div className="border-t border-slate-100 xl:hidden">
+          <div className="mx-auto w-full max-w-6xl px-4 py-2 sm:px-6 lg:px-8">
+            <AccountNav variant="mobile" />
+          </div>
+        </div>
       </header>
 
       <main

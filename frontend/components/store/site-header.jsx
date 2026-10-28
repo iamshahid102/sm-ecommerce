@@ -18,7 +18,7 @@ import {
 import { useCart } from "@/components/store/cart-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatCurrency } from "@/lib/format";
+import { firstName, formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -40,6 +40,20 @@ export function SiteHeader({ settings, categories = [], profile }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAdmin = profile?.role === "admin";
   const accountHref = isAdmin ? "/admin" : profile ? "/account" : "/login";
+  const customerFirstName = firstName(profile?.full_name);
+  const accountLabel = isAdmin
+    ? "Dashboard"
+    : profile
+      ? customerFirstName || "Account"
+      : "Sign in";
+  const accountAriaLabel = isAdmin
+    ? "Open admin dashboard"
+    : profile
+      ? `Open ${customerFirstName ? `${customerFirstName}'s` : "your"} account`
+      : "Sign in to your account";
+  const accountActive =
+    Boolean(profile) && !isAdmin && pathname.startsWith("/account");
+  const wishlistActive = pathname === "/wishlist";
   const storeName = settings?.store_name || "SM Store";
   const freeShipping = Number(settings?.free_shipping_threshold ?? 5000);
   const navCategories = categories
@@ -145,22 +159,35 @@ export function SiteHeader({ settings, categories = [], profile }) {
             <div className="ml-auto flex items-center gap-1 md:ml-0">
               <Link
                 href="/wishlist"
-                className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 sm:flex"
+                aria-current={wishlistActive ? "page" : undefined}
+                className={cn(
+                  "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors sm:flex",
+                  wishlistActive
+                    ? "bg-secondary text-primary"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+                )}
               >
                 <Heart className="size-5" aria-hidden="true" />
                 <span className="hidden xl:inline">Wishlist</span>
               </Link>
               <Link
                 href={accountHref}
-                className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 sm:flex"
+                aria-current={accountActive ? "page" : undefined}
+                aria-label={accountAriaLabel}
+                className={cn(
+                  "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors sm:flex",
+                  accountActive
+                    ? "bg-secondary text-primary"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+                )}
               >
                 {isAdmin ? (
                   <LayoutDashboard className="size-5" aria-hidden="true" />
                 ) : (
                   <UserRound className="size-5" aria-hidden="true" />
                 )}
-                <span className="hidden xl:inline">
-                  {isAdmin ? "Dashboard" : profile ? "Account" : "Sign in"}
+                <span className="hidden max-w-28 truncate lg:inline-block">
+                  {accountLabel}
                 </span>
               </Link>
               <Link
@@ -211,6 +238,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 <Link
                   key={link.label}
                   href={link.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
                     active && "text-slate-950",
@@ -230,6 +258,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 <Link
                   key={category.id}
                   href={href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
                     active && "text-slate-950",
@@ -244,6 +273,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
             })}
             <Link
               href="/contact"
+              aria-current={pathname === "/contact" ? "page" : undefined}
               className={cn(
                 "relative inline-flex h-12 items-center transition-colors hover:text-slate-950",
                 pathname === "/contact" && "text-slate-950",
@@ -269,6 +299,9 @@ export function SiteHeader({ settings, categories = [], profile }) {
                     key={link.label}
                     href={link.href}
                     onClick={closeMenu}
+                    aria-current={
+                      isActivePath(pathname, link.href) ? "page" : undefined
+                    }
                     className={cn(
                       "rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950",
                       isActivePath(pathname, link.href) &&
@@ -281,7 +314,11 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 <Link
                   href="/contact"
                   onClick={closeMenu}
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                  aria-current={pathname === "/contact" ? "page" : undefined}
+                  className={cn(
+                    "rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950",
+                    pathname === "/contact" && "bg-secondary text-primary",
+                  )}
                 >
                   Contact
                 </Link>
@@ -293,16 +330,27 @@ export function SiteHeader({ settings, categories = [], profile }) {
                     Shop by category
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/categories/${category.slug}`}
-                        onClick={closeMenu}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-primary/30 hover:bg-secondary hover:text-primary"
-                      >
-                        {category.name}
-                      </Link>
-                    ))}
+                    {categories.map((category) => {
+                      const active =
+                        pathname === `/categories/${category.slug}`;
+
+                      return (
+                        <Link
+                          key={category.id}
+                          href={`/categories/${category.slug}`}
+                          onClick={closeMenu}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                            active
+                              ? "border-primary/20 bg-secondary text-primary"
+                              : "border-slate-200 bg-slate-50 text-slate-600 hover:border-primary/30 hover:bg-secondary hover:text-primary",
+                          )}
+                        >
+                          {category.name}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
@@ -311,7 +359,13 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 <Link
                   href="/wishlist"
                   onClick={closeMenu}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600"
+                  aria-current={wishlistActive ? "page" : undefined}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium",
+                    wishlistActive
+                      ? "border-primary/15 bg-secondary text-primary"
+                      : "border-slate-200 text-slate-600",
+                  )}
                 >
                   <Heart className="size-4" aria-hidden="true" />
                   Wishlist
@@ -319,14 +373,25 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 <Link
                   href={accountHref}
                   onClick={closeMenu}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600"
+                  aria-current={accountActive ? "page" : undefined}
+                  aria-label={accountAriaLabel}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium",
+                    accountActive
+                      ? "border-primary/15 bg-secondary text-primary"
+                      : "border-slate-200 text-slate-600",
+                  )}
                 >
                   {isAdmin ? (
                     <LayoutDashboard className="size-4" aria-hidden="true" />
                   ) : (
                     <UserRound className="size-4" aria-hidden="true" />
                   )}
-                  {isAdmin ? "Dashboard" : profile ? "My account" : "Sign in"}
+                  {isAdmin
+                    ? "Dashboard"
+                    : profile
+                      ? `Hi, ${customerFirstName || "there"}`
+                      : "Sign in"}
                 </Link>
               </div>
             </div>
