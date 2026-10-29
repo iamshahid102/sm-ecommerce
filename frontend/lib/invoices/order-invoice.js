@@ -164,7 +164,7 @@ function drawLabelValue(page, { x, y, label, value, valueSize = 10, bold }) {
   });
 }
 
-function drawHeader(page, { order, copyLabel, firstPage, regular, bold }) {
+function drawHeader(page, { order, firstPage, regular, bold }) {
   const headerHeight = firstPage ? 92 : 62;
 
   page.drawRectangle({
@@ -204,13 +204,6 @@ function drawHeader(page, { order, copyLabel, firstPage, regular, bold }) {
       size: 21,
       font: bold,
       color: colors.white,
-      align: "right",
-    });
-    drawText(page, copyLabel, {
-      y: PAGE_HEIGHT - 64,
-      size: 7,
-      font: bold,
-      color: rgb(0.75, 0.84, 1),
       align: "right",
     });
     drawText(page, "smstoreweb.vercel.app", {
@@ -284,10 +277,10 @@ function drawMetaBar(page, { order, y, bold }) {
   return y - height - 22;
 }
 
-function drawAddressBlock(page, { x, y, width, title, name, email, phone, address, bold, regular }) {
+function drawCustomerBlock(page, { x, y, name, phone, bold, regular }) {
   let cursor = y;
 
-  drawText(page, title, {
+  drawText(page, "CUSTOMER", {
     x,
     y: cursor,
     size: 7,
@@ -305,27 +298,31 @@ function drawAddressBlock(page, { x, y, width, title, name, email, phone, addres
   });
   cursor -= 14;
 
-  if (email) {
-    cursor = drawText(page, email, {
-      x,
-      y: cursor,
-      size: 8,
-      font: regular,
-      color: colors.slate,
-    });
-    cursor -= 11;
-  }
-
   if (phone) {
-    cursor = drawText(page, `Phone: ${phone}`, {
+    drawText(page, `Contact: ${phone}`, {
       x,
       y: cursor,
-      size: 8,
+      size: 8.5,
       font: regular,
-      color: colors.slate,
+      color: colors.ink,
     });
     cursor -= 12;
   }
+
+  return cursor;
+}
+
+function drawDeliveryBlock(page, { x, y, width, address, bold, regular }) {
+  let cursor = y;
+
+  drawText(page, "DELIVERY ADDRESS", {
+    x,
+    y: cursor,
+    size: 7,
+    font: bold,
+    color: colors.primary,
+  });
+  cursor -= 17;
 
   const addressLines = [
     address.address_line1,
@@ -335,6 +332,10 @@ function drawAddressBlock(page, { x, y, width, title, name, email, phone, addres
   ]
     .filter(Boolean)
     .flatMap((line) => wrapText(line, regular, 8.5, width));
+
+  if (addressLines.length === 0) {
+    addressLines.push("Address not provided");
+  }
 
   for (const line of addressLines) {
     cursor = drawText(page, line, {
@@ -615,7 +616,7 @@ function drawNotes(page, { order, y, bold, regular }) {
   return cursor;
 }
 
-function drawFooter(page, { order, pageNumber, totalPages, regular }) {
+function drawFooter(page, { order, copyLabel, pageNumber, totalPages, regular }) {
   page.drawLine({
     start: { x: MARGIN, y: 42 },
     end: { x: PAGE_WIDTH - MARGIN, y: 42 },
@@ -646,7 +647,7 @@ function drawFooter(page, { order, pageNumber, totalPages, regular }) {
     align: "right",
     right: PAGE_WIDTH - MARGIN,
   });
-  drawText(page, `Order ${order.order_number || ""}`, {
+  drawText(page, `${copyLabel}  |  Order ${order.order_number || ""}`, {
     x: MARGIN,
     y: 20,
     size: 6.5,
@@ -722,7 +723,6 @@ export async function createOrderInvoicePdf(
       page,
       y: drawHeader(page, {
         order,
-        copyLabel,
         firstPage,
         regular,
         bold,
@@ -741,26 +741,18 @@ export async function createOrderInvoicePdf(
   const blockTop = current.y;
   const blockGap = 24;
   const blockWidth = (CONTENT_WIDTH - blockGap) / 2;
-  const leftBottom = drawAddressBlock(current.page, {
+  const leftBottom = drawCustomerBlock(current.page, {
     x: MARGIN,
     y: blockTop,
-    width: blockWidth,
-    title: "CUSTOMER",
     name: customerName,
-    email: order.customer_email,
     phone: customerPhone,
-    address,
     bold,
     regular,
   });
-  const rightBottom = drawAddressBlock(current.page, {
+  const rightBottom = drawDeliveryBlock(current.page, {
     x: MARGIN + blockWidth + blockGap,
     y: blockTop,
     width: blockWidth,
-    title: "DELIVER TO",
-    name: customerName,
-    email: null,
-    phone: customerPhone,
     address,
     bold,
     regular,
@@ -827,6 +819,7 @@ export async function createOrderInvoicePdf(
   pages.forEach((page, index) => {
     drawFooter(page, {
       order,
+      copyLabel,
       pageNumber: index + 1,
       totalPages: pages.length,
       regular,
