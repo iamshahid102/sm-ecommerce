@@ -245,6 +245,50 @@ SECURITY STATUS
 - .env files aur .vercel folders git-ignored hain.
 - Test users delete kar diye gaye.
 
+PROFESSIONAL INVOICE UPGRADE (29 OCTOBER 2026)
+----------------------------------------------
+Issue:
+- Admin dashboard se "Print invoice" poora page print karta tha, jis mein
+  sign-out/admin navigation aur website UI bhi aa jata tha.
+- Customer order page par bhi browser print hota tha; direct PDF download
+  available nahi tha.
+- Invoice professional format mein nahi tha aur packaging/rider ke liye
+  useful nahi lag raha tha.
+
+Resolution:
+- Admin ke liye dedicated "Store Copy" PDF invoice add ki gayi. "Print
+  invoice" ab naye tab mein sirf professional invoice kholta hai; admin UI,
+  sidebar ya sign-out button print nahi hote.
+- Customer ke liye "Download invoice" button add kiya gaya. Click par PDF
+  directly download hoti hai, customer page redirect nahi hota.
+- Invoice PDF mein order number, order date (PKT), customer name, delivery
+  address, contact number, payment method, payment status, item table,
+  subtotal, shipping, discount, tax, total, customer note aur rider/packing
+  signature lines shamil hain.
+- PDF generation ke liye `pdf-lib` use hui; external headless browser ya
+  screenshot ki zaroorat nahi hai.
+- Customer invoice sirf apne order ke liye aur admin invoice sirf admin role
+  ke liye generate hoti hai. Session aur backend ownership checks server-side
+  hain; service-role key frontend mein expose nahi hui.
+
+Production verification:
+- Admin PDF: HTTP 200, application/pdf, inline "STORE COPY", 1 page.
+- Customer PDF: HTTP 200, application/pdf, attachment
+  "invoice-SM-20261029-0002.pdf"; browser page URL change nahi hua.
+- Bina login customer invoice par click karne se login page par redirect hua.
+- Customer session se admin invoice access karne par HTTP 403 mila.
+- Test customer, order, address aur cart data delete kar diya gaya.
+
+Deployment:
+- Frontend production deployment: dpl_Dt3dgiLevj1pCeKe9bC8LWPFaAvk
+- Live URL: https://smstoreweb.vercel.app
+
+Latest checks:
+- Frontend lint: pass
+- Frontend tests: 14/14 pass
+- Frontend production build: pass
+- Vercel production build: pass
+
 KNOWN LIMITATIONS / PENDING ITEMS
 ---------------------------------
 1. Supabase Auth Site URL / redirect allow-list update karna baqi hai

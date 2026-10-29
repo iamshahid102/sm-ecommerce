@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   CheckCircle2,
   ChevronRight,
+  Download,
   MapPin,
   Package,
   Truck,
@@ -10,7 +11,6 @@ import {
 
 import { OrderCancelButton } from "@/components/account/order-cancel-button";
 import { OrderReviewForm } from "@/components/account/order-review-form";
-import { PrintButton } from "@/components/print-button";
 import { StoreImage } from "@/components/store/store-image";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +94,16 @@ export default async function AccountOrderDetailPage({ params, searchParams }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <PrintButton />
+          <Button asChild variant="outline">
+            <a
+              href={`/account/orders/${order.id}/invoice`}
+              download
+              aria-label={`Download invoice for ${order.order_number}`}
+            >
+              <Download className="size-4" aria-hidden="true" />
+              Download invoice
+            </a>
+          </Button>
           {canCancel ? <OrderCancelButton orderId={order.id} /> : null}
           <Button asChild variant="outline">
             <Link href="/account/orders">Back to orders</Link>

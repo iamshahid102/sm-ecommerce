@@ -105,14 +105,15 @@ export function AdminOrderPanel({ order }) {
       <Card className="rounded-2xl shadow-none">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Fulfilment</CardTitle>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => window.print()}
-          >
-            <Printer className="size-4" aria-hidden="true" />
-            Print invoice
+          <Button asChild variant="outline" size="sm">
+            <a
+              href={`/admin/orders/${order.id}/invoice`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Printer className="size-4" aria-hidden="true" />
+              Print invoice
+            </a>
           </Button>
         </CardHeader>
         <CardContent>
