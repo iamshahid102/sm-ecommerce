@@ -141,6 +141,7 @@ export function AdminSidebar({ profile, defaultCollapsed = false }) {
             <form
               action={signOutAdminAction}
               className={cn(!collapsed && "ml-auto")}
+              data-navigation-form
             >
               <Button
                 type="submit"

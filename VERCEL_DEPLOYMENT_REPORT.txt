@@ -261,10 +261,19 @@ Resolution:
   sidebar ya sign-out button print nahi hote.
 - Customer ke liye "Download invoice" button add kiya gaya. Click par PDF
   directly download hoti hai, customer page redirect nahi hota.
-- Invoice PDF mein order number, order date (PKT), customer name, delivery
-  address, contact number, payment method, payment status, item table,
+- Invoice PDF mein order number, order date (PKT), customer name, contact
+  number, delivery address, payment method, payment status, item table,
   subtotal, shipping, discount, tax, total, customer note aur rider/packing
   signature lines shamil hain.
+- Customer aur delivery information ab ek hi block mein hai: customer name,
+  contact number aur uske baad delivery address. Email aur repeated customer
+  name hata diye gaye hain.
+- "STORE COPY" / "CUSTOMER COPY" label header se hata kar footer mein shift
+  kiya gaya hai taake "ORDER INVOICE" heading ke oopar ya saath koi text
+  overlap na ho.
+- Header brand tagline "EVERYDAY ESSENTIALS" ki vertical spacing fix ki gayi;
+  ab ye "SM STORE" text ke oopar nahi aata. Website line bhi tagline ke neeche
+  properly align hai.
 - PDF generation ke liye `pdf-lib` use hui; external headless browser ya
   screenshot ki zaroorat nahi hai.
 - Customer invoice sirf apne order ke liye aur admin invoice sirf admin role
@@ -273,14 +282,17 @@ Resolution:
 
 Production verification:
 - Admin PDF: HTTP 200, application/pdf, inline "STORE COPY", 1 page.
+- Admin PDF mein heading overlap nahi hai; "SM STORE", tagline aur website
+  line alag alag show ho rahe hain. Customer name sirf ek dafa, contact
+  number aur delivery address alag alag show ho rahe hain.
 - Customer PDF: HTTP 200, application/pdf, attachment
-  "invoice-SM-20261029-0002.pdf"; browser page URL change nahi hua.
+  "invoice-SM-20261029-0003.pdf"; browser page URL change nahi hua.
 - Bina login customer invoice par click karne se login page par redirect hua.
 - Customer session se admin invoice access karne par HTTP 403 mila.
 - Test customer, order, address aur cart data delete kar diya gaya.
 
 Deployment:
-- Frontend production deployment: dpl_Dt3dgiLevj1pCeKe9bC8LWPFaAvk
+- Frontend production deployment: dpl_BaYkoWMJUAH86etLDnksSXxo6Qou
 - Live URL: https://smstoreweb.vercel.app
 
 Latest checks:

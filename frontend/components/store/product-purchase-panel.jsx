@@ -9,6 +9,7 @@ import { useCart } from "@/components/store/cart-provider";
 import { useWishlist } from "@/components/store/wishlist-provider";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
+import { startNavigation } from "@/lib/navigation-progress";
 import { cn } from "@/lib/utils";
 
 export function ProductPurchasePanel({ product }) {
@@ -68,7 +69,10 @@ export function ProductPurchasePanel({ product }) {
     setPending(true);
     const added = await addItem(buildItem(), quantity);
     setPending(false);
-    if (added) router.push("/checkout");
+    if (added) {
+      startNavigation();
+      router.push("/checkout");
+    }
   }
 
   async function handleWishlist() {

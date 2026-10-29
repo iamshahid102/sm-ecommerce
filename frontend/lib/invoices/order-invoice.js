@@ -192,7 +192,7 @@ function drawHeader(page, { order, firstPage, regular, bold }) {
 
   drawText(page, "EVERYDAY ESSENTIALS", {
     x: MARGIN,
-    y: PAGE_HEIGHT - (firstPage ? 48 : 46),
+    y: PAGE_HEIGHT - (firstPage ? 62 : 60),
     size: 7,
     font: bold,
     color: rgb(0.75, 0.84, 1),
@@ -208,7 +208,7 @@ function drawHeader(page, { order, firstPage, regular, bold }) {
     });
     drawText(page, "smstoreweb.vercel.app", {
       x: MARGIN,
-      y: PAGE_HEIGHT - 68,
+      y: PAGE_HEIGHT - 78,
       size: 8,
       font: regular,
       color: rgb(0.75, 0.84, 1),
@@ -277,7 +277,7 @@ function drawMetaBar(page, { order, y, bold }) {
   return y - height - 22;
 }
 
-function drawCustomerBlock(page, { x, y, name, phone, bold, regular }) {
+function drawCustomerBlock(page, { x, y, width, name, phone, address, bold, regular }) {
   let cursor = y;
 
   drawText(page, "CUSTOMER", {
@@ -292,14 +292,14 @@ function drawCustomerBlock(page, { x, y, name, phone, bold, regular }) {
   cursor = drawText(page, name || "-", {
     x,
     y: cursor,
-    size: 10,
+    size: 11,
     font: bold,
     color: colors.ink,
   });
-  cursor -= 14;
+  cursor -= 15;
 
   if (phone) {
-    drawText(page, `Contact: ${phone}`, {
+    cursor = drawText(page, `Contact: ${phone}`, {
       x,
       y: cursor,
       size: 8.5,
@@ -309,12 +309,7 @@ function drawCustomerBlock(page, { x, y, name, phone, bold, regular }) {
     cursor -= 12;
   }
 
-  return cursor;
-}
-
-function drawDeliveryBlock(page, { x, y, width, address, bold, regular }) {
-  let cursor = y;
-
+  cursor -= 10;
   drawText(page, "DELIVERY ADDRESS", {
     x,
     y: cursor,
@@ -322,7 +317,7 @@ function drawDeliveryBlock(page, { x, y, width, address, bold, regular }) {
     font: bold,
     color: colors.primary,
   });
-  cursor -= 17;
+  cursor -= 16;
 
   const addressLines = [
     address.address_line1,
@@ -738,27 +733,17 @@ export async function createOrderInvoicePdf(
     bold,
   });
 
-  const blockTop = current.y;
-  const blockGap = 24;
-  const blockWidth = (CONTENT_WIDTH - blockGap) / 2;
-  const leftBottom = drawCustomerBlock(current.page, {
+  current.y = drawCustomerBlock(current.page, {
     x: MARGIN,
-    y: blockTop,
+    y: current.y,
+    width: CONTENT_WIDTH,
     name: customerName,
     phone: customerPhone,
-    bold,
-    regular,
-  });
-  const rightBottom = drawDeliveryBlock(current.page, {
-    x: MARGIN + blockWidth + blockGap,
-    y: blockTop,
-    width: blockWidth,
     address,
     bold,
     regular,
   });
-
-  current.y = Math.min(leftBottom, rightBottom) - 16;
+  current.y -= 16;
   current.y = drawTableHeader(current.page, { y: current.y, bold });
 
   for (let index = 0; index < items.length; index += 1) {

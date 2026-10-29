@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiFetch } from "@/lib/api/client";
+import { startNavigation } from "@/lib/navigation-progress";
 
 function toForm(page) {
   return {
@@ -65,6 +66,7 @@ export function CmsPageForm({ page }) {
         await apiFetch("/admin/cms/pages", { method: "POST", body });
         toast.success("Page created.");
       }
+      startNavigation();
       router.push("/admin/cms/pages");
       router.refresh();
     } catch (submitError) {

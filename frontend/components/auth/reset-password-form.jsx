@@ -11,6 +11,7 @@ import { AuthAlert } from "@/components/auth/auth-alert";
 import { FormField } from "@/components/auth/form-field";
 import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
+import { startNavigation } from "@/lib/navigation-progress";
 import { createClient } from "@/lib/supabase/client";
 import { resetPasswordSchema } from "@/lib/validations/auth";
 
@@ -52,6 +53,7 @@ export function ResetPasswordForm() {
     }
 
     await supabase.auth.signOut();
+    startNavigation();
     router.replace("/login?message=password_updated");
     router.refresh();
   }

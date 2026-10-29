@@ -51,7 +51,7 @@ export default async function AdminLayout({ children }) {
               >
                 Storefront
               </Link>
-              <form action={signOutAdminAction}>
+              <form action={signOutAdminAction} data-navigation-form>
                 <Button type="submit" variant="outline" size="sm">
                   <LogOut className="size-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Sign out</span>

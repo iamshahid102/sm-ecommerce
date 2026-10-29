@@ -38,6 +38,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { apiFetch } from "@/lib/api/client";
 import { formatCurrency } from "@/lib/format";
+import { startNavigation } from "@/lib/navigation-progress";
 
 function round(value) {
   return Number(Number(value).toFixed(2));
@@ -156,6 +157,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
       });
       await refresh();
       toast.success("Order placed. Thank you!");
+      startNavigation();
       router.push(`/account/orders/${order.id}?placed=1`);
       router.refresh();
     } catch (submitError) {

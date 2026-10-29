@@ -56,7 +56,7 @@ export default async function AccountLayout({ children }) {
               </span>
             </Link>
 
-            <form action={signOutAction}>
+            <form action={signOutAction} data-navigation-form>
               <Button
                 type="submit"
                 variant="outline"

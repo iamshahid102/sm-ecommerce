@@ -1,6 +1,8 @@
 import { Inter, Poppins } from "next/font/google";
+import { Suspense } from "react";
 
 import { Providers } from "@/app/providers";
+import { NavigationProgress } from "@/components/navigation/navigation-progress";
 import "./globals.css";
 
 const inter = Inter({
@@ -69,7 +71,12 @@ export default function RootLayout({ children }) {
         >
           Skip to content
         </a>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          {children}
+        </Providers>
       </body>
     </html>
   );

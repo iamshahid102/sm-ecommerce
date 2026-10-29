@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiFetch, apiUpload } from "@/lib/api/client";
 import { flattenCategories } from "@/lib/category-tree";
+import { startNavigation } from "@/lib/navigation-progress";
 import { cn } from "@/lib/utils";
 
 function toForm(product) {
@@ -299,6 +300,7 @@ export function ProductForm({ product, categories, brands }) {
         await apiFetch("/admin/products", { method: "POST", body });
         toast.success("Product created.");
       }
+      startNavigation();
       router.push("/admin/products");
       router.refresh();
     } catch (submitError) {

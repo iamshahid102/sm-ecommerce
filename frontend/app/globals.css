@@ -292,6 +292,24 @@
   }
 }
 
+@keyframes sm-loading-bar {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  55% {
+    transform: translateX(70%);
+  }
+
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.sm-loading-bar {
+  animation: sm-loading-bar 1.25s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

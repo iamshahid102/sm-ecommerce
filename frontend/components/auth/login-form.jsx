@@ -12,6 +12,7 @@ import { FormField } from "@/components/auth/form-field";
 import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { startNavigation } from "@/lib/navigation-progress";
 import { createClient } from "@/lib/supabase/client";
 import { loginSchema } from "@/lib/validations/auth";
 
@@ -163,6 +164,7 @@ export function LoginForm({
           ? "/account"
           : nextPath;
 
+    startNavigation();
     router.replace(destination);
     router.refresh();
   }

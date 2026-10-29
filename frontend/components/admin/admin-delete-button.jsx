@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api/client";
+import { startNavigation } from "@/lib/navigation-progress";
 
 export function AdminDeleteButton({
   endpoint,
@@ -28,6 +29,7 @@ export function AdminDeleteButton({
       await apiFetch(endpoint, { method: "DELETE" });
       toast.success("Deleted successfully.");
       if (redirectTo) {
+        startNavigation();
         router.push(redirectTo);
       }
       router.refresh();
