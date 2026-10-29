@@ -1,4 +1,4 @@
-import { LogOut, ShoppingBag, Store } from "lucide-react";
+import { LogOut, ShoppingBag, Store, UserRound } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/app/actions/auth";
@@ -41,20 +41,17 @@ export default async function AccountLayout({ children }) {
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <Link
               href="/account"
-              className="hidden items-center gap-2.5 rounded-full border border-slate-200 bg-white py-1 pr-3 pl-1 shadow-sm transition-colors hover:border-primary/25 hover:bg-slate-50 md:flex"
+              className="hidden h-9 items-center gap-2.5 rounded-full border border-slate-200 bg-white py-1 pr-3 pl-1 shadow-sm transition-colors hover:border-primary/25 hover:bg-slate-50 md:flex"
               aria-label={`Open ${customerName}'s profile`}
             >
               <Avatar size="sm" className="size-8">
                 <AvatarFallback className="bg-secondary text-[11px] font-semibold text-primary">
-                  {initials(profile.full_name, profile.email)}
+                  <UserRound className="size-4" />
                 </AvatarFallback>
               </Avatar>
               <span className="min-w-0">
                 <span className="block max-w-32 truncate text-xs font-semibold text-slate-900">
                   {customerName}
-                </span>
-                <span className="block text-[10px] font-medium text-slate-500">
-                  Customer account
                 </span>
               </span>
             </Link>

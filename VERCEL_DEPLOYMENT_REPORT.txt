@@ -1,0 +1,285 @@
+SM STORE - VERCEL DEPLOYMENT REPORT
+=====================================
+
+Report date: 29 October 2026
+Deployment date: 28 October 2026
+Project: sm-ecommerce (Next.js frontend + Express backend + Supabase)
+
+LIVE URLS
+---------
+Frontend: https://smstoreweb.vercel.app
+Backend API: https://smstoreweb-api.vercel.app/api/v1
+Backend health: https://smstoreweb-api.vercel.app/api/v1/health
+
+Vercel team/scope: muhammad-shahids-projects-79212103
+Vercel CLI: 64.5.0 (local), 65.1.0 (build image)
+Vercel account: iamshahid102-4620
+
+DEPLOYMENT ARCHITECTURE
+-----------------------
+1. Frontend ko alag Vercel project "smstoreweb" banaya gaya.
+2. Backend ko alag Vercel project "smstoreweb-api" banaya gaya.
+3. Backend ka existing Express app rewrite nahi kiya; usi app ko Vercel
+   Node function ke through export kiya gaya.
+4. Frontend production API ke through backend se baat karta hai:
+   NEXT_PUBLIC_API_URL=https://smstoreweb-api.vercel.app/api/v1
+5. Supabase service-role key sirf backend Vercel environment mein hai.
+   Frontend mein sirf anon/public keys hain.
+
+NEW / CHANGED DEPLOYMENT FILES
+-----------------------------
+backend/api/index.js
+  Express app ko Vercel Node function ke liye export karta hai.
+
+backend/vercel.json
+  framework: null
+  rewrite: /(.*) -> /api
+  function maxDuration: 60 seconds
+
+backend/.vercelignore
+  .env files, tests, scripts, node_modules, coverage ignore kiye gaye.
+
+backend/.gitignore
+  Vercel ne generate kiya; .vercel aur .env* ignore hote hain.
+
+backend/package.json / package-lock.json
+  sanitize-html 2.18.1
+  npm override: htmlparser2 10.1.0
+
+ENVIRONMENT VARIABLES (sirf names, values secret hain)
+-----------------------------------------------------
+Backend project (smstoreweb-api), Production:
+- NODE_ENV
+- FRONTEND_URL
+- FRONTEND_URLS
+- LOG_LEVEL
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- EMAIL_FROM
+
+Frontend project (smstoreweb), Production:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- NEXT_PUBLIC_API_URL
+- NEXT_PUBLIC_SITE_URL
+- NEXT_PUBLIC_STORE_NAME
+
+RESEND_API_KEY empty tha, is liye Vercel par set nahi kiya. Is waqt
+transactional emails skip hoti hain.
+Stripe keys/card payments intentionally deferred hain.
+
+ISSUES, ERRORS AUR UNKE RESOLUTIONS
+-----------------------------------
+1) PowerShell mein "vercel" command block ho rahi thi
+   Error:
+   - PowerShell execution policy ki wajah se vercel.ps1 script run nahi hoti thi.
+   Resolution:
+   - Har command "vercel.cmd" ke through run ki, e.g. vercel.cmd deploy.
+   - Is se CLI ka same behaviour mila aur execution-policy error khatam hua.
+
+2) Monorepo ko single Vercel project ki tarah deploy karna
+   Issue:
+   - Root mein frontend aur backend dono hain; ek hi project se dono ko
+     sahi tarah build karna confusing tha.
+   Resolution:
+   - Do alag Vercel projects banaye: smstoreweb aur smstoreweb-api.
+   - Frontend ko frontend/ directory se link/deploy kiya.
+   - Backend ko backend/ directory se link/deploy kiya.
+   - Is se builds isolated hain aur environment variables bhi alag hain.
+
+3) Backend Express app Vercel par 500 de raha tha
+   Error:
+   - FUNCTION_INVOCATION_FAILED
+   - Vercel logs mein asal wajah thi:
+     ERR_REQUIRE_ESM: require() of ES Module htmlparser2/dist/index.js
+     from sanitize-html/index.js not supported.
+   Resolution:
+   - sanitize-html 2.18.1 rakha gaya.
+   - npm "overrides" ke through htmlparser2 ko 10.1.0 par pin kiya.
+   - htmlparser2 10.1.0 CJS require aur ESM import dono support karta hai,
+     is liye Vercel ke CJS function bundle mein crash khatam hua.
+   - Pehle 2.17.0 pin karne ki koshish bhi ki gayi thi, lekin woh htmlparser2 8
+     use karta hai aur security fix se peeche ho jata. Is liye final solution
+     override wala rakha gaya.
+   - Backend tests 65/65 pass hue aur real /api/v1/pages/about CMS content bhi
+     sanitize ho kar successfully load hua.
+
+4) Backend ke nested API routes Vercel par 404 de rahe the
+   Error:
+   - /api/v1/health aur /api/v1/products 404 return kar rahe the.
+   - Catch-all file api/[...path].js sirf ek path segment par route ho rahi thi.
+   Resolution:
+   - Catch-all function remove kiya.
+   - Single entry backend/api/index.js rakhi.
+   - vercel.json mein rewrite lagaya: /(.*) -> /api
+   - Ab /api/v1/health, /api/v1/products, /api/v1/pages, etc. sahi chal rahe hain.
+
+5) Backend root URL par 500 aa raha tha
+   Error:
+   - https://smstoreweb-api.vercel.app/ par FUNCTION_INVOCATION_FAILED.
+   - Vercel Express framework preset src/app.js ko auto-detect kar ke apna
+     root index function bana raha tha, jis se conflict ho raha tha.
+   Resolution:
+   - backend/vercel.json mein "framework": null set kiya.
+   - Rewrite ke through root aur API dono api/index.js par gaye.
+   - Ab root URL 200 return karta hai.
+
+6) Backend deploy ke baad Vercel ka internal rewrite warning
+   Warning:
+   - Vercel ne bataya ke internal rewrites ab destination path se route karte hain.
+   Resolution:
+   - Rewrite ke baad actual requests test kiye.
+   - Express ko original URL mil raha hai; /api/v1/health aur nested routes 200 hain.
+   - Koi extra workaround ki zaroorat nahi padi.
+
+7) Frontend environment variables ka production API se connect hona
+   Issue:
+   - Frontend ko localhost API use karne ka risk tha.
+   Resolution:
+   - Vercel production environment mein NEXT_PUBLIC_API_URL set kiya:
+     https://smstoreweb-api.vercel.app/api/v1
+   - Deployed JS chunk check kiya: production API URL present hai aur
+     localhost:4000 nahi hai.
+   - Frontend se API requests successful hain.
+
+8) CORS configuration
+   Issue:
+   - Backend ko production frontend origin allow karna zaroori tha.
+   Resolution:
+   - Backend FRONTEND_URL=https://smstoreweb.vercel.app set kiya.
+   - FRONTEND_URLS mein bhi production origin diya.
+   - Health request par response headers verify kiye:
+     Access-Control-Allow-Origin: https://smstoreweb.vercel.app
+   - Credentials, rate-limit aur security headers bhi present hain.
+
+9) Vercel build par Node version warning
+   Warning:
+   - package.json engines ">=22.12.0" ki wajah se future major Node upgrade
+     warning aa rahi thi.
+   Resolution:
+   - Runtime nodejs24.x par successfully build/deploy hua.
+   - Abhi deployment block nahi hui. Future mein Node major version pin karna
+     better hoga (e.g. 24.x) taake runtime unexpectedly change na ho.
+
+10) Frontend ke .env.local mein Vercel OIDC token add hona
+    Observation:
+    - "vercel link" ne local .env.local mein VERCEL_OIDC_TOKEN add kiya.
+    Resolution:
+    - Original Supabase/frontend variables safe rahe.
+    - .env.local git-ignored hai; koi secret commit nahi hua.
+    - .gitignore mein duplicate Vercel lines clean ki gayin.
+
+11) Supabase Auth production URLs
+    Issue:
+    - Supabase Auth ki Site URL / Redirect URLs production domain par set
+      hona chahiye, warna email confirmation aur password-reset links
+      localhost ya galat domain par ja sakte hain.
+    - Is environment mein Supabase Dashboard access token nahi tha, is liye
+      yeh setting automatically change nahi ki ja saki.
+    Manual action required:
+    - Supabase Dashboard > Authentication > URL Configuration
+    - Site URL: https://smstoreweb.vercel.app
+    - Redirect URLs mein add karein:
+      https://smstoreweb.vercel.app/auth/callback
+      https://smstoreweb.vercel.app/reset-password
+      http://localhost:3000/auth/callback (local development ke liye)
+      http://localhost:3000/reset-password
+    - Password-based customer/admin login production par test ho chuka hai.
+      Email confirmation/reset email link ka end-to-end test baad mein karna hai.
+
+VERIFICATION RESULTS
+--------------------
+Frontend:
+- https://smstoreweb.vercel.app -> 200
+- /products -> 200, seeded products visible
+- /products/kids-cotton-graphic-tshirt -> 200, product image and buy button visible
+- /admin/login -> 200
+- Homepage, product page, wishlist, cart aur checkout screenshots verify kiye
+- Sitemap aur robots.txt production domain use kar rahe hain
+- Browser console mein koi runtime error nahi mila
+
+Backend:
+- / -> 200
+- /api/v1/health -> 200
+- /api/v1/products -> 200, live Supabase data aa raha hai
+- /api/v1/pages -> 200
+- /api/v1/pages/about -> 200, sanitized CMS HTML load hua
+- CORS header production frontend origin ke liye correct
+- Rate-limit headers present
+
+Auth / customer flow:
+- Temporary customer account create kar ke production login verify hua
+- Wishlist add aur navbar count badge ("1") verify hua
+- Cart mein item add karke cart page verify kiya (item, qty, totals)
+- Checkout page verify kiya:
+  Cash on Delivery selected
+  Delivery address form available
+  Shipping Rs 250, tax Rs 0, total Rs 1,440
+  Place order button available
+- Temporary customer accounts delete kar diye gaye; test data clean hai
+
+Admin:
+- Admin login production par successful
+- /admin dashboard load hua ("Welcome back, Store")
+- Admin navigation visible
+
+Code quality:
+- Frontend lint: pass
+- Backend lint: pass
+- Frontend tests: 14/14 pass
+- Backend tests: 65/65 pass
+- Production frontend build: pass
+- Vercel frontend build: pass
+- Vercel backend build: pass
+- npm audit --omit=dev (backend): 0 vulnerabilities
+- npm audit --omit=dev (frontend): 0 vulnerabilities
+
+SECURITY STATUS
+---------------
+- Supabase service-role key sirf backend environment mein hai.
+- Frontend client code mein service-role key nahi hai.
+- RLS, server-side Supabase access, sanitized CMS HTML, Helmet,
+  strict CORS, rate limiting aur restricted uploads code mein intact hain.
+- CMS HTML ke liye sanitize-html 2.18.1 + htmlparser2 10.1.0 override use hua.
+- .env files aur .vercel folders git-ignored hain.
+- Test users delete kar diye gaye.
+
+KNOWN LIMITATIONS / PENDING ITEMS
+---------------------------------
+1. Supabase Auth Site URL / redirect allow-list update karna baqi hai
+   (details upar issue #11 mein hain).
+2. Stripe checkout, webhooks aur card payments intentionally deferred hain.
+3. RESEND_API_KEY empty hai, is liye order/contact/newsletter emails skip
+   hoti hain. Email delivery enable karne ke liye key set karni hogi.
+4. Vercel Node functions ka request body limit (Hobby plan) admin ke bohat
+   large multi-image uploads ko restrict kar sakta hai. Agar bara upload
+   problem kare to direct-to-Supabase signed uploads implement karna hoga.
+5. CI/CD, Playwright/E2E tests, monitoring aur database backups abhi
+   implement nahi kiye gaye.
+6. Working tree mein wishlist/deployment changes uncommitted hain. Commit aur
+   push alag se karna hoga.
+
+IMPORTANT COMMANDS
+------------------
+Backend link:
+  vercel.cmd link --yes --team muhammad-shahids-projects-79212103 --project smstoreweb-api
+
+Frontend link:
+  vercel.cmd link --yes --team muhammad-shahids-projects-79212103 --project smstoreweb
+
+Backend production deploy:
+  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103
+
+Frontend production deploy:
+  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103
+
+Health check:
+  Invoke-WebRequest https://smstoreweb-api.vercel.app/api/v1/health
+
+FINAL STATUS
+------------
+Deployment successful hai. Frontend aur backend dono production par live hain.
+Storefront, catalog, customer login, wishlist, cart, checkout page, admin login
+aur admin dashboard verify ho chuke hain. Sirf Supabase Auth URL configuration
+aur optional email/payment integrations manual pending hain.

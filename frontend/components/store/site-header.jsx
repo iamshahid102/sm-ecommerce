@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { useCart } from "@/components/store/cart-provider";
+import { useWishlist } from "@/components/store/wishlist-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { firstName, formatCurrency } from "@/lib/format";
@@ -37,6 +38,7 @@ function isActivePath(pathname, href) {
 export function SiteHeader({ settings, categories = [], profile }) {
   const pathname = usePathname();
   const { count, hydrated } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAdmin = profile?.role === "admin";
   const accountHref = isAdmin ? "/admin" : profile ? "/account" : "/login";
@@ -54,6 +56,11 @@ export function SiteHeader({ settings, categories = [], profile }) {
   const accountActive =
     Boolean(profile) && !isAdmin && pathname.startsWith("/account");
   const wishlistActive = pathname === "/wishlist";
+  const showWishlistCount = Boolean(profile) && !isAdmin && wishlistCount > 0;
+  const wishlistCountText = wishlistCount > 99 ? "99+" : wishlistCount;
+  const wishlistAriaLabel = showWishlistCount
+    ? `Wishlist, ${wishlistCount} ${wishlistCount === 1 ? "item" : "items"}`
+    : "Wishlist";
   const storeName = settings?.store_name || "SM Store";
   const freeShipping = Number(settings?.free_shipping_threshold ?? 5000);
   const navCategories = categories
@@ -160,6 +167,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
               <Link
                 href="/wishlist"
                 aria-current={wishlistActive ? "page" : undefined}
+                aria-label={wishlistAriaLabel}
                 className={cn(
                   "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors sm:flex",
                   wishlistActive
@@ -167,7 +175,14 @@ export function SiteHeader({ settings, categories = [], profile }) {
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
                 )}
               >
-                <Heart className="size-5" aria-hidden="true" />
+                <span className="relative inline-flex">
+                  <Heart className="size-5" aria-hidden="true" />
+                  {showWishlistCount ? (
+                    <span className="absolute -top-2 -right-2 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 py-0.5 text-[9px] leading-none font-bold text-white ring-2 ring-white">
+                      {wishlistCountText}
+                    </span>
+                  ) : null}
+                </span>
                 <span className="hidden xl:inline">Wishlist</span>
               </Link>
               <Link
@@ -360,6 +375,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
                   href="/wishlist"
                   onClick={closeMenu}
                   aria-current={wishlistActive ? "page" : undefined}
+                  aria-label={wishlistAriaLabel}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium",
                     wishlistActive
@@ -369,6 +385,11 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 >
                   <Heart className="size-4" aria-hidden="true" />
                   Wishlist
+                  {showWishlistCount ? (
+                    <span className="ml-auto flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none font-bold text-white">
+                      {wishlistCountText}
+                    </span>
+                  ) : null}
                 </Link>
                 <Link
                   href={accountHref}

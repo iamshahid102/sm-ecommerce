@@ -6,8 +6,7 @@ import { Heart, Loader2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/store/cart-provider";
-import { apiFetch } from "@/lib/api/client";
-import { createClient } from "@/lib/supabase/client";
+import { useWishlist } from "@/components/store/wishlist-provider";
 import { cn } from "@/lib/utils";
 
 function buildCartItem(product, variant) {
@@ -39,9 +38,15 @@ function buildCartItem(product, variant) {
 
 export function ProductCardActions({ product }) {
   const { addItem } = useCart();
+  const {
+    add: addWishlist,
+    remove: removeWishlist,
+    isSaved,
+    isAuthenticated,
+  } = useWishlist();
   const [adding, setAdding] = useState(false);
   const [wishlistPending, setWishlistPending] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saved = isSaved(product.id);
 
   const variants = product.variants ?? [];
   const variant =
@@ -60,31 +65,21 @@ export function ProductCardActions({ product }) {
   }
 
   async function toggleWishlist() {
+    if (!isAuthenticated) {
+      toast.info("Sign in to save products to your wishlist.");
+      return;
+    }
+
     setWishlistPending(true);
 
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast.info("Sign in to save products to your wishlist.");
-        return;
-      }
-
       if (saved) {
-        await apiFetch(`/wishlist/${product.id}`, { method: "DELETE" });
-        setSaved(false);
+        await removeWishlist(product.id);
         toast.success("Removed from wishlist.");
         return;
       }
 
-      await apiFetch("/wishlist", {
-        method: "POST",
-        body: { product_id: product.id },
-      });
-      setSaved(true);
+      await addWishlist(product.id);
       toast.success("Saved to your wishlist.");
     } catch (error) {
       toast.error(error.message);
@@ -133,9 +128,7 @@ export function ProductCardActions({ product }) {
           onClick={quickAdd}
           disabled={!inStock || adding}
           className={quickAddClasses}
-          aria-label={
-            inStock ? `Add ${product.title} to cart` : "Out of stock"
-          }
+          aria-label={inStock ? `Add ${product.title} to cart` : "Out of stock"}
         >
           {adding ? (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />

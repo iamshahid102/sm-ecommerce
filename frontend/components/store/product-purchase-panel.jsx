@@ -6,18 +6,25 @@ import { Heart, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/store/cart-provider";
+import { useWishlist } from "@/components/store/wishlist-provider";
 import { Button } from "@/components/ui/button";
-import { apiFetch } from "@/lib/api/client";
-import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export function ProductPurchasePanel({ product }) {
   const router = useRouter();
   const { addItem } = useCart();
+  const {
+    add: addWishlist,
+    remove: removeWishlist,
+    isSaved,
+    isAuthenticated,
+  } = useWishlist();
   const [variantId, setVariantId] = useState(product.variants?.[0]?.id ?? null);
   const [quantity, setQuantity] = useState(1);
   const [pending, setPending] = useState(false);
   const [wishlistPending, setWishlistPending] = useState(false);
+  const saved = isSaved(product.id);
 
   const selectedVariant = useMemo(
     () => product.variants?.find((variant) => variant.id === variantId) ?? null,
@@ -65,22 +72,21 @@ export function ProductPurchasePanel({ product }) {
   }
 
   async function handleWishlist() {
-    setWishlistPending(true);
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    if (!isAuthenticated) {
+      toast.info("Sign in to save products to your wishlist.");
+      return;
+    }
 
-      if (!user) {
-        toast.info("Sign in to save products to your wishlist.");
+    setWishlistPending(true);
+
+    try {
+      if (saved) {
+        await removeWishlist(product.id);
+        toast.success("Removed from wishlist.");
         return;
       }
 
-      await apiFetch("/wishlist", {
-        method: "POST",
-        body: { product_id: product.id },
-      });
+      await addWishlist(product.id);
       toast.success("Saved to your wishlist.");
     } catch (error) {
       toast.error(error.message);
@@ -151,7 +157,9 @@ export function ProductPurchasePanel({ product }) {
             >
               <Minus className="size-3.5" aria-hidden="true" />
             </Button>
-            <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+            <span className="w-8 text-center text-sm font-medium">
+              {quantity}
+            </span>
             <Button
               type="button"
               variant="ghost"
@@ -197,15 +205,23 @@ export function ProductPurchasePanel({ product }) {
           type="button"
           size="lg"
           variant="outline"
-          className="size-12 rounded-full border-slate-300 p-0"
+          className={cn(
+            "size-12 rounded-full border-slate-300 p-0",
+            saved &&
+              "border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-50 hover:text-rose-500",
+          )}
           onClick={handleWishlist}
           disabled={wishlistPending}
-          aria-label="Add to wishlist"
+          aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={saved}
         >
           {wishlistPending ? (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Heart className="size-4" aria-hidden="true" />
+            <Heart
+              className={cn("size-4", saved && "fill-current")}
+              aria-hidden="true"
+            />
           )}
         </Button>
       </div>

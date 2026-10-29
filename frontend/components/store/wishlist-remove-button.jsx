@@ -5,17 +5,18 @@ import { useRouter } from "next/navigation";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { useWishlist } from "@/components/store/wishlist-provider";
 import { Button } from "@/components/ui/button";
-import { apiFetch } from "@/lib/api/client";
 
 export function WishlistRemoveButton({ productId }) {
   const router = useRouter();
+  const { remove } = useWishlist();
   const [pending, setPending] = useState(false);
 
-  async function remove() {
+  async function removeItem() {
     setPending(true);
     try {
-      await apiFetch(`/wishlist/${productId}`, { method: "DELETE" });
+      await remove(productId);
       toast.success("Removed from wishlist.");
       router.refresh();
     } catch (error) {
@@ -31,7 +32,7 @@ export function WishlistRemoveButton({ productId }) {
       variant="ghost"
       size="icon-sm"
       className="absolute top-2 right-2 bg-background/90 text-muted-foreground shadow-sm hover:text-destructive"
-      onClick={remove}
+      onClick={removeItem}
       disabled={pending}
       aria-label="Remove from wishlist"
     >

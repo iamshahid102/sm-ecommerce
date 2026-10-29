@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Shop", href: "/products", icon: Store, exact: true },
-  { label: "Profile", href: "/account", icon: UserRound, exact: true },
   { label: "Orders", href: "/account/orders", icon: Package },
   { label: "Addresses", href: "/account/addresses", icon: MapPin },
   { label: "Reviews", href: "/account/reviews", icon: Star },
