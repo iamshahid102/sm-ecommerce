@@ -333,26 +333,26 @@ export async function CatalogPageView({
 
         <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-10">
           <aside className="hidden lg:block">
-            <Card className="sticky top-32 rounded-2xl border-slate-200/80 shadow-soft">
+            <Card
+              className="store-filters-scroll sticky top-32 max-h-[calc(100dvh-9rem)] gap-0 overflow-y-auto overscroll-contain rounded-2xl border-slate-200/80 py-0 shadow-soft"
+              role="region"
+              aria-label="Product filters"
+            >
+              <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-100 bg-card px-5 py-4">
+                <SlidersHorizontal
+                  className="size-4 text-primary"
+                  aria-hidden="true"
+                />
+                <h2 className="text-sm font-semibold text-slate-900">Filters</h2>
+              </div>
               <CardContent className="p-5">
-                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                  <SlidersHorizontal
-                    className="size-4 text-primary"
-                    aria-hidden="true"
-                  />
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    Filters
-                  </h2>
-                </div>
-                <div className="mt-4">
-                  <FilterFields
-                    params={params}
-                    categories={categories}
-                    brands={brands}
-                    fixedCategory={fixedCategory}
-                    idPrefix="desktop"
-                  />
-                </div>
+                <FilterFields
+                  params={params}
+                  categories={categories}
+                  brands={brands}
+                  fixedCategory={fixedCategory}
+                  idPrefix="desktop"
+                />
               </CardContent>
             </Card>
           </aside>
