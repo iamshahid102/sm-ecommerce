@@ -227,9 +227,13 @@ export async function adminDeleteCategory(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Category deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Category deleted.",
+    },
+  );
 }
 
 export async function adminListBrands(req, res) {
@@ -272,7 +276,11 @@ export async function adminDeleteBrand(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Brand deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Brand deleted.",
+    },
+  );
 }

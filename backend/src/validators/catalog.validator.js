@@ -3,14 +3,14 @@ import { z } from "zod";
 const emptyToNull = (value) =>
   typeof value === "string" && value.trim() === "" ? null : value;
 
-export const uuidSchema = z.string().uuid("Enter a valid identifier.");
+const uuidSchema = z.string().uuid("Enter a valid identifier.");
 
-export const nullableUuid = z.preprocess(
+const nullableUuid = z.preprocess(
   emptyToNull,
   z.string().uuid("Enter a valid identifier.").nullable(),
 );
 
-export const slugSchema = z
+const slugSchema = z
   .string()
   .trim()
   .toLowerCase()
@@ -23,7 +23,11 @@ export const slugSchema = z
 const nullableText = (max) =>
   z.preprocess(
     emptyToNull,
-    z.string().trim().max(max, `Must be ${max} characters or fewer.`).nullable(),
+    z
+      .string()
+      .trim()
+      .max(max, `Must be ${max} characters or fewer.`)
+      .nullable(),
   );
 
 const optionalUrl = z.preprocess(
@@ -43,7 +47,7 @@ const optionalUrl = z.preprocess(
     .nullable(),
 );
 
-export const imageSchema = z.object({
+const imageSchema = z.object({
   id: uuidSchema.optional(),
   url: z.string().trim().min(1).max(2048, "Image URL is too long."),
   alt_text: nullableText(160).optional(),
@@ -51,7 +55,7 @@ export const imageSchema = z.object({
   is_primary: z.coerce.boolean().default(false),
 });
 
-export const variantSchema = z.object({
+const variantSchema = z.object({
   id: uuidSchema.optional(),
   size: nullableText(40).optional(),
   color: nullableText(40).optional(),
@@ -74,10 +78,9 @@ const productBase = z.object({
   category_id: nullableUuid.optional(),
   brand_id: nullableUuid.optional(),
   price: z.coerce.number().positive("Price must be greater than zero."),
-  discount_price: z.preprocess(
-    emptyToNull,
-    z.coerce.number().positive().nullable(),
-  ).optional(),
+  discount_price: z
+    .preprocess(emptyToNull, z.coerce.number().positive().nullable())
+    .optional(),
   sku: nullableText(80).optional(),
   stock: z.coerce.number().int().min(0).max(1000000).default(0),
   low_stock_threshold: z.coerce.number().int().min(0).max(100000).default(5),
@@ -87,7 +90,10 @@ const productBase = z.object({
   meta_description: nullableText(180).optional(),
   og_image_url: optionalUrl.optional(),
   images: z.array(imageSchema).max(8, "Add at most 8 images.").default([]),
-  variants: z.array(variantSchema).max(60, "Add at most 60 variants.").default([]),
+  variants: z
+    .array(variantSchema)
+    .max(60, "Add at most 60 variants.")
+    .default([]),
 });
 
 function validateDiscount(product) {
@@ -126,9 +132,7 @@ export const updateProductSchema = productBase
       return false;
     }
 
-    return (
-      (value.images ?? []).filter((image) => image.is_primary).length <= 1
-    );
+    return (value.images ?? []).filter((image) => image.is_primary).length <= 1;
   }, "Discount price must be lower than the price and only one image can be primary.");
 
 export const categorySchema = z
@@ -181,11 +185,3 @@ export const adminProductListQuerySchema = productListQuerySchema.extend({
     .default("all")
     .catch("all"),
 });
-
-export const adminListQuerySchema = z
-  .object({
-    q: z.string().trim().max(120).optional().catch(undefined),
-    page: z.coerce.number().int().min(1).default(1).catch(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20).catch(20),
-  })
-  .strip();

@@ -76,7 +76,10 @@ export default async function AdminOrdersPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 sm:flex-row" action="/admin/orders">
+          <form
+            className="flex flex-col gap-2 sm:flex-row"
+            action="/admin/orders"
+          >
             <div className="relative flex-1">
               <Search
                 className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -118,7 +121,9 @@ export default async function AdminOrdersPage({ searchParams }) {
       {!error && orders.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-14 text-center shadow-none">
           <CardContent>
-            <p className="font-heading text-lg font-semibold">No orders found</p>
+            <p className="font-heading text-lg font-semibold">
+              No orders found
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Orders will appear here after customers check out.
             </p>
@@ -144,7 +149,9 @@ export default async function AdminOrdersPage({ searchParams }) {
             <TableBody>
               {orders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.order_number}</TableCell>
+                  <TableCell className="font-medium">
+                    {order.order_number}
+                  </TableCell>
                   <TableCell>
                     <p className="text-sm">{order.customer_name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -152,15 +159,20 @@ export default async function AdminOrdersPage({ searchParams }) {
                     </p>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={statusStyle(order.status)}>
+                    <Badge
+                      variant="outline"
+                      className={statusStyle(order.status)}
+                    >
                       {statusLabel(order.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <p className="text-xs">
-                      {order.payment_method === "cod" ? "COD" : order.payment_method}
+                      {order.payment_method === "cod"
+                        ? "COD"
+                        : order.payment_method}
                     </p>
-                    <p className="text-xs capitalize text-muted-foreground">
+                    <p className="text-xs text-muted-foreground capitalize">
                       {order.payment_status}
                     </p>
                   </TableCell>

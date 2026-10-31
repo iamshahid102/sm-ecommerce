@@ -81,9 +81,15 @@ export default async function AdminReportsPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 sm:flex-row sm:items-end" action="/admin/reports">
+          <form
+            className="flex flex-col gap-2 sm:flex-row sm:items-end"
+            action="/admin/reports"
+          >
             <div>
-              <label htmlFor="report-from" className="text-xs text-muted-foreground">
+              <label
+                htmlFor="report-from"
+                className="text-xs text-muted-foreground"
+              >
                 From
               </label>
               <Input
@@ -92,9 +98,13 @@ export default async function AdminReportsPage({ searchParams }) {
                 name="from"
                 defaultValue={rangeFrom}
                 className="mt-1"
-              />            </div>
+              />{" "}
+            </div>
             <div>
-              <label htmlFor="report-to" className="text-xs text-muted-foreground">
+              <label
+                htmlFor="report-to"
+                className="text-xs text-muted-foreground"
+              >
                 To
               </label>
               <Input
@@ -148,8 +158,13 @@ export default async function AdminReportsPage({ searchParams }) {
               <Card key={card.label} className="rounded-2xl shadow-none">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">{card.label}</p>
-                    <card.icon className="size-4 text-primary" aria-hidden="true" />
+                    <p className="text-sm text-muted-foreground">
+                      {card.label}
+                    </p>
+                    <card.icon
+                      className="size-4 text-primary"
+                      aria-hidden="true"
+                    />
                   </div>
                   <p className="mt-3 font-heading text-2xl font-semibold">
                     {card.value}
@@ -178,7 +193,9 @@ export default async function AdminReportsPage({ searchParams }) {
             </Card>
             <Card className="rounded-2xl shadow-none">
               <CardContent className="p-5">
-                <p className="text-xs text-muted-foreground">Cancelled orders</p>
+                <p className="text-xs text-muted-foreground">
+                  Cancelled orders
+                </p>
                 <p className="mt-2 font-heading text-xl font-semibold">
                   {summary.cancelled_orders}
                 </p>
@@ -290,15 +307,17 @@ export default async function AdminReportsPage({ searchParams }) {
                     No orders in this range.
                   </p>
                 ) : (
-                  Object.entries(report.status_breakdown).map(([status, count]) => (
-                    <div
-                      key={status}
-                      className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
-                    >
-                      <span>{statusLabel(status)}</span>
-                      <span className="font-medium">{count}</span>
-                    </div>
-                  ))
+                  Object.entries(report.status_breakdown).map(
+                    ([status, count]) => (
+                      <div
+                        key={status}
+                        className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                      >
+                        <span>{statusLabel(status)}</span>
+                        <span className="font-medium">{count}</span>
+                      </div>
+                    ),
+                  )
                 )}
               </CardContent>
             </Card>

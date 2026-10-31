@@ -83,7 +83,9 @@ describe("commerce validators", () => {
     };
 
     expect(reviewSchema.parse({ ...base, rating: "5" }).rating).toBe(5);
-    expect(reviewSchema.parse({ ...base, rating: 1, title: "" }).title).toBeNull();
+    expect(
+      reviewSchema.parse({ ...base, rating: 1, title: "" }).title,
+    ).toBeNull();
     expect(reviewSchema.safeParse({ ...base, rating: 6 }).success).toBe(false);
   });
 });

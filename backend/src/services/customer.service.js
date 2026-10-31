@@ -3,7 +3,13 @@ import { ApiError } from "../utils/api-error.js";
 import { paginationMeta } from "../utils/pagination.js";
 import { throwSupabaseError } from "../utils/supabase-error.js";
 
-export async function listCustomers({ page = 1, limit = 20, q, role, blocked }) {
+export async function listCustomers({
+  page = 1,
+  limit = 20,
+  q,
+  role,
+  blocked,
+}) {
   const admin = getSupabaseAdmin();
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -83,7 +89,11 @@ export async function setCustomerBlocked(id, isBlocked) {
     throw new ApiError(404, "Customer not found.", "NOT_FOUND");
   }
   if (profile.role === "admin" && isBlocked) {
-    throw new ApiError(403, "The administrator cannot be blocked.", "FORBIDDEN");
+    throw new ApiError(
+      403,
+      "The administrator cannot be blocked.",
+      "FORBIDDEN",
+    );
   }
 
   const { data, error: updateError } = await admin

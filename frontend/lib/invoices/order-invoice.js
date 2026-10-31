@@ -256,7 +256,10 @@ function drawMetaBar(page, { order, y, bold }) {
     },
     {
       label: "PAYMENT STATUS",
-      value: PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status || "-",
+      value:
+        PAYMENT_STATUS_LABELS[order.payment_status] ||
+        order.payment_status ||
+        "-",
     },
   ];
   const columnWidth = CONTENT_WIDTH / columns.length;
@@ -277,7 +280,10 @@ function drawMetaBar(page, { order, y, bold }) {
   return y - height - 22;
 }
 
-function drawCustomerBlock(page, { x, y, width, name, phone, address, bold, regular }) {
+function drawCustomerBlock(
+  page,
+  { x, y, width, name, phone, address, bold, regular },
+) {
   let cursor = y;
 
   drawText(page, "CUSTOMER", {
@@ -322,7 +328,9 @@ function drawCustomerBlock(page, { x, y, width, name, phone, address, bold, regu
   const addressLines = [
     address.address_line1,
     address.address_line2,
-    [address.city, address.state, address.postal_code].filter(Boolean).join(", "),
+    [address.city, address.state, address.postal_code]
+      .filter(Boolean)
+      .join(", "),
     countryName(address.country),
   ]
     .filter(Boolean)
@@ -578,7 +586,12 @@ function drawNotes(page, { order, y, bold, regular }) {
     });
     cursor -= 15;
 
-    for (const line of wrapText(order.customer_note, regular, 8.5, CONTENT_WIDTH - 10)) {
+    for (const line of wrapText(
+      order.customer_note,
+      regular,
+      8.5,
+      CONTENT_WIDTH - 10,
+    )) {
       cursor = drawText(page, line, {
         x: MARGIN,
         y: cursor,
@@ -611,7 +624,10 @@ function drawNotes(page, { order, y, bold, regular }) {
   return cursor;
 }
 
-function drawFooter(page, { order, copyLabel, pageNumber, totalPages, regular }) {
+function drawFooter(
+  page,
+  { order, copyLabel, pageNumber, totalPages, regular },
+) {
   page.drawLine({
     start: { x: MARGIN, y: 42 },
     end: { x: PAGE_WIDTH - MARGIN, y: 42 },
@@ -706,8 +722,7 @@ export async function createOrderInvoicePdf(
   pdf.setProducer("SM Store");
   const items = order.items ?? order.order_items ?? [];
   const address = order.shipping_address ?? {};
-  const customerName =
-    address.full_name || order.customer_name || "Customer";
+  const customerName = address.full_name || order.customer_name || "Customer";
   const customerPhone = address.phone || "";
 
   function addPage(firstPage = false) {
@@ -754,7 +769,8 @@ export async function createOrderInvoicePdf(
       .join("  |  ");
     const metaLines = meta ? wrapText(meta, regular, 7.5, 270) : [];
     const estimatedHeight =
-      Math.max(34, 12 + titleLines.length * 11 + metaLines.length * 10 + 8) + 18;
+      Math.max(34, 12 + titleLines.length * 11 + metaLines.length * 10 + 8) +
+      18;
 
     if (current.y - estimatedHeight < 96) {
       current = addPage(false);

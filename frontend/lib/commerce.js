@@ -8,7 +8,7 @@ export const ORDER_STATUSES = [
   "returned",
 ];
 
-export const ORDER_STATUS_LABELS = {
+const ORDER_STATUS_LABELS = {
   pending: "Pending",
   confirmed: "Confirmed",
   processing: "Processing",
@@ -18,7 +18,7 @@ export const ORDER_STATUS_LABELS = {
   returned: "Returned",
 };
 
-export const ORDER_STATUS_STYLES = {
+const ORDER_STATUS_STYLES = {
   pending: "border-amber-200 bg-amber-50 text-amber-700",
   confirmed: "border-blue-200 bg-blue-50 text-blue-700",
   processing: "border-indigo-200 bg-indigo-50 text-indigo-700",

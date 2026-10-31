@@ -87,7 +87,10 @@ export async function updateBanner(id, input) {
 }
 
 export async function deleteBanner(id) {
-  const { error } = await getSupabaseAdmin().from("banners").delete().eq("id", id);
+  const { error } = await getSupabaseAdmin()
+    .from("banners")
+    .delete()
+    .eq("id", id);
   throwSupabaseError(error, "Could not delete the banner.");
   return { id };
 }
@@ -151,7 +154,9 @@ export async function getPageBySlug(slug, { publishedOnly = true } = {}) {
 export async function listPages({ publishedOnly = true } = {}) {
   let query = getSupabaseAdmin()
     .from("cms_pages")
-    .select("id, slug, title, excerpt, is_published, published_at, created_at, updated_at")
+    .select(
+      "id, slug, title, excerpt, is_published, published_at, created_at, updated_at",
+    )
     .order("created_at", { ascending: false });
   if (publishedOnly) query = query.eq("is_published", true);
 
@@ -207,7 +212,10 @@ export async function updatePage(id, input) {
 }
 
 export async function deletePage(id) {
-  const { error } = await getSupabaseAdmin().from("cms_pages").delete().eq("id", id);
+  const { error } = await getSupabaseAdmin()
+    .from("cms_pages")
+    .delete()
+    .eq("id", id);
   throwSupabaseError(error, "Could not delete the page.");
   return { id };
 }
@@ -299,7 +307,12 @@ export async function deleteContactMessage(id) {
   return { id };
 }
 
-export async function listSubscribers({ page = 1, limit = 20, q, activeOnly = false }) {
+export async function listSubscribers({
+  page = 1,
+  limit = 20,
+  q,
+  activeOnly = false,
+}) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
   let query = getSupabaseAdmin()

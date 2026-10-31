@@ -58,7 +58,9 @@ export async function GET(_request, { params }) {
 
     return NextResponse.json(
       { error: "The invoice could not be prepared. Please try again." },
-      { status: error.status >= 400 && error.status < 500 ? error.status : 502 },
+      {
+        status: error.status >= 400 && error.status < 500 ? error.status : 502,
+      },
     );
   }
 

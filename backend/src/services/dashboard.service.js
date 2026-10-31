@@ -15,7 +15,7 @@ function assertResult(result, label) {
   if (result.error) {
     throw new ApiError(
       500,
-      `Could not load ${label}. Check that the database migrations have been applied.`,
+      `Could not load ${label}. Please try again shortly.`,
       "DASHBOARD_UNAVAILABLE",
     );
   }

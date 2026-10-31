@@ -4,7 +4,7 @@ const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"
 ).replace(/\/$/, "");
 
-export class ServerApiError extends Error {
+class ServerApiError extends Error {
   constructor(message, status, code, details) {
     super(message);
     this.name = "ServerApiError";
@@ -41,7 +41,7 @@ export async function apiFetchServerFull(
     });
   } catch {
     throw new ServerApiError(
-      "The store API is unavailable. Start the backend and try again.",
+      "The store API is unavailable. Please try again shortly.",
       0,
       "NETWORK_ERROR",
     );

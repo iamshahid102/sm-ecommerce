@@ -143,10 +143,7 @@ export function NavigationProgress() {
       document.removeEventListener("click", handleClick, true);
       document.removeEventListener("submit", handleSubmit, true);
       window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener(
-        NAVIGATION_START_EVENT,
-        handleNavigationStart,
-      );
+      window.removeEventListener(NAVIGATION_START_EVENT, handleNavigationStart);
       clearTimers();
     };
   }, [clearTimers, start]);
@@ -194,9 +191,7 @@ export function NavigationProgress() {
           <p className="mt-5 font-heading text-lg font-semibold tracking-tight text-slate-950">
             Loading...
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Please wait a moment.
-          </p>
+          <p className="mt-1 text-sm text-slate-500">Please wait a moment.</p>
 
           <div className="mt-6 h-1.5 w-44 overflow-hidden rounded-full bg-slate-200">
             <div className="sm-loading-bar h-full w-1/2 rounded-full bg-primary" />

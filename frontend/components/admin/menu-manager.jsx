@@ -129,7 +129,9 @@ export function MenuManager({ initialItems }) {
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
             <Menu className="mx-auto size-8 text-primary" aria-hidden="true" />
-            <p className="mt-3 font-heading text-lg font-semibold">No menu items</p>
+            <p className="mt-3 font-heading text-lg font-semibold">
+              No menu items
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               The storefront uses built-in navigation while the menu is empty.
             </p>
@@ -281,7 +283,9 @@ export function MenuManager({ initialItems }) {
                 <input
                   type="checkbox"
                   checked={values.is_active}
-                  onChange={(event) => update("is_active", event.target.checked)}
+                  onChange={(event) =>
+                    update("is_active", event.target.checked)
+                  }
                   className="size-4 rounded border-input"
                 />
                 Active
@@ -299,7 +303,11 @@ export function MenuManager({ initialItems }) {
               </label>
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

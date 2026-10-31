@@ -148,7 +148,9 @@ export default async function ProductDetailPage({ params }) {
                   <ChevronRight className="size-3.5" />
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={`/categories/${product.categories.slug}`}>
+                  <BreadcrumbLink
+                    href={`/categories/${product.categories.slug}`}
+                  >
                     {product.categories.name}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -242,9 +244,17 @@ export default async function ProductDetailPage({ params }) {
 
             <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-3">
               {[
-                { icon: Truck, title: "Fast dispatch", text: "1–2 working days" },
+                {
+                  icon: Truck,
+                  title: "Fast dispatch",
+                  text: "1–2 working days",
+                },
                 { icon: PackageCheck, title: "COD", text: "Pay on delivery" },
-                { icon: ShieldCheck, title: "Support", text: "Helpful after-sales" },
+                {
+                  icon: ShieldCheck,
+                  title: "Support",
+                  text: "Helpful after-sales",
+                },
               ].map((item) => (
                 <div key={item.title} className="flex items-center gap-2">
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-sm">
@@ -273,70 +283,79 @@ export default async function ProductDetailPage({ params }) {
           </div>
         </div>
 
-      {reviewItems.length > 0 ? (
-        <section className="mt-16">
-          <SectionHeading
-            eyebrow="Reviews"
-            title="What customers say"
-            description={`${reviewSummary.review_count} verified review${reviewSummary.review_count === 1 ? "" : "s"} for this product.`}
-          />
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {reviewItems.map((review) => (
-              <Card key={review.id} className="rounded-2xl shadow-none">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="flex size-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-primary">
-                        {review.customer_name.slice(0, 1).toUpperCase()}
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium">{review.customer_name}</p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {formatDate(review.created_at)}
-                        </p>
+        {reviewItems.length > 0 ? (
+          <section className="mt-16">
+            <SectionHeading
+              eyebrow="Reviews"
+              title="What customers say"
+              description={`${reviewSummary.review_count} verified review${reviewSummary.review_count === 1 ? "" : "s"} for this product.`}
+            />
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {reviewItems.map((review) => (
+                <Card key={review.id} className="rounded-2xl shadow-none">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-primary">
+                          {review.customer_name.slice(0, 1).toUpperCase()}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {review.customer_name}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {formatDate(review.created_at)}
+                          </p>
+                        </div>
                       </div>
+                      <StarRating value={review.rating} showCount={false} />
                     </div>
-                    <StarRating value={review.rating} showCount={false} />
-                  </div>
-                  {review.title ? (
-                    <p className="mt-3 text-sm font-semibold">{review.title}</p>
-                  ) : null}
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {review.comment}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Reviews can be submitted from a delivered order in your account.
-          </p>
-        </section>
-      ) : (
-        <section className="mt-16 rounded-2xl border border-dashed bg-card p-8 text-center">
-          <BadgeCheck className="mx-auto size-6 text-primary" aria-hidden="true" />
-          <h2 className="mt-3 font-heading text-lg font-semibold">No reviews yet</h2>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            Verified reviews from delivered orders will appear here. Sign in and
-            open a delivered order to share your experience.
-          </p>
-        </section>
-      )}
+                    {review.title ? (
+                      <p className="mt-3 text-sm font-semibold">
+                        {review.title}
+                      </p>
+                    ) : null}
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {review.comment}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Reviews can be submitted from a delivered order in your account.
+            </p>
+          </section>
+        ) : (
+          <section className="mt-16 rounded-2xl border border-dashed bg-card p-8 text-center">
+            <BadgeCheck
+              className="mx-auto size-6 text-primary"
+              aria-hidden="true"
+            />
+            <h2 className="mt-3 font-heading text-lg font-semibold">
+              No reviews yet
+            </h2>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+              Verified reviews from delivered orders will appear here. Sign in
+              and open a delivered order to share your experience.
+            </p>
+          </section>
+        )}
 
-      {related.length > 0 ? (
-        <section className="mt-16">
-          <SectionHeading
-            eyebrow="You may also like"
-            title="Related products"
-            href="/products"
-          />
-          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
-            {related.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+        {related.length > 0 ? (
+          <section className="mt-16">
+            <SectionHeading
+              eyebrow="You may also like"
+              title="Related products"
+              href="/products"
+            />
+            <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
+              {related.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </div>
   );

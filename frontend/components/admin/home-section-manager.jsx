@@ -139,7 +139,10 @@ export function HomeSectionManager({ initialSections }) {
       {sections.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
-            <LayoutList className="mx-auto size-8 text-primary" aria-hidden="true" />
+            <LayoutList
+              className="mx-auto size-8 text-primary"
+              aria-hidden="true"
+            />
             <p className="mt-3 font-heading text-lg font-semibold">
               No sections configured
             </p>
@@ -225,7 +228,8 @@ export function HomeSectionManager({ initialSections }) {
               {editing ? "Edit home section" : "Add home section"}
             </DialogTitle>
             <DialogDescription>
-              Section keys like featured_products or new_arrivals control homepage blocks.
+              Section keys like featured_products or new_arrivals control
+              homepage blocks.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={save} className="space-y-4">
@@ -235,7 +239,9 @@ export function HomeSectionManager({ initialSections }) {
                 <Input
                   id="section-key"
                   value={values.section_key}
-                  onChange={(event) => update("section_key", event.target.value)}
+                  onChange={(event) =>
+                    update("section_key", event.target.value)
+                  }
                   placeholder="featured_products"
                   required
                   className="mt-1.5 font-mono"
@@ -292,7 +298,11 @@ export function HomeSectionManager({ initialSections }) {
               Active
             </label>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

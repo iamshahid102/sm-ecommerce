@@ -152,7 +152,9 @@ export function SettingsForm({ settings }) {
               <Input
                 id="settings-tagline"
                 value={values.store_tagline}
-                onChange={(event) => update("store_tagline", event.target.value)}
+                onChange={(event) =>
+                  update("store_tagline", event.target.value)
+                }
                 maxLength={160}
                 className="mt-1.5"
               />
@@ -172,7 +174,9 @@ export function SettingsForm({ settings }) {
                 <Input
                   id="settings-favicon"
                   value={values.favicon_url}
-                  onChange={(event) => update("favicon_url", event.target.value)}
+                  onChange={(event) =>
+                    update("favicon_url", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -220,7 +224,9 @@ export function SettingsForm({ settings }) {
                   step="0.01"
                   min="0"
                   value={values.shipping_fee}
-                  onChange={(event) => update("shipping_fee", event.target.value)}
+                  onChange={(event) =>
+                    update("shipping_fee", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -303,7 +309,9 @@ export function SettingsForm({ settings }) {
                   id="settings-email"
                   type="email"
                   value={values.contact_email}
-                  onChange={(event) => update("contact_email", event.target.value)}
+                  onChange={(event) =>
+                    update("contact_email", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -312,7 +320,9 @@ export function SettingsForm({ settings }) {
                 <Input
                   id="settings-phone"
                   value={values.contact_phone}
-                  onChange={(event) => update("contact_phone", event.target.value)}
+                  onChange={(event) =>
+                    update("contact_phone", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -437,7 +447,9 @@ export function SettingsForm({ settings }) {
               />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="settings-meta-description">Meta description</Label>
+              <Label htmlFor="settings-meta-description">
+                Meta description
+              </Label>
               <Textarea
                 id="settings-meta-description"
                 value={values.meta_description}

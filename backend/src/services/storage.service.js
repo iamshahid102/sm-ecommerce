@@ -15,7 +15,12 @@ const EXTENSIONS = {
   "image/webp": "webp",
 };
 
-export async function uploadImage({ bucket = "product", buffer, mimetype, folder }) {
+export async function uploadImage({
+  bucket = "product",
+  buffer,
+  mimetype,
+  folder,
+}) {
   const bucketName = BUCKETS[bucket] ?? BUCKETS.product;
   const extension = EXTENSIONS[mimetype];
 
@@ -44,8 +49,8 @@ export async function uploadImage({ bucket = "product", buffer, mimetype, folder
 
 export async function deleteImage(bucket, path) {
   const bucketName = BUCKETS[bucket] ?? BUCKETS.product;
-  const { error } = await getSupabaseAdmin().storage
-    .from(bucketName)
+  const { error } = await getSupabaseAdmin()
+    .storage.from(bucketName)
     .remove([path]);
 
   if (error) {

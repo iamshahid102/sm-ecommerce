@@ -437,3 +437,72 @@ stuck screen ke bajaye clear loader show karte hain. Dono Vercel projects ki
 Root Directory bhi fix kar di gayi hai, is liye Git auto-deploy ab repo root
 ke bajaye correct `frontend`/`backend` folder se build hoga. Sirf Supabase Auth
 URL configuration aur optional email/payment integrations manual pending hain.
+
+PRODUCTION CLEANUP (31 OCTOBER 2026)
+------------------------------------
+Scope:
+- Pooray project ka dead-code, unused-file, unused-dependency aur formatting
+  audit kiya gaya. Kisi bhi storefront, admin, invoice, checkout ya Supabase
+  business logic ko delete nahi kiya gaya.
+- `avatar_url` column ko is cleanup mein touch nahi kiya gaya, kyunke aap ne
+  kaha tha ke abhi remove nahi karna.
+
+Removed dead files:
+- `frontend/components/ui/checkbox.jsx`
+- `frontend/components/ui/dropdown-menu.jsx`
+- `frontend/components/ui/pagination.jsx`
+- `frontend/components/ui/select.jsx`
+- `frontend/components/ui/sheet.jsx`
+- `frontend/components/ui/skeleton.jsx`
+- `frontend/components/ui/tabs.jsx`
+- `backend/src/utils/async-handler.js`
+
+Removed dead code:
+- Backend pagination ke unused `paginationSchema`, `parsePagination` aur
+  `applyRange` helpers.
+- Unused `adminListQuerySchema` aur `orderItemInputSchema` validators.
+- Internal-only validator exports ko private kiya gaya.
+- Frontend ke unused `formatPKR` aur `slugify` helpers.
+- Internal-only API error classes aur helper exports ko private kiya gaya.
+- Admin dashboard mein duplicate status label/style maps hata kar shared
+  `lib/commerce.js` helpers use kiye gaye.
+
+Removed unused dependencies:
+- Frontend se `date-fns`, `isomorphic-dompurify` aur `motion` remove kiye gaye.
+- `npm uninstall` ne 44 unnecessary transitive packages bhi remove kiye.
+
+Production polish:
+- User-facing error messages se developer-only "migrations apply karo" wali
+  language hata kar safe, generic retry messages rakhe gaye.
+- Poora repo Prettier format kiya gaya; `.vercel` folders ko Prettier ignore
+  mein add kiya gaya.
+- Root `package.json` se nonexistent `main`, empty `keywords` aur stale
+  metadata remove kiya gaya.
+- README, deployment runbook aur Phase 1 record ko live Vercel production
+  architecture ke mutabiq update kiya gaya.
+
+Verification:
+- `npm run format:check`: pass
+- `npm run lint`: pass (frontend + backend)
+- `npm run test`: frontend 14/14 pass; backend 65/65 pass
+- `npm run build`: Next.js production build pass
+- `npm run db:check`: all 25 tables, 3 buckets, defaults aur single active
+  admin pass
+- Production frontend: HTTP 200
+- Production API readiness: `200`, database `reachable`
+- `npm audit --omit=dev`: frontend aur backend dono mein 0 production
+  vulnerabilities
+
+Environment note:
+- `npm run db:check-auth` local `backend/.env` ke `ADMIN_EMAIL` /
+  `ADMIN_PASSWORD` se sign-in karta hai. Local env mein configured email
+  production database mein customer role rakhta hai, jabke production ka
+  active admin doosra account hai. Is liye yeh check code ki wajah se fail
+  nahi ho raha; real admin email/password local env mein update karne hain.
+  Admin account ya database role is cleanup mein change nahi kiya gaya.
+
+Dev-only audit note:
+- Full `npm audit` mein ESLint/Jest ki transitive dev dependencies par
+  moderate advisories aa rahi hain. Production dependencies
+  (`--omit=dev`) clean hain; inhein fix karne ke liye framework/tooling ka
+  major upgrade chahiye, jo is cleanup ka safe scope nahi tha.

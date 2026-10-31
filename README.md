@@ -6,14 +6,15 @@ PKR pricing, and Cash on Delivery checkout (Stripe card payments deferred).
 Built with **Next.js 16 (App Router, JavaScript)**, **Tailwind CSS v4**,
 **shadcn/ui**, **Express 5**, and **Supabase** (Postgres, Auth, Storage).
 
-> **Status: local implementation complete, live infrastructure pending.**
+> **Status: deployed on Vercel.**
+> Storefront: <https://smstoreweb.vercel.app> · API:
+> <https://smstoreweb-api.vercel.app/api/v1>.
 > The storefront, customer account area, admin portal, Express API, database
-> migrations, RLS policies, storage rules, and local tests are implemented.
+> migrations, RLS policies, storage rules, and automated tests are implemented.
 > Checkout is Cash on Delivery only; Stripe/card payments are intentionally
-> deferred. Migrations have **not** been applied to the connected Supabase
-> project yet, so live auth/RLS/storage verification and the single admin seed
-> remain pending. See [`docs/PHASE-1.md`](docs/PHASE-1.md) for the apply/verify
-> checklist.
+> deferred. Supabase Auth production redirect URLs, custom SMTP, CI/E2E,
+> monitoring, and backups remain external setup items. See
+> [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the deployment runbook.
 
 ## Repository layout
 
@@ -222,10 +223,10 @@ key.
 - [x] Phase 7 - CMS pages, banners, menu, home sections, settings, and contact inbox
 - [x] Phase 8 - Reports, CSV exports, charts, responsive polish, and error states
 - [x] Phase 9 (local) - Lint, unit/API-mock tests, security review, and build
-- [ ] Phase 9 (live) - Apply migrations, seed admin, Playwright E2E, Stripe, deploy
+- [x] Phase 9 (live) - Migrations applied, admin seeded, production deployed
 
-Live Supabase verification, Stripe checkout/webhooks, and deployment remain
-intentionally unfinished. See
+Remaining external setup: Supabase Auth production redirect URLs, custom SMTP,
+Resend, Stripe (deferred), CI/E2E, monitoring, and database backups. See
 [`SM-Ecommerce-Project-Report-Roman-Urdu.txt`](SM-Ecommerce-Project-Report-Roman-Urdu.txt)
 for the full Roman Urdu handover.
 

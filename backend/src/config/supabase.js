@@ -70,7 +70,7 @@ export function getSupabaseAuth() {
   return authClient;
 }
 
-export { isSupabaseAuthConfigured, isSupabaseConfigured };
+export { isSupabaseConfigured };
 
 export async function pingDatabase() {
   if (!isSupabaseConfigured || isTest) {

@@ -118,7 +118,10 @@ export default async function AdminMessagesPage({ searchParams }) {
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {message.name} ·{" "}
-                    <a href={`mailto:${message.email}`} className="hover:text-foreground">
+                    <a
+                      href={`mailto:${message.email}`}
+                      className="hover:text-foreground"
+                    >
                       {message.email}
                     </a>
                     {message.phone ? ` · ${message.phone}` : ""} ·{" "}

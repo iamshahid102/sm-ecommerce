@@ -64,7 +64,10 @@ export default async function AdminSubscribersPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 sm:flex-row" action="/admin/subscribers">
+          <form
+            className="flex flex-col gap-2 sm:flex-row"
+            action="/admin/subscribers"
+          >
             <div className="relative flex-1">
               <Search
                 className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -105,7 +108,9 @@ export default async function AdminSubscribersPage({ searchParams }) {
       {!error && subscribers.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-14 text-center shadow-none">
           <CardContent>
-            <p className="font-heading text-lg font-semibold">No subscribers yet</p>
+            <p className="font-heading text-lg font-semibold">
+              No subscribers yet
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Newsletter signups from the storefront will appear here.
             </p>

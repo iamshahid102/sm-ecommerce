@@ -27,8 +27,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAccessToken, requireAdmin } from "@/lib/auth/dal";
 import { apiFetchServer } from "@/lib/api/server";
+import { getAccessToken, requireAdmin } from "@/lib/auth/dal";
+import { ORDER_STATUSES, statusLabel, statusStyle } from "@/lib/commerce";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export const metadata = {
@@ -40,26 +41,6 @@ export const metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
-const statusStyles = {
-  pending: "border-amber-200 bg-amber-50 text-amber-700",
-  confirmed: "border-blue-200 bg-blue-50 text-blue-700",
-  processing: "border-indigo-200 bg-indigo-50 text-indigo-700",
-  shipped: "border-sky-200 bg-sky-50 text-sky-700",
-  delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  cancelled: "border-rose-200 bg-rose-50 text-rose-700",
-  returned: "border-slate-200 bg-slate-100 text-slate-700",
-};
-
-const statusLabels = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-  returned: "Returned",
-};
 
 export default async function AdminDashboardPage() {
   const { supabase, profile } = await requireAdmin();
@@ -92,7 +73,7 @@ export default async function AdminDashboardPage() {
           <AlertTitle>Dashboard data is unavailable</AlertTitle>
           <AlertDescription>
             {loadError ||
-              "The store API could not be reached. Start the backend and apply the database migrations."}
+              "The store API could not be reached. Please try again shortly."}
           </AlertDescription>
         </Alert>
       </div>
@@ -228,9 +209,9 @@ export default async function AdminDashboardPage() {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={statusStyles[order.status]}
+                          className={statusStyle(order.status)}
                         >
-                          {statusLabels[order.status] ?? order.status}
+                          {statusLabel(order.status)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-medium">
@@ -254,7 +235,7 @@ export default async function AdminDashboardPage() {
               <CardDescription>Orders by current status.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Object.entries(statusLabels).map(([key, label]) => {
+              {ORDER_STATUSES.map((key) => {
                 const count = orderStatusCounts[key] ?? 0;
                 const percent =
                   stats.totalOrders > 0
@@ -264,7 +245,7 @@ export default async function AdminDashboardPage() {
                 return (
                   <div key={key}>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium">{label}</span>
+                      <span className="font-medium">{statusLabel(key)}</span>
                       <span className="text-muted-foreground">{count}</span>
                     </div>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -311,7 +292,12 @@ export default async function AdminDashboardPage() {
                   ))}
                 </ul>
               )}
-              <Button asChild variant="outline" size="sm" className="mt-3 w-full">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full"
+              >
                 <Link href="/admin/products?status=low_stock">
                   Review inventory
                   <ArrowRight className="size-3.5" aria-hidden="true" />

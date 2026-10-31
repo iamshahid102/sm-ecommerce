@@ -1,19 +1,19 @@
 # Deployment
 
-Target architecture from the project plan:
+Production architecture:
 
-| Part                       | Platform                              |
-| -------------------------- | ------------------------------------- |
-| Next.js storefront + admin | Vercel                                |
-| Express API                | Render / Railway / VPS                |
-| Database, Auth, Storage    | Supabase Cloud                        |
-| Email                      | Resend                                |
-| Payments                   | COD (Stripe cards deferred)           |
-| Monitoring                 | Sentry, Vercel Analytics, UptimeRobot |
+| Part                       | Platform / URL                                             |
+| -------------------------- | ---------------------------------------------------------- |
+| Next.js storefront + admin | Vercel — <https://smstoreweb.vercel.app>                   |
+| Express API                | Vercel — <https://smstoreweb-api.vercel.app/api/v1>        |
+| Database, Auth, Storage    | Supabase Cloud                                             |
+| Email                      | Resend (optional; disabled when `RESEND_API_KEY` is empty) |
+| Payments                   | COD (Stripe cards deferred)                                |
+| Monitoring                 | Vercel Analytics / UptimeRobot (not configured yet)        |
 
-Phase 1 provides the database, auth, storage, and admin foundation. This document
-is the runbook that will be exercised in Phase 9; it can already be used to
-provision a staging project after the Phase 1 migrations are applied.
+The storefront and API are separate Vercel projects in the same repository. Both
+are configured with their own Root Directory (`frontend` and `backend`) so Git
+pushes deploy independently.
 
 ## 1. Prerequisites
 
@@ -22,7 +22,7 @@ provision a staging project after the Phase 1 migrations are applied.
 - A Stripe account only when card payments are implemented (deferred; see the
   Pakistan caveat in `docs/DECISIONS.md`).
 - A Resend account and a verified sending domain.
-- Accounts on Vercel and Render/Railway.
+- A Vercel account with two projects: `smstoreweb` and `smstoreweb-api`.
 
 ## 2. Supabase
 
@@ -31,11 +31,12 @@ provision a staging project after the Phase 1 migrations are applied.
 2. Copy the Project URL, anon (publishable) key, and service-role key from
    **Project Settings → API**.
 3. In **Authentication → URL Configuration**, set:
-   - Site URL: `https://your-domain.com`
-   - Redirect URLs: `https://your-domain.com/auth/callback`,
+   - Site URL: `https://smstoreweb.vercel.app`
+   - Redirect URLs: `https://smstoreweb.vercel.app/auth/callback`,
+     `https://smstoreweb.vercel.app/reset-password`,
      `http://localhost:3000/auth/callback`,
      `http://localhost:3100/auth/callback` (port 3100 is used when 3000 is
-     already occupied).
+     already occupied), plus the matching localhost `/reset-password` URLs.
 4. In **Authentication → Providers → Email**, keep email confirmation enabled
    and configure a custom SMTP sender (Resend) so verification mail is reliable.
    In **Authentication → Settings**, set a minimum password length of 8 with
@@ -85,41 +86,40 @@ provision a staging project after the Phase 1 migrations are applied.
    the single active admin. It never prints secrets or emails. The readiness
    endpoint reports `schema_missing`/`503` until this passes.
 
-## 3. Backend (Render/Railway)
+## 3. Backend (Vercel)
 
-Build command:
+- Vercel project: `smstoreweb-api`
+- Root directory: `backend`
+- Framework preset: Other (serverless function; no Next.js build)
+- Build command: default / empty
+- Health check path: `/api/v1/health/ready`
+- `backend/vercel.json` rewrites every request to `api/index.js` and allows a
+  60-second function duration.
 
-```bash
-npm ci
-```
-
-Start command:
-
-```bash
-npm start
-```
-
-Health check path: `/api/v1/health/ready`.
-
-Required environment variables:
+Required production environment variables:
 
 ```
 NODE_ENV=production
-PORT=4000
 LOG_LEVEL=info
-FRONTEND_URL=https://your-domain.com
+FRONTEND_URL=https://smstoreweb.vercel.app
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 SUPABASE_ANON_KEY=<anon-key>
-RESEND_API_KEY=<resend-key>
+RESEND_API_KEY=<optional-resend-key>
 EMAIL_FROM=SM Store <orders@your-domain.com>
-STRIPE_SECRET_KEY=<stripe-secret>
-STRIPE_WEBHOOK_SECRET=<stripe-webhook-secret>
+STRIPE_SECRET_KEY=<deferred>
+STRIPE_WEBHOOK_SECRET=<deferred>
+```
+
+Deploy from the repository root with the project-scoped command:
+
+```powershell
+vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb-api
 ```
 
 Rules:
 
-- Never put any of these in Vercel or in a `NEXT_PUBLIC_*` variable.
+- Never put server secrets in a `NEXT_PUBLIC_*` variable or in frontend code.
 - Set `FRONTEND_URL` to the exact production origin, without a trailing slash.
 - Add custom domains to `FRONTEND_URLS` if the site is served from both apex and
   `www`; otherwise CORS rejects the second origin.
@@ -136,10 +136,16 @@ Rules:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-NEXT_PUBLIC_API_URL=https://api.your-domain.com/api/v1
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_API_URL=https://smstoreweb-api.vercel.app/api/v1
+NEXT_PUBLIC_SITE_URL=https://smstoreweb.vercel.app
 NEXT_PUBLIC_STORE_NAME=SM Store
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<stripe-pk>
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<deferred>
+```
+
+Deploy from the repository root:
+
+```powershell
+vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb
 ```
 
 `NEXT_PUBLIC_*` values are embedded in the browser bundle. Only publishable keys
@@ -153,8 +159,9 @@ belong there.
 
 When card payments are implemented:
 
-1. Add the webhook endpoint `https://api.your-domain.com/api/v1/webhooks/stripe`
-   in the Stripe dashboard.
+1. Add the webhook endpoint
+   `https://smstoreweb-api.vercel.app/api/v1/webhooks/stripe` in the Stripe
+   dashboard.
 2. Subscribe to `payment_intent.succeeded`, `payment_intent.payment_failed`, and
    `charge.refunded`.
 3. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`.
@@ -177,16 +184,16 @@ When card payments are implemented:
 
 ## 7. Domain, TLS, and DNS
 
-- Point the apex/`www` domain to Vercel.
-- Point `api.your-domain.com` to Render/Railway.
+- Point the storefront domain to the `smstoreweb` Vercel project.
+- Point the API domain to the `smstoreweb-api` Vercel project.
 - Enforce HTTPS at the platform level and enable HSTS.
 - Keep the Supabase project URL private in docs where possible; the anon key is
   public by design, the service key is not.
 
 ## 8. Post-deploy checklist
 
-- [ ] `GET https://api.your-domain.com/api/v1/health` returns `200`.
-- [ ] `GET /api/v1/health/ready` returns `200` and
+- [ ] `GET https://smstoreweb-api.vercel.app/api/v1/health` returns `200`.
+- [ ] `GET https://smstoreweb-api.vercel.app/api/v1/health/ready` returns `200` and
       `services.database: "reachable"`. A `503` with `"schema_missing"` means the
       migrations were applied to a different project or not applied at all.
 - [ ] `npm run db:check` passes after the admin seed.
@@ -219,14 +226,15 @@ npm run test
 npm run build
 ```
 
-Deployment is triggered by the platform integrations (Vercel/Render) on `main`.
-Migrations are applied manually or by a protected workflow after review. Never
-run `db push` automatically against production from an untrusted branch.
+Deployment is triggered by the Vercel Git integrations on `main`; each project
+has its own Root Directory. Migrations are applied manually or by a protected
+workflow after review. Never run `db push` automatically against production from
+an untrusted branch.
 
 ## 10. Rollback
 
 - Frontend: promote the previous Vercel deployment.
-- Backend: redeploy the previous Render build.
+- Backend: promote the previous Vercel deployment.
 - Database: migrations are additive and reviewed; destructive changes require a
   backup and a two-step deploy. Supabase point-in-time recovery is the last
   resort.

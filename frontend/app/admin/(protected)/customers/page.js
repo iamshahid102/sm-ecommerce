@@ -79,7 +79,10 @@ export default async function AdminCustomersPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 lg:flex-row" action="/admin/customers">
+          <form
+            className="flex flex-col gap-2 lg:flex-row"
+            action="/admin/customers"
+          >
             <div className="relative flex-1">
               <Search
                 className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -128,7 +131,9 @@ export default async function AdminCustomersPage({ searchParams }) {
       {!error && customers.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-14 text-center shadow-none">
           <CardContent>
-            <p className="font-heading text-lg font-semibold">No customers found</p>
+            <p className="font-heading text-lg font-semibold">
+              No customers found
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Try a different search or filter.
             </p>
@@ -156,7 +161,9 @@ export default async function AdminCustomersPage({ searchParams }) {
                     <p className="text-sm font-medium">
                       {customer.full_name || "Unnamed customer"}
                     </p>
-                    <p className="text-xs text-muted-foreground">{customer.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {customer.email}
+                    </p>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {customer.phone || "—"}
@@ -184,7 +191,9 @@ export default async function AdminCustomersPage({ searchParams }) {
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <Button asChild size="sm" variant="ghost">
-                        <Link href={`/admin/customers/${customer.id}`}>View</Link>
+                        <Link href={`/admin/customers/${customer.id}`}>
+                          View
+                        </Link>
                       </Button>
                       <CustomerBlockButton
                         customerId={customer.id}

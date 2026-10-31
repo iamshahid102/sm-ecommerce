@@ -45,10 +45,14 @@ export async function uploadImages(req, res) {
     req,
   });
 
-  return sendSuccess(res, { images }, {
-    status: 201,
-    message: `${images.length} image(s) uploaded.`,
-  });
+  return sendSuccess(
+    res,
+    { images },
+    {
+      status: 201,
+      message: `${images.length} image(s) uploaded.`,
+    },
+  );
 }
 
 export async function removeUpload(req, res) {

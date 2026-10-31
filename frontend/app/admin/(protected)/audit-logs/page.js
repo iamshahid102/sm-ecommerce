@@ -60,7 +60,10 @@ export default async function AdminAuditLogsPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 sm:flex-row" action="/admin/audit-logs">
+          <form
+            className="flex flex-col gap-2 sm:flex-row"
+            action="/admin/audit-logs"
+          >
             <div className="relative flex-1">
               <Search
                 className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -97,7 +100,9 @@ export default async function AdminAuditLogsPage({ searchParams }) {
       {!error && logs.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-14 text-center shadow-none">
           <CardContent>
-            <p className="font-heading text-lg font-semibold">No audit entries</p>
+            <p className="font-heading text-lg font-semibold">
+              No audit entries
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Admin actions will be recorded here.
             </p>
@@ -141,7 +146,7 @@ export default async function AdminAuditLogsPage({ searchParams }) {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    <pre className="max-w-72 max-h-24 overflow-auto rounded bg-muted/60 p-1.5 text-[10px] text-muted-foreground">
+                    <pre className="max-h-24 max-w-72 overflow-auto rounded bg-muted/60 p-1.5 text-[10px] text-muted-foreground">
                       {JSON.stringify(log.changes ?? {}, null, 2)}
                     </pre>
                   </TableCell>

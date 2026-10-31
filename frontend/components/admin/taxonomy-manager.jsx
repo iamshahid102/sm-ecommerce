@@ -94,7 +94,10 @@ export function TaxonomyManager({ type, initialItems }) {
         );
         toast.success(`${isCategory ? "Category" : "Brand"} updated.`);
       } else {
-        const created = await apiFetch(`/admin/${type}`, { method: "POST", body });
+        const created = await apiFetch(`/admin/${type}`, {
+          method: "POST",
+          body,
+        });
         setItems((current) => [...current, created]);
         toast.success(`${isCategory ? "Category" : "Brand"} created.`);
       }
@@ -145,9 +148,7 @@ export function TaxonomyManager({ type, initialItems }) {
       {items.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
-            <p className="font-heading text-lg font-semibold">
-              No {noun}s yet
-            </p>
+            <p className="font-heading text-lg font-semibold">No {noun}s yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Add your first {noun} to organise the catalog.
             </p>
@@ -169,7 +170,9 @@ export function TaxonomyManager({ type, initialItems }) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="truncate text-sm font-semibold">{item.name}</p>
+                      <p className="truncate text-sm font-semibold">
+                        {item.name}
+                      </p>
                       <Badge
                         variant="outline"
                         className={
@@ -227,9 +230,7 @@ export function TaxonomyManager({ type, initialItems }) {
         <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {editing
-                ? `Edit ${noun}`
-                : `Add ${noun}`}
+              {editing ? `Edit ${noun}` : `Add ${noun}`}
             </DialogTitle>
             <DialogDescription>
               {isCategory
@@ -317,7 +318,9 @@ export function TaxonomyManager({ type, initialItems }) {
                 <input
                   type="checkbox"
                   checked={values.is_active}
-                  onChange={(event) => update("is_active", event.target.checked)}
+                  onChange={(event) =>
+                    update("is_active", event.target.checked)
+                  }
                   className="size-4 rounded border-input"
                 />
                 Active
@@ -350,7 +353,11 @@ export function TaxonomyManager({ type, initialItems }) {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

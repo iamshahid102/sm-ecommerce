@@ -40,9 +40,7 @@ export async function resolveCurrentUser(accessToken) {
     .maybeSingle();
 
   if (profileError) {
-    throw unavailable(
-      "Could not load your profile. Check that the database migrations have been applied.",
-    );
+    throw unavailable("Could not load your profile. Please try again shortly.");
   }
 
   if (!profile) {

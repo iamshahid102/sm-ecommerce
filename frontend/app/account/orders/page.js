@@ -33,7 +33,9 @@ export default async function AccountOrdersPage({ searchParams }) {
   const { supabase } = await requireCustomer("/account/orders");
   const token = await getAccessToken(supabase);
   const raw = await searchParams;
-  const status = Array.isArray(raw.status) ? raw.status[0] : raw.status || "all";
+  const status = Array.isArray(raw.status)
+    ? raw.status[0]
+    : raw.status || "all";
   const page = Array.isArray(raw.page) ? raw.page[0] : raw.page || "1";
 
   let payload = null;
@@ -100,7 +102,10 @@ export default async function AccountOrdersPage({ searchParams }) {
       {!error && orders.length === 0 ? (
         <Card className="rounded-3xl border-dashed py-14 text-center shadow-none">
           <CardContent>
-            <Package className="mx-auto size-8 text-primary" aria-hidden="true" />
+            <Package
+              className="mx-auto size-8 text-primary"
+              aria-hidden="true"
+            />
             <h2 className="mt-4 font-heading text-xl font-semibold">
               No orders found
             </h2>
@@ -124,13 +129,17 @@ export default async function AccountOrdersPage({ searchParams }) {
                     <p className="font-heading text-base font-semibold">
                       {order.order_number}
                     </p>
-                    <Badge variant="outline" className={statusStyle(order.status)}>
+                    <Badge
+                      variant="outline"
+                      className={statusStyle(order.status)}
+                    >
                       {statusLabel(order.status)}
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Placed {formatDate(order.created_at)} · {order.items?.length ?? 0}{" "}
-                    item{(order.items?.length ?? 0) === 1 ? "" : "s"}
+                    Placed {formatDate(order.created_at)} ·{" "}
+                    {order.items?.length ?? 0} item
+                    {(order.items?.length ?? 0) === 1 ? "" : "s"}
                   </p>
                 </div>
                 <div className="text-right">

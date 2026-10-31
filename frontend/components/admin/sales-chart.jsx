@@ -30,11 +30,18 @@ export function SalesChart({ data }) {
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <AreaChart
+          data={rows}
+          margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.28} />
-              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
+              <stop
+                offset="100%"
+                stopColor="var(--primary)"
+                stopOpacity={0.02}
+              />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />

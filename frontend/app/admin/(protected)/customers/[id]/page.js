@@ -128,7 +128,10 @@ export default async function AdminCustomerDetailPage({ params }) {
         <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
           <p className="flex items-center gap-2 text-muted-foreground">
             <Mail className="size-4 text-primary" aria-hidden="true" />
-            <a href={`mailto:${customer.email}`} className="hover:text-foreground">
+            <a
+              href={`mailto:${customer.email}`}
+              className="hover:text-foreground"
+            >
               {customer.email}
             </a>
           </p>
@@ -169,7 +172,10 @@ export default async function AdminCustomerDetailPage({ params }) {
                       {order.order_number}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={statusStyle(order.status)}>
+                      <Badge
+                        variant="outline"
+                        className={statusStyle(order.status)}
+                      >
                         {statusLabel(order.status)}
                       </Badge>
                     </TableCell>

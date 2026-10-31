@@ -50,7 +50,12 @@ export default async function AdminOrderDetailPage({ params }) {
   return (
     <div className="space-y-6">
       <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2 print:hidden">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 print:hidden"
+        >
           <Link href="/admin/orders">
             <ArrowLeft className="size-4" aria-hidden="true" />
             Back to orders
@@ -76,7 +81,12 @@ export default async function AdminOrderDetailPage({ params }) {
             </p>
           </div>
           {order.user_id ? (
-            <Button asChild variant="outline" size="sm" className="print:hidden">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="print:hidden"
+            >
               <Link href={`/admin/customers/${order.user_id}`}>
                 <UserRound className="size-4" aria-hidden="true" />
                 View customer
@@ -126,7 +136,10 @@ export default async function AdminOrderDetailPage({ params }) {
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 text-sm">
                 <p className="flex items-center gap-2 font-medium">
-                  <UserRound className="size-4 text-primary" aria-hidden="true" />
+                  <UserRound
+                    className="size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   {order.customer_name}
                 </p>
                 <p className="flex items-center gap-2 text-muted-foreground">
@@ -250,7 +263,9 @@ export default async function AdminOrderDetailPage({ params }) {
                   </span>
                 </p>
                 {order.payment?.amount ? (
-                  <p className="mt-1">Amount: {formatCurrency(order.payment.amount)}</p>
+                  <p className="mt-1">
+                    Amount: {formatCurrency(order.payment.amount)}
+                  </p>
                 ) : null}
               </div>
             </CardContent>

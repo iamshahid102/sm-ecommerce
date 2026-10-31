@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const uuidSchema = z.string().uuid("Enter a valid identifier.");
 
-export const phoneSchema = z
+const phoneSchema = z
   .string()
   .trim()
   .regex(
@@ -124,19 +124,6 @@ export const couponSchema = z
       new Date(value.expires_at) > new Date(value.starts_at),
     "Expiry must be after the start date.",
   );
-
-export const orderItemInputSchema = z
-  .object({
-    product_id: uuidSchema,
-    variant_id: z
-      .preprocess(
-        (value) => (value === "" ? null : value),
-        z.string().uuid().nullable(),
-      )
-      .optional(),
-    quantity: z.coerce.number().int().min(1).max(99),
-  })
-  .strict();
 
 export const placeOrderSchema = z
   .object({

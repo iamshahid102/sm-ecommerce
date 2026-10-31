@@ -25,7 +25,11 @@ import {
   listMyReviews,
   updateReview,
 } from "../services/review.service.js";
-import { addWishlist, listWishlist, removeWishlist } from "../services/wishlist.service.js";
+import {
+  addWishlist,
+  listWishlist,
+  removeWishlist,
+} from "../services/wishlist.service.js";
 import { sendSuccess } from "../utils/http.js";
 
 export async function getAddresses(req, res) {

@@ -30,7 +30,7 @@ const queryErrors = {
   profile_unavailable: {
     title: "Account data unavailable",
     description:
-      "We could not load your profile. Apply the latest database migrations and RLS grants, then try again.",
+      "We could not load your profile. Please try again in a moment or contact the store.",
   },
   profile_missing: {
     title: "Profile not found",
@@ -46,10 +46,10 @@ const queryErrors = {
 
 function profileLookupErrorMessage(error) {
   if (error?.code === "42501") {
-    return "The database denied access to your profile (error 42501). Apply the latest RLS grant migration, then try again.";
+    return "We could not access your account details. Please try again or contact the store.";
   }
 
-  return "Your profile could not be loaded. Apply the latest database migrations and RLS grants, then try again.";
+  return "Your profile could not be loaded. Please try again or contact the store.";
 }
 
 function signInErrorMessage(error) {

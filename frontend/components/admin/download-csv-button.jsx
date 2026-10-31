@@ -22,7 +22,12 @@ export function DownloadCsvButton({ path, filename, label = "Export CSV" }) {
   }
 
   return (
-    <Button type="button" variant="outline" onClick={download} disabled={pending}>
+    <Button
+      type="button"
+      variant="outline"
+      onClick={download}
+      disabled={pending}
+    >
       {pending ? (
         <Loader2 className="size-4 animate-spin" />
       ) : (

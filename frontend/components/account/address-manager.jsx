@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { Check, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { AddressForm, apiErrorMessage } from "@/components/account/address-form";
+import {
+  AddressForm,
+  apiErrorMessage,
+} from "@/components/account/address-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -94,9 +97,7 @@ export function AddressManager({ initialAddresses }) {
       });
       setAddresses((current) =>
         current.map((item) =>
-          item.id === updated.id
-            ? updated
-            : { ...item, is_default: false },
+          item.id === updated.id ? updated : { ...item, is_default: false },
         ),
       );
       toast.success("Default address updated.");
@@ -114,7 +115,9 @@ export function AddressManager({ initialAddresses }) {
     setPending(true);
     try {
       await apiFetch(`/addresses/${address.id}`, { method: "DELETE" });
-      setAddresses((current) => current.filter((item) => item.id !== address.id));
+      setAddresses((current) =>
+        current.filter((item) => item.id !== address.id),
+      );
       toast.success("Address deleted.");
       router.refresh();
     } catch (error) {
@@ -136,7 +139,10 @@ export function AddressManager({ initialAddresses }) {
       {addresses.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
-            <MapPin className="mx-auto size-8 text-primary" aria-hidden="true" />
+            <MapPin
+              className="mx-auto size-8 text-primary"
+              aria-hidden="true"
+            />
             <h2 className="mt-4 font-heading text-lg font-semibold">
               No saved addresses
             </h2>
@@ -161,8 +167,12 @@ export function AddressManager({ initialAddresses }) {
                         <Badge variant="secondary">Default</Badge>
                       ) : null}
                     </div>
-                    <p className="mt-2 text-sm font-medium">{address.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{address.phone}</p>
+                    <p className="mt-2 text-sm font-medium">
+                      {address.full_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {address.phone}
+                    </p>
                   </div>
                   <MapPin className="size-4 text-primary" aria-hidden="true" />
                 </div>
@@ -226,7 +236,9 @@ export function AddressManager({ initialAddresses }) {
       >
         <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit address" : "Add address"}</DialogTitle>
+            <DialogTitle>
+              {editing ? "Edit address" : "Add address"}
+            </DialogTitle>
             <DialogDescription>
               Delivery details are stored only for your account.
             </DialogDescription>

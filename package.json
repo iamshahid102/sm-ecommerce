@@ -26,16 +26,10 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.8.1"
   },
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iamshahid102/sm-ecommerce.git"
   },
-  "keywords": [],
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/iamshahid102/sm-ecommerce/issues"
   },

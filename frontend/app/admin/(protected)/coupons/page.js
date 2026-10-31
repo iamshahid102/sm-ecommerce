@@ -50,7 +50,10 @@ export default async function AdminCouponsPage({ searchParams }) {
 
       <Card className="rounded-2xl shadow-none">
         <CardContent className="p-4">
-          <form className="flex flex-col gap-2 sm:flex-row" action="/admin/coupons">
+          <form
+            className="flex flex-col gap-2 sm:flex-row"
+            action="/admin/coupons"
+          >
             <div className="relative flex-1">
               <Search
                 className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"

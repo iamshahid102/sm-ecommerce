@@ -35,7 +35,9 @@ export async function listWishlist(userId) {
           ...item.products,
           images: undefined,
           primary_image: images[0]?.url ?? null,
-          effective_price: Number(item.products.discount_price ?? item.products.price),
+          effective_price: Number(
+            item.products.discount_price ?? item.products.price,
+          ),
         },
       };
     });

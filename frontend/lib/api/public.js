@@ -30,7 +30,7 @@ export async function apiFetchPublicFull(
     });
   } catch {
     throw new PublicApiError(
-      "The store API is unavailable. Start the backend and try again.",
+      "The store API is unavailable. Please try again shortly.",
       0,
       "NETWORK_ERROR",
     );

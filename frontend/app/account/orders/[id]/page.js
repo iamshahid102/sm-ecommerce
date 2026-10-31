@@ -142,7 +142,9 @@ export default async function AccountOrderDetailPage({ params, searchParams }) {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-sm font-medium">{item.title}</p>
+                    <p className="line-clamp-2 text-sm font-medium">
+                      {item.title}
+                    </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {item.variant_label ? `${item.variant_label} · ` : ""}
                       {item.sku ? `SKU ${item.sku} · ` : ""}
@@ -230,7 +232,9 @@ export default async function AccountOrderDetailPage({ params, searchParams }) {
               </div>
               {Number(order.discount) > 0 ? (
                 <div className="flex justify-between text-emerald-700">
-                  <span>Discount {order.coupon_code ? `(${order.coupon_code})` : ""}</span>
+                  <span>
+                    Discount {order.coupon_code ? `(${order.coupon_code})` : ""}
+                  </span>
                   <span>−{formatCurrency(order.discount)}</span>
                 </div>
               ) : null}

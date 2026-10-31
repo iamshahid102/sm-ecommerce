@@ -102,7 +102,10 @@ export async function adminCreateBanner(req, res) {
 }
 
 export async function adminUpdateBanner(req, res) {
-  const banner = await updateBanner(req.validated.params.id, req.validated.body);
+  const banner = await updateBanner(
+    req.validated.params.id,
+    req.validated.body,
+  );
   await recordAudit({
     actor: req.user,
     action: "banner.update",
@@ -123,9 +126,13 @@ export async function adminDeleteBanner(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Banner deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Banner deleted.",
+    },
+  );
 }
 
 export async function adminListHomeSections(req, res) {
@@ -143,7 +150,10 @@ export async function adminCreateHomeSection(req, res) {
     changes: { section_key: section.section_key },
     req,
   });
-  return sendSuccess(res, section, { status: 201, message: "Section created." });
+  return sendSuccess(res, section, {
+    status: 201,
+    message: "Section created.",
+  });
 }
 
 export async function adminUpdateHomeSection(req, res) {
@@ -171,9 +181,13 @@ export async function adminDeleteHomeSection(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Section deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Section deleted.",
+    },
+  );
 }
 
 export async function adminListPages(req, res) {
@@ -221,9 +235,13 @@ export async function adminDeletePage(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Page deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Page deleted.",
+    },
+  );
 }
 
 export async function adminListMenu(req, res) {
@@ -245,7 +263,10 @@ export async function adminCreateMenuItem(req, res) {
 }
 
 export async function adminUpdateMenuItem(req, res) {
-  const item = await updateMenuItem(req.validated.params.id, req.validated.body);
+  const item = await updateMenuItem(
+    req.validated.params.id,
+    req.validated.body,
+  );
   await recordAudit({
     actor: req.user,
     action: "menu_item.update",
@@ -266,9 +287,13 @@ export async function adminDeleteMenuItem(req, res) {
     entityId: req.validated.params.id,
     req,
   });
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Menu item deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Menu item deleted.",
+    },
+  );
 }
 
 export async function adminListMessages(req, res) {
@@ -297,9 +322,13 @@ export async function adminReadMessage(req, res) {
 
 export async function adminDeleteMessage(req, res) {
   await deleteContactMessage(req.validated.params.id);
-  return sendSuccess(res, { id: req.validated.params.id }, {
-    message: "Message deleted.",
-  });
+  return sendSuccess(
+    res,
+    { id: req.validated.params.id },
+    {
+      message: "Message deleted.",
+    },
+  );
 }
 
 export async function adminListSubscribers(req, res) {

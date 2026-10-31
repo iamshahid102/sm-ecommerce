@@ -47,7 +47,7 @@ export function RichTextEditor({ value, onChange, placeholder }) {
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-sm max-w-none min-h-64 px-4 py-3 outline-none",
+          "prose prose-sm min-h-64 max-w-none px-4 py-3 outline-none",
           "prose-headings:font-heading prose-headings:font-semibold",
           "prose-a:text-primary prose-blockquote:border-primary/30",
         ),
@@ -90,14 +90,18 @@ export function RichTextEditor({ value, onChange, placeholder }) {
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive("heading", { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           label="Heading 2"
         >
           H2
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive("heading", { level: 3 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           label="Heading 3"
         >
           H3

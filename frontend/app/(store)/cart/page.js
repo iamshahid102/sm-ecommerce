@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  Loader2,
-  ShoppingBag,
-  Trash2,
-  Truck,
-} from "lucide-react";
+import { ArrowRight, Loader2, ShoppingBag, Trash2, Truck } from "lucide-react";
 
 import { useCart } from "@/components/store/cart-provider";
 import { StoreImage } from "@/components/store/store-image";
@@ -51,7 +45,10 @@ export default function CartPage() {
   if (loading && items.length === 0) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-primary" aria-label="Loading cart" />
+        <Loader2
+          className="size-6 animate-spin text-primary"
+          aria-label="Loading cart"
+        />
       </div>
     );
   }
@@ -85,7 +82,8 @@ export default function CartPage() {
 
   const threshold = Number(summary.free_shipping_threshold ?? 0);
   const remaining = Math.max(0, threshold - Number(summary.subtotal));
-  const progress = threshold > 0 ? Math.min(100, (summary.subtotal / threshold) * 100) : 100;
+  const progress =
+    threshold > 0 ? Math.min(100, (summary.subtotal / threshold) * 100) : 100;
 
   return (
     <div className="store-container py-9 sm:py-11">
@@ -125,7 +123,10 @@ export default function CartPage() {
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
           {items.map((line) => (
-            <Card key={line.id} className="gap-0 overflow-hidden rounded-2xl border-slate-200/80 py-0 shadow-soft">
+            <Card
+              key={line.id}
+              className="gap-0 overflow-hidden rounded-2xl border-slate-200/80 py-0 shadow-soft"
+            >
               <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                 <Link
                   href={`/products/${line.product?.slug}`}
@@ -212,7 +213,9 @@ export default function CartPage() {
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">{formatCurrency(summary.subtotal)}</span>
+                <span className="font-medium">
+                  {formatCurrency(summary.subtotal)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
@@ -224,7 +227,9 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tax</span>
-                <span className="font-medium">{formatCurrency(summary.tax)}</span>
+                <span className="font-medium">
+                  {formatCurrency(summary.tax)}
+                </span>
               </div>
               {Number(summary.discount) > 0 ? (
                 <div className="flex justify-between text-sm text-emerald-700">
@@ -257,9 +262,17 @@ export default function CartPage() {
                 </div>
               ) : null}
 
-              <Button asChild size="lg" className="h-12 w-full rounded-full bg-slate-950 hover:bg-primary">
-                <Link href={isAuthenticated ? "/checkout" : "/login?next=/checkout"}>
-                  {isAuthenticated ? "Proceed to checkout" : "Sign in to checkout"}
+              <Button
+                asChild
+                size="lg"
+                className="h-12 w-full rounded-full bg-slate-950 hover:bg-primary"
+              >
+                <Link
+                  href={isAuthenticated ? "/checkout" : "/login?next=/checkout"}
+                >
+                  {isAuthenticated
+                    ? "Proceed to checkout"
+                    : "Sign in to checkout"}
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </Button>

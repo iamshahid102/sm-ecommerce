@@ -35,13 +35,13 @@ function toForm(coupon) {
     description: coupon?.description ?? "",
     type: coupon?.type ?? "percent",
     value: coupon?.value != null ? String(coupon.value) : "",
-    min_subtotal: coupon?.min_subtotal != null ? String(coupon.min_subtotal) : "0",
+    min_subtotal:
+      coupon?.min_subtotal != null ? String(coupon.min_subtotal) : "0",
     max_discount:
       coupon?.max_discount != null ? String(coupon.max_discount) : "",
     starts_at: toLocalInput(coupon?.starts_at),
     expires_at: toLocalInput(coupon?.expires_at),
-    usage_limit:
-      coupon?.usage_limit != null ? String(coupon.usage_limit) : "",
+    usage_limit: coupon?.usage_limit != null ? String(coupon.usage_limit) : "",
     per_user_limit:
       coupon?.per_user_limit != null ? String(coupon.per_user_limit) : "1",
     is_active: coupon?.is_active !== false,
@@ -102,7 +102,9 @@ export function CouponManager({ initialCoupons }) {
           body,
         });
         setCoupons((current) =>
-          current.map((coupon) => (coupon.id === updated.id ? updated : coupon)),
+          current.map((coupon) =>
+            coupon.id === updated.id ? updated : coupon,
+          ),
         );
         toast.success("Coupon updated.");
       } else {
@@ -153,8 +155,13 @@ export function CouponManager({ initialCoupons }) {
       {coupons.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
-            <BadgePercent className="mx-auto size-8 text-primary" aria-hidden="true" />
-            <p className="mt-3 font-heading text-lg font-semibold">No coupons yet</p>
+            <BadgePercent
+              className="mx-auto size-8 text-primary"
+              aria-hidden="true"
+            />
+            <p className="mt-3 font-heading text-lg font-semibold">
+              No coupons yet
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Create a discount code to use at checkout.
             </p>
@@ -224,17 +231,19 @@ export function CouponManager({ initialCoupons }) {
                   </p>
                 ) : null}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <p>
-                    Total limit: {coupon.usage_limit ?? "Unlimited"}
-                  </p>
+                  <p>Total limit: {coupon.usage_limit ?? "Unlimited"}</p>
                   <p>Per user: {coupon.per_user_limit}</p>
                   <p>
                     Starts:{" "}
-                    {coupon.starts_at ? formatDate(coupon.starts_at) : "Immediately"}
+                    {coupon.starts_at
+                      ? formatDate(coupon.starts_at)
+                      : "Immediately"}
                   </p>
                   <p>
                     Expires:{" "}
-                    {coupon.expires_at ? formatDate(coupon.expires_at) : "Never"}
+                    {coupon.expires_at
+                      ? formatDate(coupon.expires_at)
+                      : "Never"}
                   </p>
                 </div>
               </CardContent>
@@ -258,7 +267,9 @@ export function CouponManager({ initialCoupons }) {
                 <Input
                   id="coupon-code"
                   value={values.code}
-                  onChange={(event) => update("code", event.target.value.toUpperCase())}
+                  onChange={(event) =>
+                    update("code", event.target.value.toUpperCase())
+                  }
                   required
                   minLength={3}
                   maxLength={30}
@@ -300,7 +311,9 @@ export function CouponManager({ initialCoupons }) {
                   step="0.01"
                   min="0"
                   value={values.min_subtotal}
-                  onChange={(event) => update("min_subtotal", event.target.value)}
+                  onChange={(event) =>
+                    update("min_subtotal", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -312,18 +325,24 @@ export function CouponManager({ initialCoupons }) {
                   step="0.01"
                   min="0.01"
                   value={values.max_discount}
-                  onChange={(event) => update("max_discount", event.target.value)}
+                  onChange={(event) =>
+                    update("max_discount", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
               <div>
-                <Label htmlFor="coupon-usage">Total usage limit (optional)</Label>
+                <Label htmlFor="coupon-usage">
+                  Total usage limit (optional)
+                </Label>
                 <Input
                   id="coupon-usage"
                   type="number"
                   min="1"
                   value={values.usage_limit}
-                  onChange={(event) => update("usage_limit", event.target.value)}
+                  onChange={(event) =>
+                    update("usage_limit", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -334,7 +353,9 @@ export function CouponManager({ initialCoupons }) {
                   type="number"
                   min="1"
                   value={values.per_user_limit}
-                  onChange={(event) => update("per_user_limit", event.target.value)}
+                  onChange={(event) =>
+                    update("per_user_limit", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -342,7 +363,9 @@ export function CouponManager({ initialCoupons }) {
                 <input
                   type="checkbox"
                   checked={values.is_active}
-                  onChange={(event) => update("is_active", event.target.checked)}
+                  onChange={(event) =>
+                    update("is_active", event.target.checked)
+                  }
                   className="size-4 rounded border-input"
                 />
                 Active
@@ -380,7 +403,11 @@ export function CouponManager({ initialCoupons }) {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

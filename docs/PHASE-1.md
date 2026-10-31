@@ -4,11 +4,16 @@ This phase delivers the complete Postgres schema, Row Level Security (RLS),
 triggers, storage buckets, one-admin constraint, idempotent admin seed, customer
 auth flow, account area, and server-enforced admin guard.
 
-The code and migrations are complete. The connected Supabase project did **not**
-have the migrations applied when this phase was built, because the CLI was not
-logged in and no database password was available to the agent. Apply the
-migrations with one of the two methods below before expecting signup, signin, or
-the admin dashboard to work.
+> **Historical phase record.** The migrations and admin seed have since been
+> applied to the production Supabase project, and the app is deployed on Vercel.
+> This document is kept as the original apply/verification runbook. Current
+> production URLs and deployment commands are in
+> [`DEPLOYMENT.md`](DEPLOYMENT.md) and the root
+> [`VERCEL_DEPLOYMENT_REPORT.txt`](../VERCEL_DEPLOYMENT_REPORT.txt).
+
+The code and migrations are complete. Apply the migrations with one of the two
+methods below when provisioning a new environment, before expecting signup,
+signin, or the admin dashboard to work.
 
 ## 1. Apply the migrations
 
@@ -496,22 +501,18 @@ Phase 1 static result: frontend and backend lint clean, the backend
 Jest/Supertest suite and frontend Node tests pass, and the Next.js production
 build succeeds. The build does not require the database; the admin dashboard
 fetch is dynamic and only runs when the page is requested. The thirteen
-migrations are ready to apply but have not been applied to the connected project
-yet.
+migrations were later applied to the production Supabase project.
 
-The connected project was checked during debugging: all 25 tables, all three
-storage buckets, the dashboard metrics function, and the admin profile were
-absent. The old readiness implementation used a PostgREST HEAD request, which
-returned `204` even for a missing table, so it falsely reported the schema as
+The old readiness implementation used a PostgREST HEAD request, which returned
+`204` even for a missing table, so it could falsely report the schema as
 reachable. It now queries real tables and returns `schema_missing`/`503` until
 the migrations are applied. `npm run db:check` is available for the same
 diagnosis from the command line.
 
 ## 7. Known limits at the end of Phase 1
 
-- The live Supabase project still needs the migrations applied and the admin
-  seeded. Until then `/account` and `/admin` redirect correctly, but signup and
-  login cannot create or read profiles.
+- This section describes the state at the end of Phase 1; later phases added the
+  full catalog, storefront, checkout, orders, reviews, CMS, and reports.
 - The admin dashboard currently returns lifetime paid revenue plus current
   counts. The 7/30/90-day sales series and charts belong to the reports phase.
 - Product/catalog CRUD, storefront, cart, COD checkout, orders, reviews, CMS

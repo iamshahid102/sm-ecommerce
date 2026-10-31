@@ -50,7 +50,12 @@ function ReviewEditor({ review, onSaved }) {
 
   return (
     <>
-      <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => setOpen(true)}
+      >
         <Pencil className="size-3.5" aria-hidden="true" />
         Edit
       </Button>
@@ -84,7 +89,9 @@ function ReviewEditor({ review, onSaved }) {
               ))}
             </div>
             <div>
-              <Label htmlFor={`edit-title-${review.id}`}>Title (optional)</Label>
+              <Label htmlFor={`edit-title-${review.id}`}>
+                Title (optional)
+              </Label>
               <Input
                 id={`edit-title-${review.id}`}
                 value={title}
@@ -107,7 +114,11 @@ function ReviewEditor({ review, onSaved }) {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

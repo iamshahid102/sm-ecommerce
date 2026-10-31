@@ -241,7 +241,9 @@ export function CmsPageForm({ page }) {
                 <Input
                   id="page-og"
                   value={values.og_image_url}
-                  onChange={(event) => update("og_image_url", event.target.value)}
+                  onChange={(event) =>
+                    update("og_image_url", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>

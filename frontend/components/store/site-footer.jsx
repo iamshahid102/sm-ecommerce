@@ -60,7 +60,7 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
           aria-hidden="true"
           className="absolute -bottom-28 left-1/4 size-64 rounded-full bg-sky-300/20 blur-3xl"
         />
-        <div className="store-container relative grid gap-7 py-10 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:py-12">
+        <div className="relative store-container grid gap-7 py-10 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:py-12">
           <div>
             <p className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
               <Sparkles className="size-3.5" aria-hidden="true" />
@@ -176,7 +176,10 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
               <li>
-                <Link href="/contact" className="transition-colors hover:text-white">
+                <Link
+                  href="/contact"
+                  className="transition-colors hover:text-white"
+                >
                   Contact us
                 </Link>
               </li>
@@ -227,7 +230,9 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
                       href={item.url}
                       className="transition-colors hover:text-white"
                       target={item.opens_new_tab ? "_blank" : undefined}
-                      rel={item.opens_new_tab ? "noopener noreferrer" : undefined}
+                      rel={
+                        item.opens_new_tab ? "noopener noreferrer" : undefined
+                      }
                     >
                       {item.label}
                     </Link>
@@ -236,17 +241,26 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
               ) : (
                 <>
                   <li>
-                    <Link href="/about" className="transition-colors hover:text-white">
+                    <Link
+                      href="/about"
+                      className="transition-colors hover:text-white"
+                    >
                       About us
                     </Link>
                   </li>
                   <li>
-                    <Link href="/privacy-policy" className="transition-colors hover:text-white">
+                    <Link
+                      href="/privacy-policy"
+                      className="transition-colors hover:text-white"
+                    >
                       Privacy policy
                     </Link>
                   </li>
                   <li>
-                    <Link href="/terms" className="transition-colors hover:text-white">
+                    <Link
+                      href="/terms"
+                      className="transition-colors hover:text-white"
+                    >
                       Terms
                     </Link>
                   </li>
@@ -265,7 +279,10 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
                   href={`tel:${settings.contact_phone}`}
                   className="flex items-start gap-2.5 transition-colors hover:text-white"
                 >
-                  <Phone className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden="true" />
+                  <Phone
+                    className="mt-0.5 size-4 shrink-0 text-sky-300"
+                    aria-hidden="true"
+                  />
                   {settings.contact_phone}
                 </a>
               ) : null}
@@ -274,13 +291,19 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
                   href={`mailto:${settings.contact_email}`}
                   className="flex items-start gap-2.5 transition-colors hover:text-white"
                 >
-                  <Mail className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden="true" />
+                  <Mail
+                    className="mt-0.5 size-4 shrink-0 text-sky-300"
+                    aria-hidden="true"
+                  />
                   {settings.contact_email}
                 </a>
               ) : null}
               {settings?.address || settings?.city ? (
                 <p className="flex items-start gap-2.5">
-                  <MapPin className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden="true" />
+                  <MapPin
+                    className="mt-0.5 size-4 shrink-0 text-sky-300"
+                    aria-hidden="true"
+                  />
                   {[settings.address, settings.city, settings.country]
                     .filter(Boolean)
                     .join(", ")}

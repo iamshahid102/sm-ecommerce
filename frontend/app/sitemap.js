@@ -41,9 +41,7 @@ export default async function sitemap() {
       (_, index) => index + 2,
     );
     const rest = await Promise.all(
-      remainingPages.map((page) =>
-        safeList(`/products?page=${page}&limit=60`),
-      ),
+      remainingPages.map((page) => safeList(`/products?page=${page}&limit=60`)),
     );
     for (const payload of rest) products.push(...(payload.data ?? []));
   }
@@ -58,7 +56,9 @@ export default async function sitemap() {
     })),
     ...products.map((product) => ({
       url: `${BASE}/products/${product.slug}`,
-      lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
+      lastModified: product.updated_at
+        ? new Date(product.updated_at)
+        : new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     })),

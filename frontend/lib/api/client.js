@@ -4,7 +4,7 @@ const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"
 ).replace(/\/$/, "");
 
-export class ApiClientError extends Error {
+class ApiClientError extends Error {
   constructor(message, status, code, details) {
     super(message);
     this.name = "ApiClientError";
@@ -38,7 +38,7 @@ async function parseResponse(response) {
   return payload;
 }
 
-export async function apiFetchFull(path, { method = "GET", body, headers } = {}) {
+async function apiFetchFull(path, { method = "GET", body, headers } = {}) {
   const token = await getAccessToken();
 
   if (!token) {

@@ -46,25 +46,30 @@ const router = Router();
 
 const idParams = z.object({ id: uuidSchema });
 const productParams = z.object({ productId: uuidSchema });
-const quantityBody = z.object({ quantity: z.coerce.number().int().min(1).max(99) });
+const quantityBody = z.object({
+  quantity: z.coerce.number().int().min(1).max(99),
+});
 
 // Addresses.
 router.get("/addresses", requireAuth, requireCustomer, getAddresses);
 router.post(
   "/addresses",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: addressSchema }),
   postAddress,
 );
 router.patch(
   "/addresses/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams, body: addressSchema }),
   patchAddress,
 );
 router.delete(
   "/addresses/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams }),
   removeAddress,
 );
@@ -73,26 +78,30 @@ router.delete(
 router.get("/cart", requireAuth, requireCustomer, getMyCart);
 router.post(
   "/cart/items",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: cartItemSchema }),
   postCartItem,
 );
 router.patch(
   "/cart/items/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams, body: quantityBody }),
   patchCartItem,
 );
 router.delete(
   "/cart/items/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams }),
   deleteCartItem,
 );
 router.delete("/cart", requireAuth, requireCustomer, deleteAllCartItems);
 router.post(
   "/cart/merge",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: cartMergeSchema }),
   postMergeCart,
 );
@@ -101,13 +110,15 @@ router.post(
 router.get("/wishlist", requireAuth, requireCustomer, getWishlist);
 router.post(
   "/wishlist",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: wishlistSchema }),
   postWishlist,
 );
 router.delete(
   "/wishlist/:productId",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: productParams }),
   deleteWishlistItem,
 );
@@ -115,7 +126,8 @@ router.delete(
 // Coupons.
 router.post(
   "/coupons/validate",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: couponValidateSchema }),
   validateCouponCode,
 );
@@ -123,25 +135,29 @@ router.post(
 // Orders.
 router.get(
   "/orders",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ query: orderListQuerySchema }),
   getMyOrders,
 );
 router.post(
   "/orders",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: placeOrderSchema }),
   postOrder,
 );
 router.get(
   "/orders/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams }),
   getMyOrder,
 );
 router.post(
   "/orders/:id/cancel",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams }),
   postCancelOrder,
 );
@@ -150,19 +166,22 @@ router.post(
 router.get("/reviews", requireAuth, requireCustomer, getMyReviews);
 router.post(
   "/reviews",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ body: reviewSchema }),
   postReview,
 );
 router.patch(
   "/reviews/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams, body: reviewUpdateSchema }),
   patchReview,
 );
 router.delete(
   "/reviews/:id",
-  requireAuth, requireCustomer,
+  requireAuth,
+  requireCustomer,
   validate({ params: idParams }),
   removeReview,
 );

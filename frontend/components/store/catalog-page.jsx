@@ -343,7 +343,9 @@ export async function CatalogPageView({
                   className="size-4 text-primary"
                   aria-hidden="true"
                 />
-                <h2 className="text-sm font-semibold text-slate-900">Filters</h2>
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Filters
+                </h2>
               </div>
               <CardContent className="p-5">
                 <FilterFields

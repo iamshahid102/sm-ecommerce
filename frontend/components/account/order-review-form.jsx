@@ -50,7 +50,12 @@ export function OrderReviewForm({ orderId, productId, productTitle }) {
 
   if (!open) {
     return (
-      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+      >
         <Star className="size-4" aria-hidden="true" />
         Write a review
       </Button>
@@ -58,7 +63,10 @@ export function OrderReviewForm({ orderId, productId, productTitle }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-3 w-full rounded-xl border bg-card p-4">
+    <form
+      onSubmit={submit}
+      className="mt-3 w-full rounded-xl border bg-card p-4"
+    >
       <p className="text-sm font-medium">Review {productTitle}</p>
       <div className="mt-3 flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => (

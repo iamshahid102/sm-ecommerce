@@ -175,8 +175,13 @@ export function BannerManager({ initialBanners }) {
       {banners.length === 0 ? (
         <Card className="rounded-2xl border-dashed py-12 text-center shadow-none">
           <CardContent>
-            <ImagePlus className="mx-auto size-8 text-primary" aria-hidden="true" />
-            <p className="mt-3 font-heading text-lg font-semibold">No banners yet</p>
+            <ImagePlus
+              className="mx-auto size-8 text-primary"
+              aria-hidden="true"
+            />
+            <p className="mt-3 font-heading text-lg font-semibold">
+              No banners yet
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Add a hero banner or home promotion.
             </p>
@@ -267,7 +272,8 @@ export function BannerManager({ initialBanners }) {
           <DialogHeader>
             <DialogTitle>{editing ? "Edit banner" : "Add banner"}</DialogTitle>
             <DialogDescription>
-              Banners appear on the homepage according to placement and sort order.
+              Banners appear on the homepage according to placement and sort
+              order.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={save} className="space-y-4">
@@ -362,7 +368,9 @@ export function BannerManager({ initialBanners }) {
                 <Input
                   id="banner-button-text"
                   value={values.button_text}
-                  onChange={(event) => update("button_text", event.target.value)}
+                  onChange={(event) =>
+                    update("button_text", event.target.value)
+                  }
                   className="mt-1.5"
                 />
               </div>
@@ -371,7 +379,9 @@ export function BannerManager({ initialBanners }) {
                 <Input
                   id="banner-button-link"
                   value={values.button_link}
-                  onChange={(event) => update("button_link", event.target.value)}
+                  onChange={(event) =>
+                    update("button_link", event.target.value)
+                  }
                   placeholder="/products"
                   className="mt-1.5"
                 />
@@ -407,7 +417,11 @@ export function BannerManager({ initialBanners }) {
               Active
             </label>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>

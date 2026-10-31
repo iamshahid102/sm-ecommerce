@@ -55,7 +55,10 @@ export default async function ContactPage() {
                   href={`mailto:${settings.contact_email}`}
                   className="flex items-start gap-3 text-muted-foreground hover:text-foreground"
                 >
-                  <Mail className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                  <Mail
+                    className="mt-0.5 size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   {settings.contact_email}
                 </a>
               ) : null}
@@ -64,26 +67,38 @@ export default async function ContactPage() {
                   href={`tel:${settings.contact_phone}`}
                   className="flex items-start gap-3 text-muted-foreground hover:text-foreground"
                 >
-                  <Phone className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                  <Phone
+                    className="mt-0.5 size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   {settings.contact_phone}
                 </a>
               ) : null}
               {settings?.whatsapp_number ? (
                 <p className="flex items-start gap-3 text-muted-foreground">
-                  <Phone className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                  <Phone
+                    className="mt-0.5 size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   WhatsApp: {settings.whatsapp_number}
                 </p>
               ) : null}
               {settings?.address || settings?.city ? (
                 <p className="flex items-start gap-3 text-muted-foreground">
-                  <MapPin className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                  <MapPin
+                    className="mt-0.5 size-4 text-primary"
+                    aria-hidden="true"
+                  />
                   {[settings.address, settings.city, settings.country]
                     .filter(Boolean)
                     .join(", ")}
                 </p>
               ) : null}
               <p className="flex items-start gap-3 text-muted-foreground">
-                <Clock className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                <Clock
+                  className="mt-0.5 size-4 text-primary"
+                  aria-hidden="true"
+                />
                 Monday to Saturday, 10am – 8pm
               </p>
             </CardContent>

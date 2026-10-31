@@ -3,7 +3,12 @@ import { ApiError } from "../utils/api-error.js";
 import { clampDiscount, money, percentDiscount } from "../utils/money.js";
 import { throwSupabaseError } from "../utils/supabase-error.js";
 
-export async function listCoupons({ page = 1, limit = 20, q, activeOnly = false } = {}) {
+export async function listCoupons({
+  page = 1,
+  limit = 20,
+  q,
+  activeOnly = false,
+} = {}) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
   let query = getSupabaseAdmin()
@@ -52,7 +57,10 @@ export async function updateCoupon(id, input) {
 }
 
 export async function deleteCoupon(id) {
-  const { error } = await getSupabaseAdmin().from("coupons").delete().eq("id", id);
+  const { error } = await getSupabaseAdmin()
+    .from("coupons")
+    .delete()
+    .eq("id", id);
   throwSupabaseError(error, "Could not delete the coupon.");
   return { id };
 }
@@ -72,10 +80,18 @@ export async function validateCoupon({ code, subtotal, userId }) {
 
   const now = Date.now();
   if (!coupon.is_active) {
-    throw new ApiError(422, "This coupon is no longer active.", "COUPON_INACTIVE");
+    throw new ApiError(
+      422,
+      "This coupon is no longer active.",
+      "COUPON_INACTIVE",
+    );
   }
   if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) {
-    throw new ApiError(422, "This coupon is not active yet.", "COUPON_NOT_STARTED");
+    throw new ApiError(
+      422,
+      "This coupon is not active yet.",
+      "COUPON_NOT_STARTED",
+    );
   }
   if (coupon.expires_at && new Date(coupon.expires_at).getTime() < now) {
     throw new ApiError(422, "This coupon has expired.", "COUPON_EXPIRED");

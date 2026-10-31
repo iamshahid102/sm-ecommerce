@@ -120,7 +120,10 @@ export default async function AdminCmsPagesPage() {
                       {page.is_published ? (
                         <Button asChild variant="ghost" size="sm">
                           <Link href={`/${page.slug}`} target="_blank">
-                            <ExternalLink className="size-3.5" aria-hidden="true" />
+                            <ExternalLink
+                              className="size-3.5"
+                              aria-hidden="true"
+                            />
                             View
                           </Link>
                         </Button>
