@@ -344,8 +344,10 @@ Production verification:
   ke dauran show hota hai.
 
 Deployment:
-- Manually verified frontend production deployment: dpl_Am3X9vEmEj4opq1xdxByyKCoq2mX
-- Manually verified backend production deployment: dpl_FNCu2TqANWiUMTKosVYCfJJpZ7Qv
+- Latest verified frontend production deployment (Git auto-deploy):
+  dpl_2opyQ5Pps1N8xHwF8dBFRTGC4JBX
+- Latest verified backend production deployment (Git auto-deploy):
+  dpl_CD6r5WckwK1A4r7veUwVwHboeM2i
 - Live frontend: https://smstoreweb.vercel.app
 - Live backend: https://smstoreweb-api.vercel.app/api/v1
 
@@ -376,6 +378,15 @@ Resolution:
   deployment par point kar raha hai.
 - Backend production alias `https://smstoreweb-api.vercel.app` naye ready
   deployment par point kar raha hai.
+
+Verification:
+- Root directory fix ke baad `main` branch push par frontend auto-deploy
+  36 seconds mein Ready hua: dpl_2opyQ5Pps1N8xHwF8dBFRTGC4JBX.
+- Backend auto-deploy 16 seconds mein Ready hua:
+  dpl_CD6r5WckwK1A4r7veUwVwHboeM2i.
+- Dono production aliases naye ready deployments par update ho gaye.
+- Frontend `/products`: HTTP 200.
+- Backend `/api/v1/health`: HTTP 200, database configured.
 
 Important:
 - Ab deployments repo root se `--project smstoreweb` ya `--project
