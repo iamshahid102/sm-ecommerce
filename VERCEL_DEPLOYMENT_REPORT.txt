@@ -344,14 +344,43 @@ Production verification:
   ke dauran show hota hai.
 
 Deployment:
-- Frontend production deployment: dpl_J6raAFVDAsqXvVqSD3xmwMSaLz1R
-- Live URL: https://smstoreweb.vercel.app
+- Manually verified frontend production deployment: dpl_Am3X9vEmEj4opq1xdxByyKCoq2mX
+- Manually verified backend production deployment: dpl_FNCu2TqANWiUMTKosVYCfJJpZ7Qv
+- Live frontend: https://smstoreweb.vercel.app
+- Live backend: https://smstoreweb-api.vercel.app/api/v1
 
 Latest checks:
 - Frontend lint: pass
 - Frontend tests: 14/14 pass
 - Frontend production build: pass
-- Vercel production build: pass
+- Vercel frontend production build: pass
+- Vercel backend production build: pass
+- Backend health check: 200 OK / database configured
+
+GIT AUTO-DEPLOY ROOT DIRECTORY FIX (31 OCTOBER 2026)
+----------------------------------------------------
+Issue:
+- GitHub `main` par push karne ke baad Vercel ke automatic deployments
+  turant error ho rahe the. Manual deployments successful the.
+- Dono Vercel projects ki Root Directory setting `.` thi, jabke frontend
+  code `frontend/` aur backend code `backend/` folder mein hai. Is liye Git
+  auto-deploy repo root par build chalane ki koshish karta tha aur fail hota
+  tha.
+
+Resolution:
+- `smstoreweb` project ki Root Directory `frontend` set ki gayi.
+- `smstoreweb-api` project ki Root Directory `backend` set ki gayi.
+- Repo root se preview aur production deployments test kiye gaye; dono
+  successfully build aur deploy hue.
+- Frontend production alias `https://smstoreweb.vercel.app` naye ready
+  deployment par point kar raha hai.
+- Backend production alias `https://smstoreweb-api.vercel.app` naye ready
+  deployment par point kar raha hai.
+
+Important:
+- Ab deployments repo root se `--project smstoreweb` ya `--project
+  smstoreweb-api` ke saath chalani chahiye. Subfolder ke andar se deploy
+  karne par root directory double apply ho sakti hai.
 
 KNOWN LIMITATIONS / PENDING ITEMS
 ---------------------------------
@@ -370,17 +399,17 @@ KNOWN LIMITATIONS / PENDING ITEMS
 
 IMPORTANT COMMANDS
 ------------------
-Backend link:
-  vercel.cmd link --yes --team muhammad-shahids-projects-79212103 --project smstoreweb-api
+Repo root se backend production deploy:
+  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb-api
 
-Frontend link:
-  vercel.cmd link --yes --team muhammad-shahids-projects-79212103 --project smstoreweb
+Repo root se frontend production deploy:
+  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb
 
-Backend production deploy:
-  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103
+Repo root se frontend preview deploy:
+  vercel.cmd deploy --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb
 
-Frontend production deploy:
-  vercel.cmd deploy --prod --yes --scope muhammad-shahids-projects-79212103
+Repo root se backend preview deploy:
+  vercel.cmd deploy --yes --scope muhammad-shahids-projects-79212103 --project smstoreweb-api
 
 Health check:
   Invoke-WebRequest https://smstoreweb-api.vercel.app/api/v1/health
@@ -391,5 +420,7 @@ Deployment successful hai. Frontend aur backend dono production par live hain.
 Storefront, catalog, customer login, wishlist, cart, checkout page, admin login
 aur admin dashboard verify ho chuke hain. Navigation progress bar aur branded
 loading overlay production par verify ho chuke hain; slow redirects ab blank
-stuck screen ke bajaye clear loader show karte hain. Sirf Supabase Auth URL
-configuration aur optional email/payment integrations manual pending hain.
+stuck screen ke bajaye clear loader show karte hain. Dono Vercel projects ki
+Root Directory bhi fix kar di gayi hai, is liye Git auto-deploy ab repo root
+ke bajaye correct `frontend`/`backend` folder se build hoga. Sirf Supabase Auth
+URL configuration aur optional email/payment integrations manual pending hain.
