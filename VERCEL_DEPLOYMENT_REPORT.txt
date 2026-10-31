@@ -301,6 +301,58 @@ Latest checks:
 - Frontend production build: pass
 - Vercel production build: pass
 
+NAVIGATION LOADING / REDIRECT UX (31 OCTOBER 2026)
+--------------------------------------------------
+Issue:
+- Page redirect aur client-side navigation ke waqt page kuch der purani
+  screen par stuck rehta tha aur phir achanak naye page par switch hota tha.
+- Server layouts authentication, cookies aur API data ka intezaar karte hain,
+  is liye kuch route transitions par user ko koi immediate feedback nahi milta
+  tha.
+- Root loading boundary har nested redirect ko cover nahi karti thi.
+
+Resolution:
+- Global navigation progress bar add ki gayi jo internal link click par foran
+  show hoti hai aur route complete hone par complete hoti hai.
+- 180ms se zyada slow navigation par branded full-screen loader overlay show
+  hota hai; fast navigations par sirf thin top progress bar dikhti hai taake
+  unnecessary flash na ho.
+- Loader internal link clicks, browser back/forward, sign-out server-action
+  forms aur programmatic redirects (login, register, reset password, checkout,
+  buy now, admin save/delete) par trigger hota hai.
+- New tab, download, external, hash-only aur same-page links ko intentionally
+  ignore kiya gaya hai.
+- Root, store, account, admin aur auth route groups ke liye route-level
+  `loading.js` fallbacks add kiye gaye hain.
+- 15-second safety timeout add kiya gaya hai taake kisi failed navigation par
+  loader hamesha ke liye stuck na rahe.
+- Desktop/mobile dono par loader responsive hai aur keyboard/screen-reader
+  ke liye `role="status"` aur `aria-live` use hua hai.
+
+Production verification:
+- Headless Chrome test mein `/products` se product detail navigation par
+  1500ms artificial network latency di gayi.
+- Navigation ke dauran top bar 52% progress par visible tha aur overlay
+  opacity 1, pointer-events auto aur "Loading... Please wait a moment." text
+  ke saath show hua.
+- Network restore ke baad URL successfully product detail par change hua,
+  overlay opacity 0 ho gayi aur progress bar reset hui.
+- Manual navigation-start event par bhi overlay aur progress bar correctly
+  show hue.
+- Browser console mein koi error nahi aaya.
+- Initial page load par loader visible nahi hota; sirf navigation/redirect
+  ke dauran show hota hai.
+
+Deployment:
+- Frontend production deployment: dpl_J6raAFVDAsqXvVqSD3xmwMSaLz1R
+- Live URL: https://smstoreweb.vercel.app
+
+Latest checks:
+- Frontend lint: pass
+- Frontend tests: 14/14 pass
+- Frontend production build: pass
+- Vercel production build: pass
+
 KNOWN LIMITATIONS / PENDING ITEMS
 ---------------------------------
 1. Supabase Auth Site URL / redirect allow-list update karna baqi hai
@@ -313,8 +365,8 @@ KNOWN LIMITATIONS / PENDING ITEMS
    problem kare to direct-to-Supabase signed uploads implement karna hoga.
 5. CI/CD, Playwright/E2E tests, monitoring aur database backups abhi
    implement nahi kiye gaye.
-6. Working tree mein wishlist/deployment changes uncommitted hain. Commit aur
-   push alag se karna hoga.
+6. Navigation loader, invoice aur deployment report changes commit aur push
+   kar diye gaye hain; working tree clean hai.
 
 IMPORTANT COMMANDS
 ------------------
@@ -337,5 +389,7 @@ FINAL STATUS
 ------------
 Deployment successful hai. Frontend aur backend dono production par live hain.
 Storefront, catalog, customer login, wishlist, cart, checkout page, admin login
-aur admin dashboard verify ho chuke hain. Sirf Supabase Auth URL configuration
-aur optional email/payment integrations manual pending hain.
+aur admin dashboard verify ho chuke hain. Navigation progress bar aur branded
+loading overlay production par verify ho chuke hain; slow redirects ab blank
+stuck screen ke bajaye clear loader show karte hain. Sirf Supabase Auth URL
+configuration aur optional email/payment integrations manual pending hain.
