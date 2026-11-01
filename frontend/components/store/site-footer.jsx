@@ -9,12 +9,12 @@ import {
   MessageCircle,
   Phone,
   ShieldCheck,
-  ShoppingBag,
   Sparkles,
   Truck,
   Video,
 } from "lucide-react";
 
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { NewsletterForm } from "@/components/store/newsletter-form";
 import { formatCurrency } from "@/lib/format";
 
@@ -88,21 +88,14 @@ export function SiteFooter({ settings, categories = [], menu = [] }) {
           <div>
             <Link
               href="/"
-              className="flex items-center gap-2.5"
+              className="flex items-center"
               aria-label={`${settings?.store_name || "SM Store"} home`}
             >
-              <span className="relative flex size-10 items-center justify-center rounded-2xl bg-white text-slate-950 shadow-sm">
-                <ShoppingBag className="size-5" aria-hidden="true" />
-                <span className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-slate-950" />
-              </span>
-              <div>
-                <p className="font-heading text-lg font-semibold tracking-tight text-white">
-                  {settings?.store_name || "SM Store"}
-                </p>
-                <p className="text-[10px] font-medium tracking-[0.16em] text-slate-500 uppercase">
-                  Everyday essentials
-                </p>
-              </div>
+              <SmStoreLogo
+                tone="dark"
+                size="md"
+                label={settings?.store_name || "SM Store"}
+              />
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
               {settings?.store_tagline ||

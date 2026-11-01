@@ -1,6 +1,6 @@
 import "server-only";
 
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { LineCapStyle, PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 import { PAYMENT_STATUS_LABELS, paymentMethodLabel } from "@/lib/commerce";
 
@@ -17,6 +17,7 @@ const colors = {
   surface: rgb(0.97, 0.98, 0.99),
   primary: rgb(0.15, 0.39, 0.92),
   primarySoft: rgb(0.94, 0.97, 1),
+  sky: rgb(0.22, 0.74, 0.97),
   white: rgb(1, 1, 1),
   green: rgb(0.09, 0.64, 0.29),
   greenSoft: rgb(0.94, 0.99, 0.96),
@@ -164,6 +165,41 @@ function drawLabelValue(page, { x, y, label, value, valueSize = 10, bold }) {
   });
 }
 
+function drawBrandMark(page, { x, y, scale = 0.09 }) {
+  page.drawSvgPath(
+    "M80 150V296C80 306 88 314 98 314H302C312 314 320 306 320 296V180L270 130H100C88 130 80 138 80 150Z",
+    { x, y, scale, color: colors.primary },
+  );
+  page.drawSvgPath("M270 130L320 180H270Z", {
+    x,
+    y,
+    scale,
+    color: colors.sky,
+  });
+  page.drawSvgPath(
+    "M130 130V108C130 88 142 76 160 76C178 76 190 88 190 108V130",
+    {
+      x,
+      y,
+      scale,
+      borderColor: colors.sky,
+      borderWidth: 1.5,
+      borderLineCap: LineCapStyle.Round,
+    },
+  );
+  page.drawSvgPath(
+    "M210 130V108C210 88 222 76 240 76C258 76 270 88 270 108V130",
+    {
+      x,
+      y,
+      scale,
+      borderColor: colors.sky,
+      borderWidth: 1.5,
+      borderLineCap: LineCapStyle.Round,
+    },
+  );
+}
+
 function drawHeader(page, { order, firstPage, regular, bold }) {
   const headerHeight = firstPage ? 92 : 62;
 
@@ -182,8 +218,18 @@ function drawHeader(page, { order, firstPage, regular, bold }) {
     color: colors.primary,
   });
 
+  const brandX = firstPage ? MARGIN + 34 : MARGIN;
+
+  if (firstPage) {
+    drawBrandMark(page, {
+      x: MARGIN,
+      y: PAGE_HEIGHT - 28.5,
+      scale: 0.09,
+    });
+  }
+
   drawText(page, "SM STORE", {
-    x: MARGIN,
+    x: brandX,
     y: PAGE_HEIGHT - 34,
     size: firstPage ? 23 : 18,
     font: bold,
@@ -191,7 +237,7 @@ function drawHeader(page, { order, firstPage, regular, bold }) {
   });
 
   drawText(page, "EVERYDAY ESSENTIALS", {
-    x: MARGIN,
+    x: brandX,
     y: PAGE_HEIGHT - (firstPage ? 62 : 60),
     size: 7,
     font: bold,

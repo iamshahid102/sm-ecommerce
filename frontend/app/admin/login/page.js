@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import {
   Card,
   CardContent,
@@ -32,16 +33,13 @@ export default async function AdminLoginPage({ searchParams }) {
   return (
     <div className="flex min-h-svh items-center justify-center bg-dark-gradient px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2.5 text-white">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-hero-gradient text-sm font-bold shadow-lg shadow-primary/30">
-            SM
-          </span>
-          <div>
-            <p className="font-heading text-lg leading-tight font-semibold">
-              SM Store
-            </p>
-            <p className="text-xs text-slate-400">Store administration</p>
-          </div>
+        <div className="mb-6 flex justify-center text-white">
+          <SmStoreLogo
+            tone="dark"
+            size="md"
+            subtitle="Store administration"
+            label="SM Store administration"
+          />
         </div>
 
         <Card className="rounded-3xl border-white/10 bg-white/[0.04] text-white shadow-2xl backdrop-blur">

@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { useCart } from "@/components/store/cart-provider";
 import { useWishlist } from "@/components/store/wishlist-provider";
 import { Button } from "@/components/ui/button";
@@ -121,21 +122,14 @@ export function SiteHeader({ settings, categories = [], profile }) {
 
             <Link
               href="/"
-              className="flex shrink-0 items-center gap-2.5"
+              className="flex shrink-0 items-center"
               aria-label={`${storeName} home`}
             >
-              <span className="relative flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
-                <ShoppingBag className="size-5" aria-hidden="true" />
-                <span className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-white" />
-              </span>
-              <span className="flex flex-col">
-                <span className="font-heading text-lg leading-none font-semibold tracking-tight text-slate-950 sm:text-xl">
-                  {storeName}
-                </span>
-                <span className="mt-1 hidden text-[9px] font-semibold tracking-[0.18em] text-slate-500 uppercase sm:block">
-                  Everyday essentials
-                </span>
-              </span>
+              <SmStoreLogo
+                size="md"
+                label={storeName}
+                taglineClassName="hidden sm:block"
+              />
             </Link>
 
             <form

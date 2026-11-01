@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
+
 const trustPoints = [
   {
     icon: MailCheck,
@@ -43,13 +45,8 @@ export default function AuthLayout({ children }) {
         />
 
         <div className="relative flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-hero-gradient text-sm font-bold shadow-lg shadow-primary/30">
-              SM
-            </span>
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              SM Store
-            </span>
+          <Link href="/" className="flex items-center">
+            <SmStoreLogo tone="dark" size="sm" />
           </Link>
           <Link
             href="/"
@@ -104,13 +101,8 @@ export default function AuthLayout({ children }) {
 
       <div className="flex min-h-svh flex-col">
         <header className="flex items-center justify-between border-b px-4 py-4 lg:hidden">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-hero-gradient text-xs font-bold text-white">
-              SM
-            </span>
-            <span className="font-heading text-base font-semibold">
-              SM Store
-            </span>
+          <Link href="/" className="flex items-center">
+            <SmStoreLogo size="sm" />
           </Link>
           <Link
             href="/"

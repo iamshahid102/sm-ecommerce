@@ -1,8 +1,9 @@
-import { LogOut, ShoppingBag, Store, UserRound } from "lucide-react";
+import { LogOut, Store, UserRound } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/app/actions/auth";
 import { AccountNav } from "@/components/account/account-nav";
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { requireCustomer } from "@/lib/auth/dal";
@@ -16,19 +17,12 @@ export default async function AccountLayout({ children }) {
     <div className="flex min-h-svh flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-[0_1px_0_rgba(15,23,42,0.03)] backdrop-blur-xl print:hidden">
         <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center gap-3 px-4 sm:px-6 lg:px-8 xl:gap-5">
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <span className="relative flex size-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
-              <ShoppingBag className="size-5" aria-hidden="true" />
-              <span className="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-white" />
-            </span>
-            <span className="flex flex-col">
-              <span className="font-heading text-lg leading-none font-semibold tracking-tight text-slate-950">
-                SM Store
-              </span>
-              <span className="mt-1 hidden text-[9px] font-semibold tracking-[0.18em] text-slate-500 uppercase sm:block">
-                My account
-              </span>
-            </span>
+          <Link href="/" className="flex shrink-0 items-center">
+            <SmStoreLogo
+              size="md"
+              subtitle="My account"
+              taglineClassName="hidden sm:block"
+            />
           </Link>
 
           <span

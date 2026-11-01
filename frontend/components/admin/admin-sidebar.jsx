@@ -6,6 +6,7 @@ import { LogOut, PanelLeftClose, PanelLeftOpen, Store } from "lucide-react";
 
 import { signOutAdminAction } from "@/app/actions/auth";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { SmBagMark, SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,22 +48,21 @@ export function AdminSidebar({ profile, defaultCollapsed = false }) {
             aria-label="SM Store admin dashboard"
             className="flex min-w-0 items-center gap-2.5"
           >
-            <span
-              className={cn(
-                "flex shrink-0 items-center justify-center rounded-xl bg-hero-gradient font-bold shadow-lg shadow-primary/30",
-                collapsed ? "size-8 text-xs" : "size-9 text-sm",
-              )}
-            >
-              SM
-            </span>
-            {!collapsed ? (
-              <div className="min-w-0">
-                <p className="font-heading text-sm leading-tight font-semibold">
-                  SM Store
-                </p>
-                <p className="text-[11px] text-slate-400">Admin workspace</p>
-              </div>
-            ) : null}
+            {collapsed ? (
+              <SmBagMark className="size-8" tone="dark" />
+            ) : (
+              <span className="flex min-w-0 flex-col">
+                <SmStoreLogo
+                  tone="dark"
+                  size="sm"
+                  showTagline={false}
+                  label="SM Store admin"
+                />
+                <span className="mt-1 text-[11px] text-slate-400">
+                  Admin workspace
+                </span>
+              </span>
+            )}
           </Link>
 
           <Button

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { signOutAdminAction } from "@/app/actions/auth";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth/dal";
@@ -26,10 +27,12 @@ export default async function AdminLayout({ children }) {
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3">
               <Link href="/admin" className="flex items-center gap-2 lg:hidden">
-                <span className="flex size-8 items-center justify-center rounded-lg bg-hero-gradient text-xs font-bold text-white">
-                  SM
-                </span>
-                <span className="font-heading text-sm font-semibold">
+                <SmStoreLogo
+                  size="xs"
+                  showTagline={false}
+                  label="SM Store admin"
+                />
+                <span className="text-[10px] font-semibold tracking-[0.16em] text-slate-500 uppercase">
                   Admin
                 </span>
               </Link>

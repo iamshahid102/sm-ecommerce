@@ -1,5 +1,6 @@
-import { LoaderCircle, ShoppingBag } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 
+import { SmBagMark } from "@/components/brand/sm-store-logo";
 import { cn } from "@/lib/utils";
 
 export function RouteLoading({
@@ -20,7 +21,7 @@ export function RouteLoading({
     >
       <div className="flex flex-col items-center text-center">
         <div className="relative flex size-16 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
-          <ShoppingBag className="size-7" aria-hidden="true" />
+          <SmBagMark className="h-9 w-auto" tone="dark" />
           <span className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
             <LoaderCircle
               className="size-4 animate-spin text-primary"
