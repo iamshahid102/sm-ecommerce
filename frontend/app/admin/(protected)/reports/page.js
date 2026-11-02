@@ -132,7 +132,7 @@ export default async function AdminReportsPage({ searchParams }) {
 
       {report ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
             {[
               {
                 label: "Revenue",
@@ -156,7 +156,7 @@ export default async function AdminReportsPage({ searchParams }) {
               },
             ].map((card) => (
               <Card key={card.label} className="rounded-2xl shadow-none">
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
                       {card.label}

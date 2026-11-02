@@ -360,27 +360,29 @@ export default async function HomePage() {
               ) : null}
             </div>
 
-            <div className="absolute -bottom-5 -left-2 hidden items-center gap-2.5 rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:flex">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-secondary text-primary">
-                <Truck className="size-4" aria-hidden="true" />
-              </span>
-              <div>
+            <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2.5 rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-card backdrop-blur">
+                <span className="flex size-9 items-center justify-center rounded-xl bg-secondary text-primary">
+                  <Truck className="size-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-[11px] font-semibold text-slate-950">
+                    Nationwide delivery
+                  </p>
+                  <p className="text-[10px] text-slate-500">
+                    Dispatched in 1–2 days
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-full border border-white/80 bg-white/95 py-2 pr-4 pl-2 shadow-card backdrop-blur">
+                <span className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white">
+                  <Banknote className="size-3.5" aria-hidden="true" />
+                </span>
                 <p className="text-[11px] font-semibold text-slate-950">
-                  Nationwide delivery
-                </p>
-                <p className="text-[10px] text-slate-500">
-                  Dispatched in 1–2 days
+                  Cash on Delivery
                 </p>
               </div>
-            </div>
-
-            <div className="absolute -top-4 -right-2 hidden items-center gap-2 rounded-full border border-white/80 bg-white/95 py-2 pr-4 pl-2 shadow-card backdrop-blur sm:flex">
-              <span className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white">
-                <Banknote className="size-3.5" aria-hidden="true" />
-              </span>
-              <p className="text-[11px] font-semibold text-slate-950">
-                Cash on Delivery
-              </p>
             </div>
           </div>
         </div>

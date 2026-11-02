@@ -98,7 +98,7 @@ export function ProductCardActions({ product }) {
         onClick={toggleWishlist}
         disabled={wishlistPending}
         className={cn(
-          "absolute top-3 right-3 flex size-9 items-center justify-center rounded-full border border-slate-200/80 bg-white/95 text-slate-500 shadow-sm backdrop-blur transition-all hover:border-rose-200 hover:bg-white hover:text-rose-500",
+          "absolute top-3 right-3 flex size-10 items-center justify-center rounded-full border border-slate-200/80 bg-white/95 text-slate-500 shadow-sm backdrop-blur transition-all hover:border-rose-200 hover:bg-white hover:text-rose-500",
           saved && "border-rose-200 text-rose-500",
         )}
         aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}

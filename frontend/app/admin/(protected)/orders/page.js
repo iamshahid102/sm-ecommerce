@@ -132,76 +132,126 @@ export default async function AdminOrdersPage({ searchParams }) {
       ) : null}
 
       {orders.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Placed</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">
-                    {order.order_number}
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm">{order.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.customer_email}
-                    </p>
-                  </TableCell>
-                  <TableCell>
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            {orders.map((order) => (
+              <Card key={order.id} className="rounded-2xl shadow-none">
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-sm font-semibold hover:text-primary"
+                      >
+                        {order.order_number}
+                      </Link>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {order.customer_name}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {order.customer_email}
+                      </p>
+                    </div>
                     <Badge
                       variant="outline"
                       className={statusStyle(order.status)}
                     >
                       {statusLabel(order.status)}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-xs">
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span>
                       {order.payment_method === "cod"
                         ? "COD"
                         : order.payment_method}
+                      {" · "}
+                      <span className="capitalize">{order.payment_status}</span>
+                    </span>
+                    <span>{order.items?.length ?? 0} items</span>
+                    <span>{formatDate(order.created_at)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 border-t pt-3">
+                    <p className="font-heading text-base font-semibold">
+                      {formatCurrency(order.total)}
                     </p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {order.payment_status}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {order.items?.length ?? 0}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(order.total)}
-                  </TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground">
-                    {formatDate(order.created_at)}
-                  </TableCell>
-                  <TableCell className="text-right">
                     <Button asChild size="sm" variant="outline">
-                      <Link href={`/admin/orders/${order.id}`}>View</Link>
+                      <Link href={`/admin/orders/${order.id}`}>View order</Link>
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="px-4 pb-4">
-            <AdminPagination
-              meta={payload.meta}
-              basePath="/admin/orders"
-              params={{ q, status }}
-            />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </Card>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Placed</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">
+                      {order.order_number}
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">{order.customer_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.customer_email}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={statusStyle(order.status)}
+                      >
+                        {statusLabel(order.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-xs">
+                        {order.payment_method === "cod"
+                          ? "COD"
+                          : order.payment_method}
+                      </p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {order.payment_status}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {order.items?.length ?? 0}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(order.total)}
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {formatDate(order.created_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/admin/orders/${order.id}`}>View</Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+          <AdminPagination
+            meta={payload.meta}
+            basePath="/admin/orders"
+            params={{ q, status }}
+          />
+        </>
       ) : null}
     </div>
   );

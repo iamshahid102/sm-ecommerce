@@ -387,7 +387,7 @@ export function CheckoutForm({ initialAddresses, initialCart, profile }) {
       </div>
 
       <aside>
-        <Card className="sticky top-32 rounded-2xl border-slate-200/80 shadow-card">
+        <Card className="rounded-2xl border-slate-200/80 shadow-card lg:sticky lg:top-32">
           <CardHeader>
             <CardTitle>Your order</CardTitle>
           </CardHeader>

@@ -119,24 +119,15 @@ export default async function AdminSubscribersPage({ searchParams }) {
       ) : null}
 
       {subscribers.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Subscribed</TableHead>
-                <TableHead>Unsubscribed</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subscribers.map((subscriber) => (
-                <TableRow key={subscriber.id}>
-                  <TableCell className="text-sm font-medium">
-                    {subscriber.email}
-                  </TableCell>
-                  <TableCell>
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            {subscribers.map((subscriber) => (
+              <Card key={subscriber.id} className="rounded-2xl shadow-none">
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 truncate text-sm font-medium">
+                      {subscriber.email}
+                    </p>
                     <Badge
                       variant="outline"
                       className={
@@ -147,30 +138,74 @@ export default async function AdminSubscribersPage({ searchParams }) {
                     >
                       {subscriber.is_active ? "Subscribed" : "Unsubscribed"}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {subscriber.source || "website"}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {formatDate(subscriber.created_at)}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {subscriber.unsubscribed_at
-                      ? formatDate(subscriber.unsubscribed_at)
-                      : "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="px-4 pb-4">
-            <AdminPagination
-              meta={payload.meta}
-              basePath="/admin/subscribers"
-              params={{ q, activeOnly }}
-            />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-3 text-xs text-muted-foreground">
+                    <span>Source: {subscriber.source || "website"}</span>
+                    <span>Joined {formatDate(subscriber.created_at)}</span>
+                    {subscriber.unsubscribed_at ? (
+                      <span>Left {formatDate(subscriber.unsubscribed_at)}</span>
+                    ) : null}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </Card>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden sm:table-cell">Source</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    Subscribed
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    Unsubscribed
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {subscribers.map((subscriber) => (
+                  <TableRow key={subscriber.id}>
+                    <TableCell className="text-sm font-medium">
+                      {subscriber.email}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          subscriber.is_active
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-slate-200 bg-slate-50 text-slate-600"
+                        }
+                      >
+                        {subscriber.is_active ? "Subscribed" : "Unsubscribed"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                      {subscriber.source || "website"}
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                      {formatDate(subscriber.created_at)}
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                      {subscriber.unsubscribed_at
+                        ? formatDate(subscriber.unsubscribed_at)
+                        : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+          <AdminPagination
+            meta={payload.meta}
+            basePath="/admin/subscribers"
+            params={{ q, activeOnly }}
+          />
+        </>
       ) : null}
     </div>
   );

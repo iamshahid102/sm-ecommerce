@@ -1,4 +1,4 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Store } from "lucide-react";
 import Link from "next/link";
 import { cookies } from "next/headers";
 
@@ -50,12 +50,24 @@ export default async function AdminLayout({ children }) {
               </Badge>
               <Link
                 href="/"
+                aria-label="View storefront"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-input bg-background text-muted-foreground shadow-xs transition-colors hover:text-foreground sm:hidden"
+              >
+                <Store className="size-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/"
                 className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
               >
                 Storefront
               </Link>
               <form action={signOutAdminAction} data-navigation-form>
-                <Button type="submit" variant="outline" size="sm">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-2.5 sm:px-3"
+                >
                   <LogOut className="size-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Sign out</span>
                 </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -58,15 +59,29 @@ function isActive(pathname, item) {
 
 export function AdminNav({ variant = "sidebar", collapsed = false }) {
   const pathname = usePathname();
+  const activeRef = useRef(null);
+
+  useEffect(() => {
+    if (variant !== "horizontal") return;
+    activeRef.current?.scrollIntoView({
+      behavior: "auto",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [pathname, variant]);
 
   if (variant === "horizontal") {
     return (
-      <nav className="flex gap-1 overflow-x-auto px-4 py-2" aria-label="Admin">
+      <nav
+        className="scrollbar-none flex gap-1 overflow-x-auto px-4 py-2"
+        aria-label="Admin"
+      >
         {ITEMS.map((item) => {
           const active = isActive(pathname, item);
           return (
             <Link
               key={item.href}
+              ref={active ? activeRef : undefined}
               href={item.href}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs whitespace-nowrap",

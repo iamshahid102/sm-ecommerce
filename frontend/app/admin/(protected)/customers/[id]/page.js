@@ -160,7 +160,7 @@ export default async function AdminCustomerDetailPage({ params }) {
                 <TableRow>
                   <TableHead>Order</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Placed</TableHead>
+                  <TableHead className="hidden sm:table-cell">Placed</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead />
                 </TableRow>
@@ -179,7 +179,7 @@ export default async function AdminCustomerDetailPage({ params }) {
                         {statusLabel(order.status)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
+                    <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
                       {formatDate(order.created_at)}
                     </TableCell>
                     <TableCell className="text-right font-medium">

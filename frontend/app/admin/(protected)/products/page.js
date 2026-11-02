@@ -149,79 +149,50 @@ export default async function AdminProductsPage({ searchParams }) {
       ) : null}
 
       {products.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => {
-                const lowStock =
-                  product.stock > 0 &&
-                  product.stock <= product.low_stock_threshold;
-                return (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border bg-muted">
-                          <StoreImage
-                            src={product.primary_image}
-                            alt={product.title}
-                            className="h-full w-full"
-                            sizes="44px"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="max-w-56 truncate text-sm font-medium">
-                            {product.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {product.sku || product.slug}
-                          </p>
-                          {product.is_featured ? (
-                            <Badge
-                              variant="secondary"
-                              className="mt-1 text-[10px]"
-                            >
-                              Featured
-                            </Badge>
-                          ) : null}
-                        </div>
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            {products.map((product) => {
+              const lowStock =
+                product.stock > 0 &&
+                product.stock <= product.low_stock_threshold;
+
+              return (
+                <Card key={product.id} className="rounded-2xl shadow-none">
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex gap-3">
+                      <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border bg-muted">
+                        <StoreImage
+                          src={product.primary_image}
+                          alt={product.title}
+                          className="h-full w-full"
+                          sizes="56px"
+                        />
                       </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {product.categories?.name || "Uncategorised"}
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm font-medium">
-                        {formatCurrency(product.effective_price)}
-                      </p>
-                      {product.discount_price ? (
-                        <p className="text-xs text-muted-foreground line-through">
-                          {formatCurrency(product.price)}
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 text-sm font-medium">
+                          {product.title}
                         </p>
-                      ) : null}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={cn(
-                          "text-sm",
-                          product.stock === 0 && "font-medium text-destructive",
-                          lowStock && "font-medium text-amber-700",
-                        )}
-                      >
-                        {product.stock}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1.5">
+                        <p className="truncate text-xs text-muted-foreground">
+                          {product.sku || product.slug}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {product.categories?.name || "Uncategorised"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-end justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {formatCurrency(product.effective_price)}
+                        </p>
+                        {product.discount_price ? (
+                          <p className="text-xs text-muted-foreground line-through">
+                            {formatCurrency(product.price)}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
                         <Badge
                           variant="outline"
                           className={
@@ -232,44 +203,168 @@ export default async function AdminProductsPage({ searchParams }) {
                         >
                           {product.is_published ? "Published" : "Draft"}
                         </Badge>
-                        {product.stock === 0 ? (
-                          <Badge
-                            variant="outline"
-                            className="border-rose-200 bg-rose-50 text-rose-700"
-                          >
-                            Out
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            product.stock === 0
+                              ? "border-rose-200 bg-rose-50 text-rose-700"
+                              : lowStock
+                                ? "border-amber-200 bg-amber-50 text-amber-700"
+                                : "border-slate-200 bg-slate-50 text-slate-600",
+                          )}
+                        >
+                          {product.stock === 0
+                            ? "Out of stock"
+                            : `${product.stock} in stock`}
+                        </Badge>
+                        {product.is_featured ? (
+                          <Badge variant="secondary" className="text-[10px]">
+                            Featured
                           </Badge>
                         ) : null}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-1">
-                        <Button asChild variant="ghost" size="sm">
-                          <Link href={`/admin/products/${product.id}`}>
-                            <Pencil className="size-3.5" aria-hidden="true" />
-                            Edit
-                          </Link>
-                        </Button>
-                        <AdminDeleteButton
-                          endpoint={`/admin/products/${product.id}`}
-                          label="Delete"
-                          confirmText={`Delete "${product.title}"? It will be hidden from the storefront.`}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <div className="px-4 pb-4">
-            <AdminPagination
-              meta={meta}
-              basePath="/admin/products"
-              params={{ q, status }}
-            />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-1 border-t pt-2">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={`/admin/products/${product.id}`}>
+                          <Pencil className="size-3.5" aria-hidden="true" />
+                          Edit
+                        </Link>
+                      </Button>
+                      <AdminDeleteButton
+                        endpoint={`/admin/products/${product.id}`}
+                        label="Delete"
+                        confirmText={`Delete "${product.title}"? It will be hidden from the storefront.`}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        </Card>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => {
+                  const lowStock =
+                    product.stock > 0 &&
+                    product.stock <= product.low_stock_threshold;
+                  return (
+                    <TableRow key={product.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                            <StoreImage
+                              src={product.primary_image}
+                              alt={product.title}
+                              className="h-full w-full"
+                              sizes="44px"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="max-w-56 truncate text-sm font-medium">
+                              {product.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {product.sku || product.slug}
+                            </p>
+                            {product.is_featured ? (
+                              <Badge
+                                variant="secondary"
+                                className="mt-1 text-[10px]"
+                              >
+                                Featured
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {product.categories?.name || "Uncategorised"}
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm font-medium">
+                          {formatCurrency(product.effective_price)}
+                        </p>
+                        {product.discount_price ? (
+                          <p className="text-xs text-muted-foreground line-through">
+                            {formatCurrency(product.price)}
+                          </p>
+                        ) : null}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={cn(
+                            "text-sm",
+                            product.stock === 0 &&
+                              "font-medium text-destructive",
+                            lowStock && "font-medium text-amber-700",
+                          )}
+                        >
+                          {product.stock}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className={
+                              product.is_published
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                : "border-slate-200 bg-slate-50 text-slate-600"
+                            }
+                          >
+                            {product.is_published ? "Published" : "Draft"}
+                          </Badge>
+                          {product.stock === 0 ? (
+                            <Badge
+                              variant="outline"
+                              className="border-rose-200 bg-rose-50 text-rose-700"
+                            >
+                              Out
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button asChild variant="ghost" size="sm">
+                            <Link href={`/admin/products/${product.id}`}>
+                              <Pencil className="size-3.5" aria-hidden="true" />
+                              Edit
+                            </Link>
+                          </Button>
+                          <AdminDeleteButton
+                            endpoint={`/admin/products/${product.id}`}
+                            label="Delete"
+                            confirmText={`Delete "${product.title}"? It will be hidden from the storefront.`}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
+          <AdminPagination
+            meta={meta}
+            basePath="/admin/products"
+            params={{ q, status }}
+          />
+        </>
       ) : null}
     </div>
   );

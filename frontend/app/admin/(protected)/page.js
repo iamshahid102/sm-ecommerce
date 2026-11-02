@@ -128,10 +128,10 @@ export default async function AdminDashboardPage() {
         </Badge>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {statCards.map((card) => (
           <Card key={card.label} className="gap-0 rounded-2xl py-5 shadow-card">
-            <CardContent className="px-5">
+            <CardContent className="px-4 sm:px-5">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{card.label}</p>
                 <span className="flex size-9 items-center justify-center rounded-xl bg-secondary text-primary">
@@ -188,10 +188,14 @@ export default async function AdminDashboardPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Order</TableHead>
-                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Customer
+                    </TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-right">Placed</TableHead>
+                    <TableHead className="hidden text-right md:table-cell">
+                      Placed
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -205,7 +209,9 @@ export default async function AdminDashboardPage() {
                           {order.order_number}
                         </Link>
                       </TableCell>
-                      <TableCell>{order.customer_name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {order.customer_name}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
@@ -217,7 +223,7 @@ export default async function AdminDashboardPage() {
                       <TableCell className="text-right font-medium">
                         {formatCurrency(order.total)}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
+                      <TableCell className="hidden text-right text-muted-foreground md:table-cell">
                         {formatDate(order.created_at)}
                       </TableCell>
                     </TableRow>

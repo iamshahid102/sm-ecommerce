@@ -107,7 +107,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-10 shrink-0 rounded-full lg:hidden"
+              className="size-11 shrink-0 rounded-full lg:hidden"
               onClick={() => setMobileOpen((value) => !value)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
@@ -163,7 +163,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 aria-current={wishlistActive ? "page" : undefined}
                 aria-label={wishlistAriaLabel}
                 className={cn(
-                  "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors sm:flex",
+                  "hidden h-11 items-center gap-2 rounded-full px-3 text-sm font-medium transition-colors sm:flex",
                   wishlistActive
                     ? "bg-secondary text-primary"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
@@ -184,7 +184,7 @@ export function SiteHeader({ settings, categories = [], profile }) {
                 aria-current={accountActive ? "page" : undefined}
                 aria-label={accountAriaLabel}
                 className={cn(
-                  "hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors sm:flex",
+                  "hidden h-11 items-center gap-2 rounded-full px-3 text-sm font-medium transition-colors sm:flex",
                   accountActive
                     ? "bg-secondary text-primary"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",

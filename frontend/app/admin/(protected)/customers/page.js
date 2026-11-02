@@ -142,54 +142,44 @@ export default async function AdminCustomersPage({ searchParams }) {
       ) : null}
 
       {customers.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.map((customer) => (
-                <TableRow key={customer.id}>
-                  <TableCell>
-                    <p className="text-sm font-medium">
-                      {customer.full_name || "Unnamed customer"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {customer.email}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {customer.phone || "—"}
-                  </TableCell>
-                  <TableCell>
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            {customers.map((customer) => (
+              <Card key={customer.id} className="rounded-2xl shadow-none">
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {customer.full_name || "Unnamed customer"}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {customer.email}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {customer.phone || "No phone saved"}
+                      </p>
+                    </div>
                     <Badge variant="outline" className="capitalize">
                       {customer.role}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={
-                        customer.is_blocked
-                          ? "border-rose-200 bg-rose-50 text-rose-700"
-                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      }
-                    >
-                      {customer.is_blocked ? "Blocked" : "Active"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {formatDate(customer.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-1">
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={
+                          customer.is_blocked
+                            ? "border-rose-200 bg-rose-50 text-rose-700"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        }
+                      >
+                        {customer.is_blocked ? "Blocked" : "Active"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Joined {formatDate(customer.created_at)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
                       <Button asChild size="sm" variant="ghost">
                         <Link href={`/admin/customers/${customer.id}`}>
                           View
@@ -201,19 +191,83 @@ export default async function AdminCustomersPage({ searchParams }) {
                         disabled={customer.role === "admin"}
                       />
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="px-4 pb-4">
-            <AdminPagination
-              meta={payload.meta}
-              basePath="/admin/customers"
-              params={{ q, role, blocked }}
-            />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </Card>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customers.map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell>
+                      <p className="text-sm font-medium">
+                        {customer.full_name || "Unnamed customer"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {customer.email}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {customer.phone || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {customer.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          customer.is_blocked
+                            ? "border-rose-200 bg-rose-50 text-rose-700"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        }
+                      >
+                        {customer.is_blocked ? "Blocked" : "Active"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatDate(customer.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button asChild size="sm" variant="ghost">
+                          <Link href={`/admin/customers/${customer.id}`}>
+                            View
+                          </Link>
+                        </Button>
+                        <CustomerBlockButton
+                          customerId={customer.id}
+                          isBlocked={customer.is_blocked}
+                          disabled={customer.role === "admin"}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+          <AdminPagination
+            meta={payload.meta}
+            basePath="/admin/customers"
+            params={{ q, role, blocked }}
+          />
+        </>
       ) : null}
     </div>
   );

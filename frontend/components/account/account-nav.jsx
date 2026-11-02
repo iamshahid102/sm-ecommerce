@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -32,13 +33,23 @@ function isActivePath(pathname, item) {
 export function AccountNav({ variant = "desktop" }) {
   const pathname = usePathname();
   const isMobile = variant === "mobile";
+  const activeRef = useRef(null);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    activeRef.current?.scrollIntoView({
+      behavior: "auto",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [isMobile, pathname]);
 
   return (
     <nav
       aria-label="Account navigation"
       className={cn(
         isMobile
-          ? "flex items-center gap-1 overflow-x-auto pb-0.5"
+          ? "scrollbar-none flex items-center gap-1 overflow-x-auto pb-0.5"
           : "hidden items-center gap-1 xl:flex",
       )}
     >
@@ -49,11 +60,12 @@ export function AccountNav({ variant = "desktop" }) {
         return (
           <Link
             key={item.href}
+            ref={active ? activeRef : undefined}
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
               "inline-flex shrink-0 items-center gap-2 rounded-full font-medium transition-colors",
-              isMobile ? "h-9 px-3 text-xs" : "h-9 px-3 text-sm",
+              isMobile ? "h-10 px-3 text-xs" : "h-9 px-3 text-sm",
               active
                 ? "bg-secondary text-primary shadow-sm ring-1 ring-primary/10"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",

@@ -75,32 +75,23 @@ export default async function AdminCmsPagesPage() {
       ) : null}
 
       {pages.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Page</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pages.map((page) => (
-                <TableRow key={page.id}>
-                  <TableCell>
-                    <p className="text-sm font-medium">{page.title}</p>
-                    {page.excerpt ? (
-                      <p className="line-clamp-1 text-xs text-muted-foreground">
-                        {page.excerpt}
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
+            {pages.map((page) => (
+              <Card key={page.id} className="rounded-2xl shadow-none">
+                <CardContent className="flex h-full flex-col gap-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{page.title}</p>
+                      <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+                        /{page.slug}
                       </p>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    /{page.slug}
-                  </TableCell>
-                  <TableCell>
+                      {page.excerpt ? (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                          {page.excerpt}
+                        </p>
+                      ) : null}
+                    </div>
                     <Badge
                       variant="outline"
                       className={
@@ -111,12 +102,12 @@ export default async function AdminCmsPagesPage() {
                     >
                       {page.is_published ? "Published" : "Draft"}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {formatDate(page.updated_at || page.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-1">
+                  </div>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(page.updated_at || page.created_at)}
+                    </span>
+                    <div className="flex items-center gap-1">
                       {page.is_published ? (
                         <Button asChild variant="ghost" size="sm">
                           <Link href={`/${page.slug}`} target="_blank">
@@ -136,12 +127,82 @@ export default async function AdminCmsPagesPage() {
                         confirmText={`Delete the page "${page.title}"?`}
                       />
                     </div>
-                  </TableCell>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Page</TableHead>
+                  <TableHead className="hidden md:table-cell">Slug</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Updated
+                  </TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+              </TableHeader>
+              <TableBody>
+                {pages.map((page) => (
+                  <TableRow key={page.id}>
+                    <TableCell>
+                      <p className="text-sm font-medium">{page.title}</p>
+                      {page.excerpt ? (
+                        <p className="line-clamp-1 text-xs text-muted-foreground">
+                          {page.excerpt}
+                        </p>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="hidden font-mono text-xs text-muted-foreground md:table-cell">
+                      /{page.slug}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          page.is_published
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-slate-200 bg-slate-50 text-slate-600"
+                        }
+                      >
+                        {page.is_published ? "Published" : "Draft"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
+                      {formatDate(page.updated_at || page.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        {page.is_published ? (
+                          <Button asChild variant="ghost" size="sm">
+                            <Link href={`/${page.slug}`} target="_blank">
+                              <ExternalLink
+                                className="size-3.5"
+                                aria-hidden="true"
+                              />
+                              View
+                            </Link>
+                          </Button>
+                        ) : null}
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/admin/cms/pages/${page.id}`}>Edit</Link>
+                        </Button>
+                        <AdminDeleteButton
+                          endpoint={`/admin/cms/pages/${page.id}`}
+                          confirmText={`Delete the page "${page.title}"?`}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </>
       ) : null}
     </div>
   );

@@ -111,60 +111,112 @@ export default async function AdminAuditLogsPage({ searchParams }) {
       ) : null}
 
       {logs.length > 0 ? (
-        <Card className="gap-0 overflow-hidden rounded-2xl py-0 shadow-none">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>When</TableHead>
-                <TableHead>Actor</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Entity</TableHead>
-                <TableHead>Changes</TableHead>
-                <TableHead>IP</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {formatDate(log.created_at)}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {log.actor_email || "System"}
-                  </TableCell>
-                  <TableCell>
+        <>
+          <div className="grid gap-3 xl:hidden">
+            {logs.map((log) => (
+              <Card
+                key={log.id}
+                className="min-w-0 overflow-hidden rounded-2xl shadow-none"
+              >
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Badge variant="outline" className="font-mono text-[11px]">
                       {log.action}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {log.entity_type}
-                    {log.entity_id ? (
-                      <span className="block max-w-40 truncate font-mono text-[10px]">
-                        {log.entity_id}
-                      </span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(log.created_at)}
+                    </span>
+                  </div>
+                  <dl className="grid min-w-0 gap-1 text-xs">
+                    <div className="flex min-w-0 gap-2">
+                      <dt className="shrink-0 text-muted-foreground">Actor</dt>
+                      <dd className="min-w-0 truncate">
+                        {log.actor_email || "System"}
+                      </dd>
+                    </div>
+                    <div className="flex min-w-0 gap-2">
+                      <dt className="shrink-0 text-muted-foreground">Entity</dt>
+                      <dd className="min-w-0 truncate">
+                        {log.entity_type}
+                        {log.entity_id ? ` · ${log.entity_id}` : ""}
+                      </dd>
+                    </div>
+                    {log.ip ? (
+                      <div className="flex min-w-0 gap-2">
+                        <dt className="shrink-0 text-muted-foreground">IP</dt>
+                        <dd className="truncate">{log.ip}</dd>
+                      </div>
                     ) : null}
-                  </TableCell>
-                  <TableCell>
-                    <pre className="max-h-24 max-w-72 overflow-auto rounded bg-muted/60 p-1.5 text-[10px] text-muted-foreground">
+                  </dl>
+                  <details className="min-w-0 overflow-hidden rounded-lg bg-muted/50 p-2 text-[10px]">
+                    <summary className="cursor-pointer font-medium text-muted-foreground">
+                      Changes
+                    </summary>
+                    <pre className="mt-2 max-h-40 max-w-full overflow-auto break-all whitespace-pre-wrap">
                       {JSON.stringify(log.changes ?? {}, null, 2)}
                     </pre>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {log.ip || "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="px-4 pb-4">
-            <AdminPagination
-              meta={payload.meta}
-              basePath="/admin/audit-logs"
-              params={{ q, entityType }}
-            />
+                  </details>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </Card>
+
+          <Card className="hidden gap-0 overflow-hidden rounded-2xl py-0 shadow-none xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Actor</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Entity</TableHead>
+                  <TableHead>Changes</TableHead>
+                  <TableHead>IP</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatDate(log.created_at)}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {log.actor_email || "System"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="font-mono text-[11px]"
+                      >
+                        {log.action}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {log.entity_type}
+                      {log.entity_id ? (
+                        <span className="block max-w-40 truncate font-mono text-[10px]">
+                          {log.entity_id}
+                        </span>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>
+                      <pre className="max-h-24 max-w-72 overflow-auto rounded bg-muted/60 p-1.5 text-[10px] text-muted-foreground">
+                        {JSON.stringify(log.changes ?? {}, null, 2)}
+                      </pre>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {log.ip || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+          <AdminPagination
+            meta={payload.meta}
+            basePath="/admin/audit-logs"
+            params={{ q, entityType }}
+          />
+        </>
       ) : null}
     </div>
   );
