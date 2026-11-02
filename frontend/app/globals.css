@@ -134,6 +134,14 @@
     scroll-behavior: smooth;
   }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   body {
     @apply bg-background font-sans text-foreground antialiased;
     text-rendering: optimizeLegibility;
