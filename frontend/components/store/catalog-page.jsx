@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiFetchPublicFull, buildQuery } from "@/lib/api/public";
 import { flattenCategories } from "@/lib/category-tree";
-import { cn } from "@/lib/utils";
 
 function cleanValue(value) {
   return Array.isArray(value) ? value[0] : value;

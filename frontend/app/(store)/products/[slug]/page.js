@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   BadgeCheck,
@@ -26,7 +25,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PublicApiError, apiFetchPublic } from "@/lib/api/public";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { statusLabel } from "@/lib/commerce";
 
 export const dynamic = "force-dynamic";
 

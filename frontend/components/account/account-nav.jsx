@@ -3,14 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  MapPin,
-  Package,
-  ShoppingBag,
-  Star,
-  Store,
-  UserRound,
-} from "lucide-react";
+import { MapPin, Package, ShoppingBag, Star, Store } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

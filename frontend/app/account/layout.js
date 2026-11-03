@@ -7,7 +7,7 @@ import { SmStoreLogo } from "@/components/brand/sm-store-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { requireCustomer } from "@/lib/auth/dal";
-import { firstName, initials } from "@/lib/format";
+import { firstName } from "@/lib/format";
 
 export default async function AccountLayout({ children }) {
   const { profile } = await requireCustomer();
